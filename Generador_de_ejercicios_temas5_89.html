@@ -1,0 +1,1644 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Generador infinito de ejercicios · ALGEBRA</title>
+<style>
+/* ====== SISTEMA VISUAL ====== */
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+  --brandbg:#eef2ff; --violetbg:#f5f3ff; --surface:#fafbff;
+  --ink2:#374151; --deep:#312e81;
+  --shadow:0 30px 70px -34px rgba(17,24,39,.45), 0 2px 10px rgba(17,24,39,.05);
+  --radius:22px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink);
+  min-height:100vh; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  padding:34px 18px 26px;
+  position:relative; overflow-x:hidden;
+}
+/* capas de fondo: aurora + retícula de ingeniería + grano */
+body::before{
+  content:""; position:fixed; inset:-25%; z-index:-3; pointer-events:none;
+  background:
+    radial-gradient(38% 34% at 16% 10%, rgba(79,70,229,.20), transparent 62%),
+    radial-gradient(34% 30% at 86% 6%, rgba(124,58,237,.18), transparent 62%),
+    radial-gradient(42% 38% at 74% 96%, rgba(5,150,105,.12), transparent 64%),
+    radial-gradient(30% 26% at 30% 88%, rgba(180,83,9,.10), transparent 66%);
+  animation:aurora 28s ease-in-out infinite alternate;
+}
+body::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+}
+.retricula{
+  position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background-image:
+    linear-gradient(to right, rgba(79,70,229,.075) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(79,70,229,.075) 1px, transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(75% 60% at 50% 30%, #000 20%, transparent 85%);
+  mask-image:radial-gradient(75% 60% at 50% 30%, #000 20%, transparent 85%);
+  animation:rejilla 40s linear infinite;
+}
+@keyframes aurora{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(2%,-1.5%,0) scale(1.06)}
+  100%{transform:translate3d(-2%,2%,0) scale(1.03)}
+}
+@keyframes rejilla{from{background-position:0 0,0 0}to{background-position:34px 34px,34px 34px}}
+
+/* scrollbar propio */
+*{scrollbar-width:thin; scrollbar-color:var(--brand) #e6e9f5}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:#e6e9f5;border-radius:99px}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--brand),var(--brand2));border-radius:99px;border:3px solid #e6e9f5}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#4338ca,#6d28d9)}
+::-webkit-scrollbar-corner{background:#e6e9f5}
+
+/* ====== ESTRUCTURA ====== */
+.wrap{max-width:900px;margin:0 auto}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); overflow:hidden; position:relative;
+  animation:subir .7s cubic-bezier(.2,.7,.3,1) both;
+}
+.card::after{
+  content:""; position:absolute; left:0; right:0; top:0; height:3px;
+  background:linear-gradient(90deg,var(--brand),var(--brand2),var(--ok),var(--warn),var(--brand));
+  background-size:300% 100%; animation:cinta 14s linear infinite; opacity:.9;
+}
+@keyframes cinta{from{background-position:0 0}to{background-position:300% 0}}
+@keyframes subir{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* cabecera */
+.hero{
+  position:relative; overflow:hidden; color:#fff;
+  background:linear-gradient(135deg, var(--brand), var(--brand2));
+  padding:30px 30px 28px; display:flex; gap:20px; align-items:center; justify-content:space-between;
+}
+.hero::before{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(60% 90% at 88% 10%, rgba(255,255,255,.22), transparent 60%),
+    radial-gradient(50% 80% at 5% 100%, rgba(49,46,129,.45), transparent 65%);
+  pointer-events:none;
+}
+.hero::after{
+  content:""; position:absolute; inset:0; opacity:.28; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.55) 1px, transparent 1px);
+  background-size:18px 18px;
+  -webkit-mask-image:linear-gradient(120deg,#000,transparent 65%);
+  mask-image:linear-gradient(120deg,#000,transparent 65%);
+}
+.hero-copy{position:relative;z-index:2;min-width:0}
+.eyebrow{
+  margin:0 0 10px; font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+  font-weight:700; color:rgba(255,255,255,.9);
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28);
+  padding:5px 11px; border-radius:99px; backdrop-filter:blur(3px);
+}
+.eyebrow .pulso{width:7px;height:7px;border-radius:50%;background:#a7f3d0;box-shadow:0 0 0 0 rgba(167,243,208,.8);animation:latir 2.2s ease-out infinite}
+@keyframes latir{0%{box-shadow:0 0 0 0 rgba(167,243,208,.75)}70%{box-shadow:0 0 0 9px rgba(167,243,208,0)}100%{box-shadow:0 0 0 0 rgba(167,243,208,0)}}
+h1{
+  margin:0; font-size:clamp(1.5rem,3.6vw,2.15rem); line-height:1.15;
+  letter-spacing:-.025em; font-weight:800; text-wrap:balance;
+  text-shadow:0 2px 18px rgba(17,24,39,.22);
+}
+.sub{margin:10px 0 0;font-size:.9rem;color:rgba(255,255,255,.92);max-width:52ch;line-height:1.5}
+.hero-art{position:relative;z-index:2;flex:0 0 236px;width:236px;height:172px;filter:drop-shadow(0 10px 18px rgba(17,24,39,.25))}
+.hero-art svg{width:100%;height:100%;display:block;animation:flotar 9s ease-in-out infinite}
+@keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.trazo{stroke-dasharray:5 6;animation:deslizar 3.4s linear infinite}
+@keyframes deslizar{to{stroke-dashoffset:-22}}
+
+/* cuerpo */
+.body{padding:24px 30px 26px}
+.toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;animation:subir .6s .05s cubic-bezier(.2,.7,.3,1) both}
+
+/* botones */
+.btn-primary,.btn-ghost,.btn-soft{
+  font:inherit; font-weight:650; font-size:.92rem; cursor:pointer;
+  border-radius:12px; padding:11px 17px; border:1px solid transparent;
+  transition:transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .2s, background .2s, color .2s, border-color .2s;
+  display:inline-flex; align-items:center; gap:8px; line-height:1.2; white-space:nowrap;
+}
+.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;box-shadow:0 10px 22px -10px rgba(79,70,229,.85)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 28px -12px rgba(79,70,229,.95)}
+.btn-ghost{background:#fff;color:var(--ink2);border-color:var(--line);box-shadow:0 1px 2px rgba(17,24,39,.04)}
+.btn-ghost:hover{color:var(--brand);border-color:#c7d2fe;background:var(--brandbg);transform:translateY(-2px)}
+.btn-soft{background:var(--brandbg);color:var(--brand);border-color:#dfe3fd}
+.btn-soft:hover{background:#e4e8ff;transform:translateY(-2px)}
+.btn-soft[aria-pressed="true"]{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+.btn-primary:active,.btn-ghost:active,.btn-soft:active{transform:translateY(0) scale(.985)}
+.btn-primary:focus-visible,.btn-ghost:focus-visible,.btn-soft:focus-visible,#respuesta:focus-visible,.mini:focus-visible{outline:3px solid rgba(79,70,229,.35);outline-offset:2px}
+.btn-ghost .ico{transition:transform .5s cubic-bezier(.2,.7,.3,1)}
+.btn-ghost:hover .ico{transform:rotate(180deg)}
+.pulso-nuevo{animation:pulsoNuevo 1.5s ease-out 2}
+@keyframes pulsoNuevo{0%{box-shadow:0 0 0 0 rgba(79,70,229,.45)}70%{box-shadow:0 0 0 12px rgba(79,70,229,0)}100%{box-shadow:0 0 0 0 rgba(79,70,229,0)}}
+
+/* enunciado */
+.enunciado{
+  position:relative; background:linear-gradient(180deg,#fbfcff,#f6f7fd);
+  border:1px solid var(--line); border-radius:16px; padding:18px 20px 18px 22px;
+  animation:subir .6s .1s cubic-bezier(.2,.7,.3,1) both; overflow:hidden;
+}
+.enunciado::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--brand),var(--brand2))}
+.en-head{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}
+.chip{
+  font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;background:#fff;border:1px solid var(--line);color:var(--muted);
+}
+.chip-num{background:var(--deep);border-color:var(--deep);color:#fff}
+.chip-tema{background:var(--brandbg);border-color:#dfe3fd;color:var(--brand)}
+.chip-tipo{background:var(--okbg);border-color:#bbf7d0;color:#047857}
+.chip-tipo.sim{background:var(--violetbg);border-color:#e4dcff;color:var(--brand2)}
+.en-texto{font-size:1.02rem;color:var(--ink);line-height:1.75}
+.en-texto .dato{color:var(--deep)}
+
+/* fila de respuesta */
+.answer-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:stretch;animation:subir .6s .15s cubic-bezier(.2,.7,.3,1) both}
+#respuesta{
+  flex:1 1 250px; min-width:0; font:inherit; font-size:1rem; color:var(--ink);
+  padding:12px 15px; border:1.5px solid var(--line); border-radius:12px; background:#fff;
+  transition:border-color .2s, box-shadow .2s, background .2s;
+}
+#respuesta::placeholder{color:#9aa2b1}
+#respuesta:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px rgba(79,70,229,.14);background:#fff}
+#respuesta.mal{border-color:var(--err);box-shadow:0 0 0 4px rgba(220,38,38,.12);animation:temblar .4s}
+#respuesta.bien{border-color:var(--ok);box-shadow:0 0 0 4px rgba(5,150,105,.14)}
+@keyframes temblar{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-4px)}}
+
+/* esquema geométrico en vivo */
+.en-cuerpo{display:flex;gap:18px;align-items:flex-start}
+.en-texto{flex:1 1 auto;min-width:0}
+.en-figura{flex:0 0 266px;width:266px;margin:0;padding:0}
+.fig-lienzo{
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px;
+  box-shadow:0 6px 16px -12px rgba(17,24,39,.5); cursor:grab; touch-action:none;
+  user-select:none;-webkit-user-select:none;transition:box-shadow .25s,border-color .25s;
+  animation:figEntra .55s cubic-bezier(.2,.7,.3,1) both;
+}
+.fig-lienzo:hover{border-color:#c7d2fe;box-shadow:0 12px 24px -14px rgba(79,70,229,.75)}
+.fig-lienzo:active{cursor:grabbing}
+.fig-lienzo:focus-visible{outline:3px solid rgba(79,70,229,.35);outline-offset:2px}
+.fig-lienzo svg{display:block;width:100%;height:auto;border-radius:11px}
+@keyframes figEntra{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.en-figura figcaption{
+  margin-top:7px;font-size:.7rem;line-height:1.45;color:var(--muted);text-align:center;
+}
+.en-figura figcaption b{display:block;color:var(--ink2);font-weight:650;font-size:.72rem}
+.en-figura figcaption .girar{display:inline-flex;align-items:center;gap:4px;opacity:.85}
+@media (max-width:760px){
+  .en-cuerpo{display:block}
+  .en-figura{width:100%;max-width:290px;margin:14px auto 0}
+}
+
+/* feedback */
+.feedback{display:none;margin-top:14px;border-radius:14px;padding:13px 16px;font-size:.95rem;border:1px solid transparent}
+.feedback.ok{display:block;background:var(--okbg);border-color:#a7f3d0;color:#065f46;animation:aparecer .35s cubic-bezier(.2,.7,.3,1) both}
+.feedback.err{display:block;background:var(--errbg);border-color:#fecaca;color:#991b1b;animation:aparecer .35s cubic-bezier(.2,.7,.3,1) both}
+@keyframes aparecer{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.fb-titulo{font-weight:600;font-size:1rem;display:flex;align-items:center;gap:6px}
+.feedback.ok .fb-titulo{color:#047857}
+.feedback.err .fb-titulo{color:#b91c1c}
+.fb-linea{margin-top:5px;color:var(--ink2)}
+.feedback code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.88em;
+  background:rgba(17,24,39,.06); border:1px solid rgba(17,24,39,.08);
+  padding:2px 7px; border-radius:7px; color:var(--ink); word-break:break-all;
+}
+
+/* paneles */
+.panel{display:none;margin-top:14px;border-radius:14px;padding:14px 17px;font-size:.95rem;line-height:1.7}
+.panel.visible{display:block;animation:abrir .38s cubic-bezier(.2,.7,.3,1) both}
+@keyframes abrir{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.panel.pista{background:var(--warnbg);border:1px solid #fde68a;border-left:4px solid var(--warn);color:#78350f}
+.panel.explicacion{background:var(--violetbg);border:1px solid #e4dcff;border-left:4px solid var(--brand2);color:#3b2a72}
+.panel h3{margin:0 0 8px;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;display:flex;align-items:center;gap:7px}
+.panel.pista h3{color:var(--warn)}
+.panel.explicacion h3{color:var(--brand2)}
+.pasos{list-style:none;margin:0;padding:0;counter-reset:p}
+.pasos li{display:flex;gap:10px;padding:7px 0;border-top:1px dashed rgba(124,58,237,.22)}
+.pasos li:first-child{border-top:0}
+.paso-n{
+  flex:0 0 auto; font-size:.7rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+  background:#fff; color:var(--brand2); border:1px solid #e4dcff; border-radius:8px;
+  padding:3px 8px; height:fit-content; margin-top:2px; white-space:nowrap;
+}
+.paso-t{min-width:0}
+.resp-final{
+  margin-top:11px; padding:10px 13px; border-radius:11px; background:#fff;
+  border:1px solid #e4dcff; color:var(--deep); font-weight:600;
+}
+.resp-final .et{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brand2);display:block;font-weight:800;margin-bottom:2px}
+
+/* marcador */
+.marcador{margin-top:20px;padding-top:17px;border-top:1px solid var(--line);animation:subir .6s .2s cubic-bezier(.2,.7,.3,1) both}
+.marc-fila{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.stat{
+  display:flex;align-items:baseline;gap:8px;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;padding:8px 13px;
+}
+.stat .et{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.stat .val{font-size:1.22rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat.ok .val{color:var(--ok)}
+.stat.int .val{color:var(--brand)}
+.stat.racha .val{color:var(--warn)}
+.stat .val.pop{animation:pop .45s cubic-bezier(.2,.7,.3,1)}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1)}}
+.anillo{display:flex;align-items:center;gap:9px}
+.anillo svg{width:44px;height:44px;transform:rotate(-90deg)}
+.anillo .pista-anillo{stroke:#e6e9f5}
+.anillo .arco{stroke:url(#gradAnillo);stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.2,.7,.3,1)}
+.anillo .txt{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;line-height:1.3}
+.anillo .txt b{display:block;font-size:1rem;color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.leyenda{margin-left:auto;font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.kbd{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.76rem;font-weight:700;
+  background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:7px;
+  padding:2px 7px;color:var(--ink2);box-shadow:0 1px 0 rgba(17,24,39,.04)
+}
+.marc-extra{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.historial{display:flex;gap:5px;align-items:center;flex-wrap:wrap;min-height:14px}
+.historial .punto{width:11px;height:11px;border-radius:50%;background:#e6e9f5;animation:pop .4s cubic-bezier(.2,.7,.3,1)}
+.historial .punto.ok{background:linear-gradient(135deg,var(--ok),#34d399)}
+.historial .punto.err{background:linear-gradient(135deg,var(--err),#f87171)}
+.historial .vacio{font-size:.78rem;color:var(--muted)}
+.mini{
+  margin-left:auto;font:inherit;font-size:.76rem;font-weight:650;color:var(--muted);background:transparent;
+  border:1px dashed var(--line);border-radius:9px;padding:5px 10px;cursor:pointer;transition:.2s
+}
+.mini:hover{color:var(--err);border-color:#fecaca;background:var(--errbg)}
+
+/* footer */
+footer{
+  max-width:900px;margin:20px auto 0;text-align:center;color:var(--muted);font-size:.8rem;line-height:1.6;
+  padding:0 6px; animation:subir .7s .25s cubic-bezier(.2,.7,.3,1) both;
+}
+footer .sep{color:#c3c8d4;padding:0 4px}
+
+/* respaldo matemático sin conexión (si la CDN no carga) */
+.mfb{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;padding:0 1px}
+.mfb-frac{display:inline-flex;flex-direction:column;vertical-align:-0.55em;text-align:center;font-size:.86em;margin:0 2px}
+.mfb-frac span:first-child{padding:0 3px;line-height:1.15}
+.mfb-frac span:last-child{padding:0 3px;line-height:1.15;border-top:1px solid currentColor}
+.mfb-rad{border-top:1px solid currentColor;padding:0 2px;margin-left:1px}
+.mfb-vec,.mfb-hat{position:relative;padding-top:.1em}
+.mfb-vec::after{content:"\2192";position:absolute;left:0;right:0;top:-.72em;font-size:.62em;text-align:center;font-style:normal}
+.mfb-hat::after{content:"\005E";position:absolute;left:0;right:0;top:-.62em;font-size:.7em;text-align:center;font-style:normal}
+.mfb sup,.mfb sub{font-style:normal;font-size:.72em}
+mjx-container[jax="SVG"]:not([display="true"]){display:inline-block;max-width:100%;overflow-x:auto;overflow-y:hidden}
+mjx-container{max-width:100%}
+mjx-container[display="true"]{margin:.5em 0 !important}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width:560px){
+  body{padding:16px 12px 20px}
+  .hero{padding:22px 20px 20px;display:block}
+  .hero-art{position:absolute;right:-26px;top:-14px;width:180px;height:132px;opacity:.22;z-index:1;pointer-events:none}
+  .hero-copy{position:relative;z-index:2}
+  h1{font-size:1.42rem}
+  .sub{font-size:.83rem}
+  .body{padding:18px 18px 20px}
+  .toolbar .btn-ghost{width:100%;justify-content:center}
+  .enunciado{padding:15px 15px 15px 18px}
+  .en-texto{font-size:.98rem}
+  .answer-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  #respuesta{grid-column:1 / -1}
+  .answer-row .btn-primary{grid-column:1 / -1;justify-content:center}
+  .answer-row .btn-soft{justify-content:center}
+  .marc-fila{gap:8px}
+  .stat{padding:7px 11px;flex:1 1 auto;justify-content:space-between}
+  .leyenda{margin-left:0;width:100%;justify-content:flex-start;font-size:.78rem}
+  .mini{margin-left:0}
+  .pasos li{flex-direction:column;gap:4px}
+  .paso-n{align-self:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="retricula" aria-hidden="true"></div>
+
+<div class="wrap">
+  <main class="card">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pulso"></span> Práctica infinita · verificación al instante</p>
+        <h1>Generador infinito de ejercicios</h1>
+        <p class="sub">Materia: ALGEBRA · Tema: Productos vectorial y triple producto escalar, definiciones y propiedades</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 280 200" role="presentation">
+          <defs>
+            <marker id="flechaA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+              <path d="M0,0.6 L8,4.5 L0,8.4 Z" fill="#ffffff"/>
+            </marker>
+            <marker id="flechaB" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+              <path d="M0,0.6 L8,4.5 L0,8.4 Z" fill="#a7f3d0"/>
+            </marker>
+            <linearGradient id="caraA" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity=".30"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity=".06"/>
+            </linearGradient>
+          </defs>
+          <!-- paralelepípedo del triple producto escalar -->
+          <g stroke="#ffffff" stroke-width="1.3" fill="none" opacity=".85">
+            <polygon points="45,150 155,168 210,126 100,108" fill="url(#caraA)"/>
+            <polygon points="45,150 100,108 100,23 45,65" fill="url(#caraA)"/>
+            <polygon points="45,65 100,23 210,41 155,83" fill="url(#caraA)"/>
+            <path d="M155,168 L155,83 L210,41 M155,83 L45,65 M210,126 L210,41"/>
+          </g>
+          <g stroke-width="2.6" fill="none" stroke-linecap="round">
+            <path d="M45,150 L149,167" stroke="#ffffff" marker-end="url(#flechaA)"/>
+            <path d="M45,150 L96,111" stroke="#ffffff" marker-end="url(#flechaA)"/>
+            <path d="M45,150 L45,71" stroke="#ffffff" marker-end="url(#flechaA)"/>
+            <path class="trazo" d="M45,150 L228,52" stroke="#a7f3d0" marker-end="url(#flechaB)"/>
+          </g>
+          <g font-family="system-ui,Segoe UI,Roboto,sans-serif" font-size="14" font-weight="700" fill="#ffffff">
+            <text x="152" y="186">a</text>
+            <text x="76" y="104">b</text>
+            <text x="24" y="66">c</text>
+            <text x="234" y="46" fill="#a7f3d0">b&#215;c</text>
+          </g>
+          <circle cx="45" cy="150" r="4.2" fill="#ffffff"/>
+          <circle cx="45" cy="150" r="9" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width="1.2"/>
+        </svg>
+      </div>
+    </header>
+
+    <div class="body">
+      <!-- a) nuevo ejercicio -->
+      <div class="toolbar">
+        <button type="button" id="btnNuevo" class="btn-ghost">
+          <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+          Nuevo ejercicio
+        </button>
+      </div>
+
+      <!-- b) enunciado -->
+      <div id="enunciado" class="enunciado"></div>
+
+      <!-- c) respuesta y acciones -->
+      <div class="answer-row">
+        <input id="respuesta" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+               placeholder="Usa ^ para potencias y / para fracciones…" aria-label="Tu respuesta">
+        <button type="button" id="btnVerificar" class="btn-primary">Verificar</button>
+        <button type="button" id="btnPista" class="btn-soft" aria-pressed="false" aria-controls="pistaBox">Pista</button>
+        <button type="button" id="btnExplicacion" class="btn-soft" aria-pressed="false" aria-controls="explicacionBox">Explicación</button>
+      </div>
+
+      <!-- d) feedback -->
+      <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+
+      <!-- e) pista -->
+      <div id="pistaBox" class="panel pista"></div>
+
+      <!-- f) explicación -->
+      <div id="explicacionBox" class="panel explicacion"></div>
+
+      <!-- g) marcador -->
+      <div class="marcador">
+        <div class="marc-fila">
+          <div class="stat ok"><span class="et">Aciertos</span><span class="val" id="mArc">0</span></div>
+          <div class="stat int"><span class="et">Intentos</span><span class="val" id="mInt">0</span></div>
+          <div class="stat racha"><span class="et">Racha</span><span class="val" id="mRacha">0</span></div>
+          <div class="anillo" title="Porcentaje de aciertos">
+            <svg viewBox="0 0 44 44" aria-hidden="true">
+              <defs>
+                <linearGradient id="gradAnillo" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#4f46e5"/>
+                  <stop offset="100%" stop-color="#7c3aed"/>
+                </linearGradient>
+              </defs>
+              <circle class="pista-anillo" cx="22" cy="22" r="18" fill="none" stroke-width="5"/>
+              <circle id="arco" class="arco" cx="22" cy="22" r="18" fill="none" stroke-width="5" stroke-dasharray="113.1" stroke-dashoffset="113.1"/>
+            </svg>
+            <span class="txt">Precisión<b id="mPrec">—</b></span>
+          </div>
+          <div class="leyenda"><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</div>
+        </div>
+        <div class="marc-extra">
+          <div class="historial" id="historial"><span class="vacio">Tu historial de intentos aparecerá aquí.</span></div>
+          <button type="button" id="btnReset" class="mini" title="Poner el marcador en cero">Reiniciar marcador</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>Generador aleatorio educativo · ALGEBRA · Productos vectorial y triple producto escalar, definiciones y propiedades</footer>
+</div>
+
+<script>
+window.MathJax = {
+  tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" onerror="window.__mjFallo=true;"></script>
+
+<script>
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+function escaparHTML(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function normalizar(valor){
+  if(valor===null||valor===undefined) return '';
+  var s=String(valor).toLowerCase();
+  s=s.replace(/\$/g,'').replace(/[{}]/g,'');
+  s=s.replace(/\\left|\\right|\\,|\\;|\\!|\\ /g,'');
+  s=s.replace(/\\cdot|\\times/g,'*').replace(/[·⋅×]/g,'*');
+  s=s.replace(/[−–]/g,'-').replace(/\s+/g,'');
+  var m=s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(m){
+    var den=parseFloat(m[2]);
+    if(den!==0) return String(parseFloat(m[1])/den);
+  }
+  return s;
+}
+
+function limpiarNumero(txt){
+  if(txt===null||txt===undefined) return '';
+  var s=String(txt).toLowerCase();
+  s=s.replace(/\$/g,'').replace(/\\left|\\right|\\,|\\;|\\!/g,'');
+  s=s.replace(/\\frac\s*(-?\d+(?:\.\d+)?)\s*(-?\d+(?:\.\d+)?)/g,'($1/$2)');
+  s=s.replace(/[{}]/g,'');
+  s=s.replace(/\\cdot|\\times/g,'*').replace(/[·⋅×]/g,'*').replace(/\\div/g,'/');
+  s=s.replace(/\\sqrt|√/g,'sqrt').replace(/\\pi|π/g,'(3.141592653589793)').replace(/pi/g,'(3.141592653589793)');
+  s=s.replace(/[−–]/g,'-').replace(/\s+/g,'');
+  s=s.replace(/°|grados|grado/g,'');
+  s=s.replace(/^(-?\d+),(\d+)$/,'$1.$2');
+  return s;
+}
+
+/* evaluador aritmético seguro (sin eval): + - * / ^ ( ) sqrt pi */
+function aNumero(txt){
+  var s=limpiarNumero(txt);
+  if(s==='') return NaN;
+  var i=0, ok=true;
+  function primario(){
+    var c=s.charAt(i);
+    if(c==='('){
+      i++;
+      var v=expr();
+      if(s.charAt(i)===')'){ i++; } else { ok=false; }
+      return v;
+    }
+    if(s.substr(i,4)==='sqrt'){ i+=4; return Math.sqrt(primario()); }
+    var m=s.substr(i).match(/^(?:\d+(?:\.\d+)?|\.\d+)/);
+    if(m){ i+=m[0].length; return parseFloat(m[0]); }
+    ok=false; return NaN;
+  }
+  function unario(){
+    var c=s.charAt(i);
+    if(c==='-'){ i++; return -unario(); }
+    if(c==='+'){ i++; return unario(); }
+    return primario();
+  }
+  function potencia(){
+    var base=unario();
+    if(ok&&s.charAt(i)==='^'){ i++; return Math.pow(base,unario()); }
+    return base;
+  }
+  function termino(){
+    var v=potencia();
+    while(ok){
+      var c=s.charAt(i);
+      if(c==='*'){ i++; v*=potencia(); }
+      else if(c==='/'){ i++; var d=potencia(); if(d===0){ ok=false; return NaN; } v/=d; }
+      else if(c==='('){ v*=potencia(); }
+      else break;
+    }
+    return v;
+  }
+  function expr(){
+    var v=termino();
+    while(ok){
+      var c=s.charAt(i);
+      if(c==='+'){ i++; v+=termino(); }
+      else if(c==='-'){ i++; v-=termino(); }
+      else break;
+    }
+    return v;
+  }
+  var r=expr();
+  if(!ok||i<s.length||!isFinite(r)) return NaN;
+  return r;
+}
+
+function quitarConstante(s){
+  return String(s).replace(/\+c$/,'').replace(/-c$/,'').replace(/\+k$/,'');
+}
+
+/* comparación tolerante a la constante de integración (temas de integrales) */
+function coincideAntiderivada(entrada,esperado){
+  var a=quitarConstante(normalizar(entrada)), b=quitarConstante(normalizar(esperado));
+  if(a===''||b==='') return false;
+  if(a===b) return true;
+  var na=aNumero(a), nb=aNumero(b);
+  return !isNaN(na)&&!isNaN(nb)&&Math.abs(na-nb)<=1e-6;
+}
+
+/* lectura de vectores escritos en texto plano: (a,b,c), <a,b,c>, ai+bj+ck, (a,b,c)/n */
+function parseVector(txt){
+  var s=normalizar(txt);
+  if(s==='') return null;
+  s=s.replace(/\\vec|\\mathbf|\\hat|\\imath|\\jmath/g,'').replace(/[⟨⟩]/g,'').replace(/\*/g,'');
+  var m, partes, vals, i, v;
+  /* factor externo: 1/3(2,2,1) */
+  m=s.match(/^(-?\d+(?:\.\d+)?(?:\/-?\d+(?:\.\d+)?)?)\(([^()]*)\)$/);
+  if(m){
+    var f=aNumero(m[1]); v=parseVector('('+m[2]+')');
+    if(v&&!isNaN(f)) return [v[0]*f,v[1]*f,v[2]*f];
+    return null;
+  }
+ /* división de un vector entre un escalar: (2,2,1)/3 */
+  m=s.match(/^(\([^()]*\)|<[^<>]*>|\[[^\[\]]*\]|[0-9.+\-ijk]+)\/(-?\d+(?:\.\d+)?)$/);
+  if(m&&/[,(ijk]/.test(m[1])){
+    var d=parseFloat(m[2]); v=parseVector(m[1]);
+    if(v&&d!==0) return [v[0]/d,v[1]/d,v[2]/d];
+  }
+  /* forma de componentes */
+  var interno=s.replace(/^[(<\[]/,'').replace(/[)>\]]$/,'');
+  if(/,/.test(interno)){
+    partes=interno.split(',');
+    if(partes.length!==3) return null;
+    vals=[];
+    for(i=0;i<3;i++){
+      var n=aNumero(partes[i]);
+      if(isNaN(n)) return null;
+      vals.push(n);
+    }
+    return vals;
+  }
+  /* forma i, j, k */
+  if(/^[0-9.+\-\/ijk]+$/.test(interno)&&/[ijk]/.test(interno)){
+    var re=/([+-]?(?:\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)?)([ijk])/g, res=[0,0,0], usado='', mm;
+    while((mm=re.exec(interno))!==null){
+      usado+=mm[0];
+      var co=mm[1];
+      if(co===''||co==='+') co='1';
+      else if(co==='-') co='-1';
+      var num=aNumero(co);
+      if(isNaN(num)) return null;
+      res[mm[2]==='i'?0:(mm[2]==='j'?1:2)]+=num;
+    }
+    if(usado!==interno) return null;
+    return res;
+  }
+  return null;
+}
+
+function vectoresIguales(a,b){
+  return Math.abs(a[0]-b[0])<=0.002&&Math.abs(a[1]-b[1])<=0.002&&Math.abs(a[2]-b[2])<=0.002;
+}
+
+function coincideTexto(entrada,acepta){
+  var e=normalizar(entrada);
+  if(e==='') return false;
+  var ev=parseVector(entrada), en=aNumero(entrada), i;
+  for(i=0;i<acepta.length;i++){
+    var a=normalizar(acepta[i]);
+    if(a==='') continue;
+    if(e===a) return true;
+    var av=parseVector(acepta[i]);
+    if(ev&&av&&vectoresIguales(ev,av)) return true;
+    if(ev&&av===null&&a==='0'&&vectoresIguales(ev,[0,0,0])) return true;
+    if(ev===null&&av&&e==='0'&&vectoresIguales(av,[0,0,0])) return true;
+    var an=aNumero(acepta[i]);
+    if(!isNaN(en)&&!isNaN(an)&&Math.abs(en-an)<=1e-6) return true;
+    if(coincideAntiderivada(e,a)) return true;
+  }
+  return false;
+}
+
+/* tiposet: usa MathJax cuando esté listo; si tarda, reintenta; si no llega, respaldo local */
+function tiposet(nodo,intento){
+  intento=intento||0;
+  if(window.MathJax&&window.MathJax.typesetPromise){
+    try{ window.MathJax.typesetPromise(nodo?[nodo]:null)['catch'](function(){}); }catch(e){}
+    return;
+  }
+  if(window.__mjFallo||intento>=40){ matematicaFallback(nodo||document.body); return; }
+  setTimeout(function(){ tiposet(nodo,intento+1); },200);
+}
+
+/* respaldo sin conexión: convierte el LaTeX inline a HTML legible */
+function latexAHtml(tex){
+  var s=escaparHTML(tex), k;
+  s=s.replace(/\\left|\\right|\\,|\\;|\\!|\\ |\\displaystyle/g,'');
+  for(k=0;k<3;k++){
+    s=s.replace(/\\(?:text|mathrm|mathbf|operatorname)\{([^{}]*)\}/g,'$1');
+    s=s.replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g,'<span class="mfb-frac"><span>$1</span><span>$2</span></span>');
+    s=s.replace(/\\sqrt\{([^{}]*)\}/g,'&#8730;<span class="mfb-rad">$1</span>');
+  }
+  s=s.replace(/\^\{?\\circ\}?/g,'&#176;');
+  s=s.replace(/\\cdot/g,'&#183;').replace(/\\times/g,'&#215;')
+     .replace(/\\theta/g,'&#952;').replace(/\\tau/g,'&#964;').replace(/\\pi/g,'&#960;')
+     .replace(/\\alpha/g,'&#945;').replace(/\\beta/g,'&#946;').replace(/\\circ/g,'&#176;')
+     .replace(/\\leq|\\le(?![a-zA-Z])/g,'&#8804;').replace(/\\geq|\\ge(?![a-zA-Z])/g,'&#8805;')
+     .replace(/\\neq|\\ne(?![a-zA-Z])/g,'&#8800;')
+     .replace(/\\pm/g,'&#177;').replace(/\\Rightarrow/g,'&#8658;').replace(/\\approx/g,'&#8776;')
+     .replace(/\\\|/g,'&#8214;').replace(/\\arccos/g,'arccos').replace(/\\cos/g,'cos').replace(/\\sin/g,'sin')
+     .replace(/\\to/g,'&#8594;').replace(/\\dots|\\ldots/g,'&#8230;');
+  for(k=0;k<2;k++){
+    s=s.replace(/\\vec\{([^{}]*)\}/g,'<span class="mfb-vec">$1</span>');
+    s=s.replace(/\\hat\{([^{}]*)\}/g,'<span class="mfb-hat">$1</span>');
+    s=s.replace(/\\vec\s*([^\s{<])/g,'<span class="mfb-vec">$1</span>');
+    s=s.replace(/\\hat\s*([^\s{<])/g,'<span class="mfb-hat">$1</span>');
+  }
+  s=s.replace(/\^\{([^{}]*)\}/g,'<sup>$1</sup>').replace(/\^(-?[0-9a-zA-Z])/g,'<sup>$1</sup>');
+  s=s.replace(/_\{([^{}]*)\}/g,'<sub>$1</sub>').replace(/_(-?[0-9a-zA-Z])/g,'<sub>$1</sub>');
+  s=s.replace(/[{}]/g,'');
+  return s;
+}
+function nodosTexto(el,salida){
+  var n=el.firstChild;
+  while(n){
+    if(n.nodeType===3){ salida.push(n); }
+    else if(n.nodeType===1){
+      var t=n.tagName.toLowerCase();
+      var cls=(n.getAttribute&&n.getAttribute('class'))||'';
+      if(t!=='code'&&t!=='pre'&&t!=='script'&&t!=='style'&&cls.indexOf('mfb')<0) nodosTexto(n,salida);
+    }
+    n=n.nextSibling;
+  }
+}
+function matematicaFallback(nodo){
+  if(!nodo||!nodo.firstChild&&nodo.nodeType!==3) return;
+  var lista=[], i, j;
+  if(nodo.nodeType===3){ lista.push(nodo); } else { nodosTexto(nodo,lista); }
+  for(i=0;i<lista.length;i++){
+    var tn=lista[i], partes=String(tn.nodeValue).split('$');
+    if(partes.length<3) continue;
+    var frag=document.createDocumentFragment();
+    for(j=0;j<partes.length;j++){
+      if(j%2===1){
+        var sp=document.createElement('span');
+        sp.className='mfb'; sp.innerHTML=latexAHtml(partes[j]);
+        frag.appendChild(sp);
+      }else if(partes[j]!==''){
+        frag.appendChild(document.createTextNode(partes[j]));
+      }
+    }
+    if(tn.parentNode) tn.parentNode.replaceChild(frag,tn);
+  }
+}
+
+/* =========================================================
+   APOYOS MATEMÁTICOS DEL GENERADOR
+   ========================================================= */
+function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+function azar(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function nz(a,b){ var v=0; while(v===0){ v=ri(a,b); } return v; }
+function mcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=b; b=a%b; a=t; } return a||1; }
+function fraccion(n,d){
+  if(d<0){ n=-n; d=-d; }
+  if(n===0) return {n:0,d:1};
+  var g=mcd(n,d);
+  return {n:n/g,d:d/g};
+}
+function fracTex(f){
+  if(f.d===1) return String(f.n);
+  return (f.n<0?'-':'')+'\\frac{'+Math.abs(f.n)+'}{'+f.d+'}';
+}
+function fracTxt(f){ return f.d===1?String(f.n):(f.n+'/'+f.d); }
+function decTxt(x){ return String(parseFloat(x.toFixed(4))); }
+function punto(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+function cruz(a,b){
+  return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+}
+function triple(a,b,c){ return punto(a,cruz(b,c)); }
+function vecTex(v){ return '\\left('+v[0]+',\\, '+v[1]+',\\, '+v[2]+'\\right)'; }
+function compsTex(c){ return '\\left('+c.join(',\\, ')+'\\right)'; }
+function normaTex(v){
+  var s=v[0]*v[0]+v[1]*v[1]+v[2]*v[2], a, b;
+  if(s===0) return '0';
+  for(a=Math.floor(Math.sqrt(s));a>=1;a--){
+    if(s%(a*a)===0){
+      b=s/(a*a);
+      if(b===1) return String(a);
+      return (a===1?'':String(a))+'\\sqrt{'+b+'}';
+    }
+  }
+  return '\\sqrt{'+s+'}';
+}
+function norma(v){ return Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]); }
+function cuadTex(v){
+  var out='', i, t;
+  for(i=0;i<3;i++){
+    t=(v[i]<0?'('+v[i]+')':String(v[i]))+'^2';
+    out+=(i?'+':'')+t;
+  }
+  return out;
+}
+function prodsTex(a,b){
+  var out='', i;
+  for(i=0;i<3;i++){ out+=(i?'+':'')+'('+a[i]+')('+b[i]+')'; }
+  return out;
+}
+function sumaTex(v){
+  var out=String(v[0]), i;
+  for(i=1;i<v.length;i++){ out+=(v[i]<0?'-':'+')+Math.abs(v[i]); }
+  return out;
+}
+function ijkTxt(v){
+  var letras=['i','j','k'], out='', i, c, mag;
+  for(i=0;i<3;i++){
+    c=v[i];
+    if(c===0) continue;
+    mag=(Math.abs(c)===1?'':String(Math.abs(c)));
+    if(out==='') out+=(c<0?'-':'')+mag+letras[i];
+    else out+=(c<0?'-':'+')+mag+letras[i];
+  }
+  return out===''?'0':out;
+}
+function ijkTxtF(comp){
+  var letras=['i','j','k'], out='', i, c, txt, mag, neg;
+  for(i=0;i<3;i++){
+    c=comp[i];
+    txt=String(c);
+    if(txt==='0') continue;
+    neg=(txt.charAt(0)==='-');
+    mag=neg?txt.substring(1):txt;
+    if(mag==='1') mag='';
+    if(out==='') out+=(neg?'-':'')+mag+letras[i];
+    else out+=(neg?'-':'+')+mag+letras[i];
+  }
+  return out===''?'0':out;
+}
+function aceptaVector(v){
+  var t=v[0]+','+v[1]+','+v[2];
+  return ['('+t+')', t, '<'+t+'>', '['+t+']', '('+v[0]+', '+v[1]+', '+v[2]+')', ijkTxtF(v)];
+}
+function vecAleatorio(min,max){ return [nz(min,max),nz(min,max),nz(min,max)]; }
+/* vectores con norma entera (para respuestas limpias) */
+var NORMAS_ENTERAS=[[2,2,1],[1,2,2],[2,1,2],[2,3,6],[3,6,2],[6,2,3],[1,4,8],[8,1,4],[4,4,2],[2,4,4],[3,4,0],[4,3,0],[0,3,4],[6,6,3],[3,6,6],[2,6,9],[9,2,6]];
+function vecNormaEntera(){
+  var base=azar(NORMAS_ENTERAS), v=[], i, s;
+  for(i=0;i<3;i++){
+    s=(Math.random()<0.35?-1:1);
+    v.push(base[i]*s);
+  }
+  return v;
+}
+
+/* =========================================================
+   GENERADOR: 10 variantes conceptualmente distintas
+   ========================================================= */
+
+/* 1. Producto punto como trabajo mecánico */
+function vTrabajo(){
+  var F=vecAleatorio(-5,6), d=vecAleatorio(-4,5), W=punto(F,d);
+  var quien=azar(['Ximena','Itzel','Nayeli','Rocío','Citlali']);
+  var equipo=azar(['el actuador lineal de un robot de ensamble','la garra neumática de un brazo colaborativo','el efector final de una fresadora de escritorio']);
+  return {
+    tipo:'numerica',
+    problema:quien+', ingeniera mecatrónica, calibra '+equipo+'. En una prueba la fuerza aplicada es $\\vec F='+vecTex(F)+'$ N y el desplazamiento del efector es $\\vec d='+vecTex(d)+'$ m. Calcula el trabajo $W=\\vec F\\cdot\\vec d$, en joules.',
+    solucion:'El trabajo es el producto punto de fuerza y desplazamiento: $W='+W+'$ J.',
+    respuestaLaTeX:String(W),
+    acepta:[String(W), W+' j', W+' joules', W+' n*m'],
+    respuesta:W,
+    tolerancia:0.001,
+    pista:'El producto punto multiplica componente con componente y suma: $\\vec a\\cdot\\vec b=a_1b_1+a_2b_2+a_3b_3$. El resultado es un ESCALAR con signo, no un vector.',
+    explicacion:'Paso 1. Escribe las componentes: $\\vec F='+vecTex(F)+'$ y $\\vec d='+vecTex(d)+'$.\n'+
+      'Paso 2. Usa la definición algebraica $\\vec F\\cdot\\vec d=F_1d_1+F_2d_2+F_3d_3$.\n'+
+      'Paso 3. Sustituye con cuidado los signos: $'+prodsTex(F,d)+'$.\n'+
+      'Paso 4. Calcula cada producto: $'+sumaTex([F[0]*d[0],F[1]*d[1],F[2]*d[2]])+'$.\n'+
+      'Paso 5. Suma: $W='+W+'$ J. El signo indica si la fuerza ayuda (positivo) o se opone (negativo) al movimiento.'
+  };
+}
+
+/* 2. Producto punto a partir de normas y ángulo (similitud en IA) */
+function vNormasAngulo(){
+  var tabla=[
+    {g:0,c:1,ct:'1'},
+    {g:60,c:0.5,ct:'\\frac{1}{2}'},
+    {g:90,c:0,ct:'0'},
+    {g:120,c:-0.5,ct:'-\\frac{1}{2}'},
+    {g:180,c:-1,ct:'-1'}
+  ];
+  var t=azar(tabla), na=ri(2,9), nb=ri(2,9);
+  if(t.g===60||t.g===120){ na=2*ri(1,4); }
+  var val=na*nb*t.c;
+  var rad=t.g*Math.PI/180;
+  figuraActual={vectores:[{p:[na,0,0],color:'a',etiqueta:'u'},{p:[nb*Math.cos(rad),nb*Math.sin(rad),0],color:'b',etiqueta:'v'}],
+    arco:{u:[na,0,0],v:[nb*Math.cos(rad),nb*Math.sin(rad),0],etiqueta:t.g+'°'},nota:'Normas y ángulo entre los vectores'};
+  var lengua=azar(['mixteco','zapoteco','náhuatl','maya']);
+  return {
+    tipo:'numerica',
+    problema:'Un equipo intercultural entrena con inteligencia artificial un traductor automático '+lengua+'–español. Dos vectores de características tienen normas $\\|\\vec u\\|='+na+'$ y $\\|\\vec v\\|='+nb+'$, y el ángulo entre ellos es $\\theta='+t.g+'^\\circ$. Calcula el producto punto $\\vec u\\cdot\\vec v$.',
+    solucion:'Con la forma geométrica, $\\vec u\\cdot\\vec v='+na+'\\cdot '+nb+'\\cdot\\left('+t.ct+'\\right)='+val+'$.',
+    respuestaLaTeX:decTxt(val),
+    acepta:[decTxt(val), String(val)],
+    respuesta:val,
+    tolerancia:0.001,
+    pista:'Cuando conoces normas y ángulo conviene la forma geométrica $\\vec u\\cdot\\vec v=\\|\\vec u\\|\\,\\|\\vec v\\|\\cos\\theta$. Recuerda el valor exacto de $\\cos '+t.g+'^\\circ$.',
+    explicacion:'Paso 1. Elige la forma geométrica del producto punto: $\\vec u\\cdot\\vec v=\\|\\vec u\\|\\,\\|\\vec v\\|\\cos\\theta$.\n'+
+      'Paso 2. Sustituye el valor exacto del coseno: $\\cos '+t.g+'^\\circ='+t.ct+'$.\n'+
+      'Paso 3. Multiplica las normas: $\\|\\vec u\\|\\,\\|\\vec v\\|='+na+'\\cdot '+nb+'='+(na*nb)+'$.\n'+
+      'Paso 4. Concluye: $\\vec u\\cdot\\vec v='+(na*nb)+'\\cdot\\left('+t.ct+'\\right)='+decTxt(val)+'$.\n'+
+      'Paso 5. Interpreta: un valor positivo indica direcciones parecidas, cero indica vectores ortogonales y uno negativo, direcciones opuestas.'
+  };
+}
+
+/* 3. Ángulo entre dos vectores */
+function vAngulo(){
+  var casos=[
+    {u:[1,1,0],v:[1,0,1],g:60,ct:'\\frac{1}{2}',rad:'pi/3'},
+    {u:[1,1,0],v:[-1,0,-1],g:120,ct:'-\\frac{1}{2}',rad:'2pi/3'},
+    {u:[1,0,0],v:[1,1,0],g:45,ct:'\\frac{\\sqrt{2}}{2}',rad:'pi/4'},
+    {u:[1,0,0],v:[-1,1,0],g:135,ct:'-\\frac{\\sqrt{2}}{2}',rad:'3pi/4'},
+    {u:[1,1,0],v:[1,-1,0],g:90,ct:'0',rad:'pi/2'},
+    {u:[1,1,1],v:[-1,-1,-1],g:180,ct:'-1',rad:'pi'},
+    {u:[1,1,1],v:[2,2,2],g:0,ct:'1',rad:'0'}
+  ];
+  var c=azar(casos), k=ri(1,3), i;
+  var u=[], v=[];
+  for(i=0;i<3;i++){ u.push(c.u[i]*k); v.push(c.v[i]*k); }
+  if(Math.random()<0.5){ var tmp=u; u=v; v=tmp; }
+  var p=punto(u,v), nu=normaTex(u), nv=normaTex(v);
+  figuraActual={vectores:[{p:u,color:'a',etiqueta:'u'},{p:v,color:'b',etiqueta:'v'}],arco:{u:u,v:v,etiqueta:'θ'},nota:'Ángulo entre los dos ejes'};
+  var quien=azar(['Ameyalli','Marisol','Yolotl','Selene']);
+  var pieza=azar(['dos eslabones de un mecanismo para una silla de ruedas todoterreno','las dos barras de un soporte plegable para mercado ambulante','los ejes de una bisagra impresa en 3D']);
+  return {
+    tipo:'numerica',
+    problema:quien+', diseñadora industrial, ajusta '+pieza+'. Los ejes quedan con direcciones $\\vec u='+vecTex(u)+'$ y $\\vec v='+vecTex(v)+'$. Determina el ángulo $\\theta$ entre ambos ejes, en grados.',
+    solucion:'$\\cos\\theta='+c.ct+'$, por lo tanto $\\theta='+c.g+'^\\circ$.',
+    respuestaLaTeX:c.g+'^\\circ',
+    acepta:[String(c.g), c.g+'°', c.g+' grados', c.rad],
+    respuesta:c.g,
+    tolerancia:0.001,
+    pista:'Despeja el ángulo de la forma geométrica: $\\cos\\theta=\\dfrac{\\vec u\\cdot\\vec v}{\\|\\vec u\\|\\,\\|\\vec v\\|}$. Calcula primero el producto punto y después cada norma con $\\|\\vec u\\|=\\sqrt{u_1^2+u_2^2+u_3^2}$.',
+    explicacion:'Paso 1. La relación entre producto punto y ángulo es $\\cos\\theta=\\dfrac{\\vec u\\cdot\\vec v}{\\|\\vec u\\|\\,\\|\\vec v\\|}$.\n'+
+      'Paso 2. Producto punto: $\\vec u\\cdot\\vec v='+prodsTex(u,v)+'='+p+'$.\n'+
+      'Paso 3. Normas: $\\|\\vec u\\|='+nu+'$ y $\\|\\vec v\\|='+nv+'$.\n'+
+      'Paso 4. Sustituye y simplifica: $\\cos\\theta=\\dfrac{'+p+'}{\\left('+nu+'\\right)\\left('+nv+'\\right)}='+c.ct+'$.\n'+
+      'Paso 5. El ángulo cuyo coseno es ese valor corresponde a $\\theta='+c.g+'^\\circ$.'
+  };
+}
+
+/* 4. Producto vectorial como torque (respuesta simbólica) */
+function vTorque(){
+  var r, F, t, intentos=0;
+  do{
+    r=vecAleatorio(-3,4); F=vecAleatorio(-4,5); t=cruz(r,F); intentos++;
+  }while(t[0]===0&&t[1]===0&&t[2]===0&&intentos<40);
+  if(t[0]===0&&t[1]===0&&t[2]===0){ r=[1,2,1]; F=[2,1,3]; t=cruz(r,F); }
+  var ci=t[0], cj=t[1], ck=t[2];
+  figuraActual={vectores:[{p:r,color:'a',etiqueta:'r'},{p:F,color:'b',etiqueta:'F'}],plano:[r,F],nota:'El torque sale perpendicular a este plano'};
+  var acepta=aceptaVector(t);
+  var escuela=azar(['una comunidad nahua','una comunidad mixe','un pueblo originario de la sierra']);
+  return {
+    tipo:'simbolica',
+    problema:'En el taller de mecatrónica de un bachillerato tecnológico de '+escuela+', el equipo prueba una llave de torque digital. El brazo de palanca es $\\vec r='+vecTex(r)+'$ m y la fuerza aplicada es $\\vec F='+vecTex(F)+'$ N. Calcula el torque $\\vec\\tau=\\vec r\\times\\vec F$ y escribe el vector resultante con el formato (x, y, z).',
+    solucion:'$\\vec\\tau='+vecTex(t)+'$ N·m, perpendicular a $\\vec r$ y a $\\vec F$.',
+    respuestaLaTeX:vecTex(t),
+    acepta:acepta,
+    pista:'El producto vectorial se arma con el determinante simbólico de $\\hat i,\\hat j,\\hat k$: la componente $j$ lleva signo MENOS. El resultado es un VECTOR perpendicular a los dos factores.',
+    explicacion:'Paso 1. Plantea $\\vec r\\times\\vec F=\\left(r_2F_3-r_3F_2,\\; r_3F_1-r_1F_3,\\; r_1F_2-r_2F_1\\right)$.\n'+
+      'Paso 2. Componente $i$: $('+r[1]+')('+F[2]+')-('+r[2]+')('+F[1]+')='+ci+'$.\n'+
+      'Paso 3. Componente $j$ (con signo menos): $-\\left[('+r[0]+')('+F[2]+')-('+r[2]+')('+F[0]+')\\right]='+cj+'$.\n'+
+      'Paso 4. Componente $k$: $('+r[0]+')('+F[1]+')-('+r[1]+')('+F[0]+')='+ck+'$.\n'+
+      'Paso 5. Entonces $\\vec\\tau='+vecTex(t)+'$ N·m. Verificación de ortogonalidad: $\\vec\\tau\\cdot\\vec r='+punto(t,r)+'$ y $\\vec\\tau\\cdot\\vec F='+punto(t,F)+'$, ambos cero.'
+  };
+}
+
+/* 5. Triple producto escalar directo */
+function vTriple(){
+  var a,b,c,det,intentos=0;
+  do{
+    a=vecAleatorio(-3,4); b=vecAleatorio(-3,4); c=vecAleatorio(-3,4);
+    det=triple(a,b,c); intentos++;
+  }while((det===0||Math.abs(det)>60)&&intentos<80);
+  if(det===0||Math.abs(det)>60){ a=[1,2,1]; b=[2,1,0]; c=[0,1,2]; det=triple(a,b,c); }
+  var bc=cruz(b,c);
+  figuraActual={vectores:[{p:a,color:'a',etiqueta:'a'},{p:b,color:'b',etiqueta:'b'},{p:c,color:'c',etiqueta:'c'}],solido:[a,b,c],nota:'Paralelepípedo de aristas a, b y c'};
+  var quien=azar(['Selene','Itzel','Nayeli','Ximena']);
+  var modelo=azar(['un modelo de visión artificial para clasificar piezas','un sistema de IA que estima posturas de un robot','una red neuronal que agrupa trayectorias de soldadura']);
+  return {
+    tipo:'numerica',
+    problema:quien+', investigadora en inteligencia artificial, trabaja con '+modelo+'. En el espacio de características toma las direcciones $\\vec a='+vecTex(a)+'$, $\\vec b='+vecTex(b)+'$ y $\\vec c='+vecTex(c)+'$. Calcula el triple producto escalar $\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)$.',
+    solucion:'$\\vec b\\times\\vec c='+vecTex(bc)+'$ y $\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)='+det+'$.',
+    respuestaLaTeX:String(det),
+    acepta:[String(det)],
+    respuesta:det,
+    tolerancia:0.001,
+    pista:'El triple producto escalar es el determinante de la matriz cuyas filas son los tres vectores. Un camino seguro: calcula primero $\\vec b\\times\\vec c$ y después su producto punto con $\\vec a$. El resultado es un ESCALAR con signo.',
+    explicacion:'Paso 1. Calcula primero el producto vectorial interno con $\\vec b\\times\\vec c=\\left(b_2c_3-b_3c_2,\\; b_3c_1-b_1c_3,\\; b_1c_2-b_2c_1\\right)$.\n'+
+      'Paso 2. Sustituye $\\vec b='+vecTex(b)+'$ y $\\vec c='+vecTex(c)+'$: resulta $\\vec b\\times\\vec c='+vecTex(bc)+'$.\n'+
+      'Paso 3. Aplica el producto punto con $\\vec a='+vecTex(a)+'$: $'+prodsTex(a,bc)+'$.\n'+
+      'Paso 4. Opera: $'+sumaTex([a[0]*bc[0],a[1]*bc[1],a[2]*bc[2]])+'='+det+'$.\n'+
+      'Paso 5. Por lo tanto $\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)='+det+'$. Su valor absoluto es el volumen del paralelepípedo y su signo indica la orientación de la terna.'
+  };
+}
+
+/* 6. Ortogonalidad: despejar un parámetro */
+function vOrtogonal(){
+  var p,q,r,s,t,N,k,intentos=0;
+  do{
+    p=azar([2,3,4,5,6]); q=nz(-4,4); r=nz(-4,4); s=nz(-4,4); t=nz(-4,4);
+    N=-(q*s+r*t); k=fraccion(N,p); intentos++;
+  }while((N===0||Math.abs(N)>26)&&intentos<80);
+  if(N===0||Math.abs(N)>26){ q=1; s=2; r=1; t=1; N=-(q*s+r*t); k=fraccion(N,p); }
+  var cte=q*s+r*t;
+  figuraActual={vectores:[{p:[p,q,r],color:'a',etiqueta:'u'}],disco:[p,q,r],nota:'v debe quedar en el plano perpendicular a u'};
+  var tol=(k.d===1?0.001:0.01);
+  var colect=azar(['Un colectivo intercultural de diseño digital','Una cooperativa de artesanas zapotecas junto con un laboratorio de diseño','Un equipo comunitario de innovación tecnológica']);
+  var lengua=azar(['telar asistido por sensores','banco de pruebas para bordado automatizado','dispositivo de riego con brazo articulado']);
+  return {
+    tipo:'numerica',
+    problema:colect+' construye un '+lengua+'. Para que el mecanismo no se trabe, dos ejes deben quedar PERPENDICULARES: $\\vec u='+vecTex([p,q,r])+'$ y $\\vec v=\\left(k,\\, '+s+',\\, '+t+'\\right)$. Halla el valor de $k$ (puedes escribirlo como fracción).',
+    solucion:'La condición $\\vec u\\cdot\\vec v=0$ da $'+p+'k'+(cte<0?'-':'+')+Math.abs(cte)+'=0$, es decir $k='+fracTex(k)+'$.',
+    respuestaLaTeX:fracTex(k),
+    acepta:[fracTxt(k), decTxt(k.n/k.d), String(k.n/k.d)],
+    respuesta:k.n/k.d,
+    tolerancia:tol,
+    pista:'Dos vectores son ortogonales si y sólo si su producto punto vale cero: $\\vec u\\cdot\\vec v=0$. Plantea la ecuación lineal en $k$ y despeja; no uses el producto vectorial aquí.',
+    explicacion:'Paso 1. Escribe la condición de perpendicularidad: $\\vec u\\cdot\\vec v=0$.\n'+
+      'Paso 2. Sustituye componentes: $('+p+')k+('+q+')('+s+')+('+r+')('+t+')=0$.\n'+
+      'Paso 3. Agrupa los términos numéricos: $'+p+'k'+(cte<0?'-':'+')+Math.abs(cte)+'=0$.\n'+
+      'Paso 4. Despeja: $k=\\dfrac{'+N+'}{'+p+'}='+fracTex(k)+'$.\n'+
+      'Paso 5. Comprueba: con ese valor el producto punto se anula, así que los ejes quedan a $90^\\circ$.'
+  };
+}
+
+/* 7. Vector unitario (respuesta simbólica con fracciones) */
+function vUnitario(){
+  var v=vecNormaEntera(), n=norma(v), guardas=0, i;
+  while((n!==Math.round(n)||n===0)&&guardas<40){ v=vecNormaEntera(); n=norma(v); guardas++; }
+  var f=[], tex=[], txt=[];
+  for(i=0;i<3;i++){
+    f.push(fraccion(v[i],n));
+    tex.push(fracTex(f[i]));
+    txt.push(fracTxt(f[i]));
+  }
+  var t=txt.join(',');
+  figuraActual={vectores:[{p:v,color:'a',etiqueta:'v'}],esfera:true,nota:'La esfera de radio 1 marca la meta'};
+  var acepta=aceptaVector(txt);
+  acepta.push('('+v.join(',')+')/'+n);
+  acepta.push('1/'+n+'('+v.join(',')+')');
+  acepta.push(ijkTxtF(txt));
+  acepta.push('('+ijkTxt(v)+')/'+n);
+  acepta.push('1/'+n+'('+ijkTxt(v)+')');
+  var quien=azar(['Rocío','Citlali','Ameyalli','Marisol']);
+  var tarea=azar(['la orientación de la cámara de un dron de inspección','la dirección de apunte de un sensor láser en un robot móvil','el eje de avance de una cabeza de impresión 3D']);
+  return {
+    tipo:'simbolica',
+    problema:quien+', ingeniera mecatrónica, programa '+tarea+'. La dirección observada es $\\vec v='+vecTex(v)+'$. Obtén el vector unitario $\\hat v$ en esa dirección y escríbelo con el formato (x, y, z), usando fracciones si hace falta.',
+    solucion:'$\\|\\vec v\\|='+n+'$, entonces $\\hat v='+compsTex(tex)+'$, de norma 1.',
+    respuestaLaTeX:compsTex(tex),
+    acepta:acepta,
+    pista:'Normalizar es dividir cada componente entre la norma: $\\hat v=\\dfrac{\\vec v}{\\|\\vec v\\|}$, con $\\|\\vec v\\|=\\sqrt{v_1^2+v_2^2+v_3^2}$. La norma de este vector es un número entero.',
+    explicacion:'Paso 1. Calcula la suma de cuadrados: $'+cuadTex(v)+'='+(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])+'$.\n'+
+      'Paso 2. Extrae la raíz: $\\|\\vec v\\|=\\sqrt{'+(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])+'}='+n+'$.\n'+
+      'Paso 3. Divide cada componente entre la norma: $\\hat v=\\left('+fracTex(f[0])+',\\, '+fracTex(f[1])+',\\, '+fracTex(f[2])+'\\right)$.\n'+
+      'Paso 4. Verifica la norma: $\\left('+fracTex(f[0])+'\\right)^2+\\left('+fracTex(f[1])+'\\right)^2+\\left('+fracTex(f[2])+'\\right)^2=\\frac{'+(n*n)+'}{'+(n*n)+'}=1$.\n'+
+      'Paso 5. Conclusión: $\\hat v='+compsTex(tex)+'$ conserva la dirección de $\\vec v$ y mide exactamente 1.'
+  };
+}
+
+/* 8. Proyección escalar */
+function vProyeccion(){
+  var b=vecNormaEntera(), n=norma(b), a, p, f, intentos=0;
+  while(n!==Math.round(n)){ b=vecNormaEntera(); n=norma(b); }
+  do{ a=vecAleatorio(-4,5); p=punto(a,b); intentos++; }while(p===0&&intentos<40);
+  if(p===0){ a=[b[0],b[1],b[2]]; p=punto(a,b); }
+  f=fraccion(p,n);
+  figuraActual={vectores:[{p:b,color:'a',etiqueta:'b'},{p:a,color:'b',etiqueta:'a'}],proyeccion:{a:a,b:b},nota:'Sombra de a sobre la dirección de b'};
+  var tol=(f.d===1?0.001:0.01);
+  var equipo=azar(['Un equipo mixe de innovación','Un taller comunitario de energía solar','Un grupo intercultural de ingeniería aplicada']);
+  var lengua=azar(['una comunidad de la sierra','un ejido de la costa','una localidad de la mixteca']);
+  return {
+    tipo:'numerica',
+    problema:equipo+' instala paneles solares en '+lengua+'. La dirección del riel de montaje es $\\vec b='+vecTex(b)+'$ y el desplazamiento del panel es $\\vec a='+vecTex(a)+'$. Calcula la proyección escalar de $\\vec a$ sobre $\\vec b$, es decir $\\mathrm{comp}_{\\vec b}\\vec a$ (puedes responder con fracción).',
+    solucion:'$\\mathrm{comp}_{\\vec b}\\vec a=\\dfrac{\\vec a\\cdot\\vec b}{\\|\\vec b\\|}=\\dfrac{'+p+'}{'+n+'}='+fracTex(f)+'$.',
+    respuestaLaTeX:fracTex(f),
+    acepta:[fracTxt(f), decTxt(f.n/f.d), String(f.n/f.d)],
+    respuesta:f.n/f.d,
+    tolerancia:tol,
+    pista:'La proyección escalar es $\\mathrm{comp}_{\\vec b}\\vec a=\\dfrac{\\vec a\\cdot\\vec b}{\\|\\vec b\\|}$: primero el producto punto y luego divide entre la NORMA de $\\vec b$, no entre su cuadrado. Es un escalar con signo.',
+    explicacion:'Paso 1. Calcula el producto punto: $\\vec a\\cdot\\vec b='+prodsTex(a,b)+'='+p+'$.\n'+
+      'Paso 2. Calcula la norma del vector sobre el que se proyecta: $\\|\\vec b\\|=\\sqrt{'+(b[0]*b[0])+'+'+(b[1]*b[1])+'+'+(b[2]*b[2])+'}='+n+'$.\n'+
+      'Paso 3. Divide: $\\mathrm{comp}_{\\vec b}\\vec a=\\dfrac{'+p+'}{'+n+'}='+fracTex(f)+'$.\n'+
+      'Paso 4. Interpreta: el signo indica si el panel avanza a favor del riel (positivo) o en contra (negativo); su valor absoluto es la longitud de la sombra de $\\vec a$ sobre el riel.'
+  };
+}
+
+/* 9. Propiedades del triple producto y del producto vectorial */
+function vPropiedades(){
+  var V=nz(1,9)*(Math.random()<0.5?-1:1);
+  var casos=[
+    {tex:'\\vec c\\cdot\\left(\\vec a\\times\\vec b\\right)',val:V,tipo:'ciclica'},
+    {tex:'\\vec b\\cdot\\left(\\vec c\\times\\vec a\\right)',val:V,tipo:'ciclica'},
+    {tex:'\\left(\\vec a\\times\\vec b\\right)\\cdot\\vec c',val:V,tipo:'conmuta'},
+    {tex:'\\vec a\\cdot\\left(\\vec c\\times\\vec b\\right)',val:-V,tipo:'anti'},
+    {tex:'\\vec b\\cdot\\left(\\vec a\\times\\vec c\\right)',val:-V,tipo:'anti'},
+    {tex:'\\left(\\vec b\\times\\vec a\\right)\\cdot\\vec c',val:-V,tipo:'anti'},
+    {tex:'\\vec a\\cdot\\left(\\vec a\\times\\vec c\\right)',val:0,tipo:'nulo'}
+  ];
+  var c=azar(casos);
+  figuraActual={vectores:[{p:[3,1,0],color:'a',etiqueta:'a'},{p:[1,3,0],color:'b',etiqueta:'b'},{p:[0,1,3],color:'c',etiqueta:'c'}],solido:[[3,1,0],[1,3,0],[0,1,3]],nota:'El orden de las aristas fija el signo'};
+  var quien=azar(['Selene','Nayeli','Itzel','Yolotl']);
+  var exp;
+  if(c.tipo==='nulo'){
+    exp='Paso 1. Recuerda que $\\vec a\\times\\vec c$ es perpendicular tanto a $\\vec a$ como a $\\vec c$.\n'+
+        'Paso 2. El producto punto de vectores perpendiculares es cero, porque $\\cos 90^\\circ=0$.\n'+
+        'Paso 3. Aquí el vector $\\vec a$ se multiplica por un vector perpendicular a él mismo.\n'+
+        'Paso 4. Por lo tanto $\\vec a\\cdot\\left(\\vec a\\times\\vec c\\right)=0$, sin importar las componentes.\n'+
+        'Paso 5. Interpretación geométrica: el paralelepípedo se aplana, dos aristas coinciden y el volumen es cero.';
+  }else if(c.tipo==='ciclica'){
+    exp='Paso 1. El triple producto escalar es el determinante con filas $\\vec a,\\vec b,\\vec c$, cuyo valor es $'+V+'$.\n'+
+        'Paso 2. La expresión pedida es una permutación CÍCLICA del orden original: $a\\to b\\to c\\to a$.\n'+
+        'Paso 3. Un intercambio cíclico equivale a dos intercambios de filas, y cada uno cambia el signo del determinante.\n'+
+        'Paso 4. Dos cambios de signo se cancelan: el valor se conserva.\n'+
+        'Paso 5. Resultado: $'+c.tex+'='+c.val+'$.';
+  }else if(c.tipo==='conmuta'){
+    exp='Paso 1. El producto punto es conmutativo: $\\vec x\\cdot\\vec y=\\vec y\\cdot\\vec x$.\n'+
+        'Paso 2. Entonces $\\left(\\vec a\\times\\vec b\\right)\\cdot\\vec c=\\vec c\\cdot\\left(\\vec a\\times\\vec b\\right)$.\n'+
+        'Paso 3. Ese orden es una permutación cíclica de $\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)$.\n'+
+        'Paso 4. Las permutaciones cíclicas conservan el valor del triple producto.\n'+
+        'Paso 5. Resultado: $'+c.tex+'='+c.val+'$.';
+  }else{
+    exp='Paso 1. El producto vectorial es anticonmutativo: $\\vec x\\times\\vec y=-\\left(\\vec y\\times\\vec x\\right)$.\n'+
+        'Paso 2. La expresión pedida intercambia dos vectores respecto del orden original $\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)='+V+'$.\n'+
+        'Paso 3. Un solo intercambio de filas cambia el signo del determinante.\n'+
+        'Paso 4. Por lo tanto el valor buscado es el opuesto del dato.\n'+
+        'Paso 5. Resultado: $'+c.tex+'='+c.val+'$.';
+  }
+  return {
+    tipo:'numerica',
+    problema:quien+', investigadora en inteligencia artificial, ya calculó que $\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)='+V+'$ para tres vectores de su modelo. Sin volver a calcular componentes, usa las PROPIEDADES de los productos vectorial y triple producto escalar para determinar $'+c.tex+'$.',
+    solucion:'Por las propiedades de permutación y anticonmutatividad, $'+c.tex+'='+c.val+'$.',
+    respuestaLaTeX:String(c.val),
+    acepta:[String(c.val)],
+    respuesta:c.val,
+    tolerancia:0.001,
+    pista:'El triple producto escalar no cambia con permutaciones CÍCLICAS de los tres vectores, pero cambia de SIGNO si sólo intercambias dos. Además $\\vec x\\times\\vec y=-\\left(\\vec y\\times\\vec x\\right)$ y el producto punto es conmutativo.',
+    explicacion:exp
+  };
+}
+
+/* 10. Volumen del paralelepípedo */
+function vVolumen(){
+  var a,b,c,det,intentos=0;
+  do{
+    a=vecAleatorio(-3,4); b=vecAleatorio(-3,4); c=vecAleatorio(-3,4);
+    det=triple(a,b,c); intentos++;
+  }while((det===0||Math.abs(det)>60)&&intentos<80);
+  if(det===0||Math.abs(det)>60){ a=[2,1,0]; b=[0,2,1]; c=[1,0,2]; det=triple(a,b,c); }
+  var vol=Math.abs(det), bc=cruz(b,c);
+  figuraActual={vectores:[{p:a,color:'a',etiqueta:'a'},{p:b,color:'b',etiqueta:'b'},{p:c,color:'c',etiqueta:'c'}],solido:[a,b,c],nota:'Volumen del sólido de aristas a, b y c'};
+  var taller=azar(['Una cooperativa de artesanas zapotecas','Un taller comunitario de diseño digital','Un colectivo de diseño de una comunidad originaria']);
+  var pieza=azar(['un empaque modular para sus piezas','una base geométrica para exhibir artesanías','un molde para vaciado de resina']);
+  return {
+    tipo:'numerica',
+    problema:taller+' colabora con un laboratorio de innovación para imprimir en 3D '+pieza+'. Las tres aristas que salen de un vértice son $\\vec a='+vecTex(a)+'$, $\\vec b='+vecTex(b)+'$ y $\\vec c='+vecTex(c)+'$, medidas en centímetros. Calcula el volumen del paralelepípedo, en centímetros cúbicos.',
+    solucion:'$V=\\left|\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)\\right|=\\left|'+det+'\\right|='+vol+'$ cm³.',
+    respuestaLaTeX:String(vol),
+    acepta:[String(vol), vol+' cm^3', vol+' cm3', vol+' cm³'],
+    respuesta:vol,
+    tolerancia:0.001,
+    pista:'El volumen del paralelepípedo es el valor absoluto del triple producto escalar: $V=\\left|\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)\\right|$. Si saliera cero, los tres vectores serían coplanares y no habría sólido.',
+    explicacion:'Paso 1. Usa $V=\\left|\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)\\right|$; primero el producto vectorial de las dos aristas de la base.\n'+
+      'Paso 2. Calcula $\\vec b\\times\\vec c='+vecTex(bc)+'$, que es perpendicular a la base y su norma es el área de esa base.\n'+
+      'Paso 3. Proyecta la tercera arista: $\\vec a\\cdot\\left(\\vec b\\times\\vec c\\right)='+prodsTex(a,bc)+'='+det+'$.\n'+
+      'Paso 4. Toma el valor absoluto porque un volumen no puede ser negativo: $V=\\left|'+det+'\\right|='+vol+'$ cm³.\n'+
+      'Paso 5. Como el resultado no es cero, los tres vectores no son coplanares y el sólido existe.'
+  };
+}
+
+var VARIANTES=[
+  {nombre:'Producto punto · trabajo', gen:vTrabajo},
+  {nombre:'Normas y ángulo', gen:vNormasAngulo},
+  {nombre:'Ángulo entre vectores', gen:vAngulo},
+  {nombre:'Producto vectorial · torque', gen:vTorque},
+  {nombre:'Triple producto escalar', gen:vTriple},
+  {nombre:'Ortogonalidad · parámetro', gen:vOrtogonal},
+  {nombre:'Vector unitario', gen:vUnitario},
+  {nombre:'Proyección escalar', gen:vProyeccion},
+  {nombre:'Propiedades de los productos', gen:vPropiedades},
+  {nombre:'Volumen · paralelepípedo', gen:vVolumen}
+];
+var ultimaVariante=-1, etiquetaActual='';
+
+function genProductosVectoriales(){
+  var i=Math.floor(Math.random()*VARIANTES.length);
+  if(i===ultimaVariante){ i=(i+1+Math.floor(Math.random()*(VARIANTES.length-1)))%VARIANTES.length; }
+  ultimaVariante=i;
+  etiquetaActual=VARIANTES[i].nombre;
+  return VARIANTES[i].gen();
+}
+
+/* =========================================================
+   ESQUEMA GEOMÉTRICO EN VIVO (SVG, proyección ortográfica)
+   ========================================================= */
+var figuraActual=null;
+var figYaw=35*Math.PI/180, figPitch=30*Math.PI/180;
+var figArrastre=null, figPendiente=false, figYaw0=figYaw, figPitch0=figPitch;
+var FIG_COL={a:'#4f46e5',b:'#7c3aed',c:'#059669',d:'#b45309'};
+
+function figProyCon(p,yaw,pitch){
+  var ct=Math.cos(yaw), st=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch);
+  var x1=p[0]*ct-p[1]*st, y1=p[0]*st+p[1]*ct;
+  return [x1, y1*sp-p[2]*cp];
+}
+function figProy(p){ return figProyCon(p,figYaw,figPitch); }
+/* elige la cámara que mejor muestra los vectores del ejercicio */
+function figEncuadre(fig){
+  var vecs=[], i, j;
+  for(i=0;i<fig.vectores.length;i++) vecs.push(fig.vectores[i].p);
+  if(!vecs.length) return;
+  var mejor=null, alturas=[0.34,0.55,0.82];
+  for(var yi=0;yi<24;yi++){
+    for(var pi=0;pi<alturas.length;pi++){
+      var yaw=yi*Math.PI/12, pitch=alturas[pi], dirs=[], lens=[], prom=0;
+      for(i=0;i<vecs.length;i++){
+        var q=figProyCon(vecs[i],yaw,pitch), L=Math.sqrt(q[0]*q[0]+q[1]*q[1]), n=norma(vecs[i]);
+        lens.push(n>0?L/n:1);
+        dirs.push(L>1e-6?[q[0]/L,q[1]/L]:[0,0]);
+      }
+      var minL=1;
+      for(i=0;i<lens.length;i++){ if(lens[i]<minL) minL=lens[i]; prom+=lens[i]; }
+      prom/=lens.length;
+      var score=minL*2+prom-Math.abs(pitch-0.55)*0.3;
+      if(fig.disco){ score=2.2*(1-Math.abs(prom-0.55)/0.55)+0.5*prom-Math.abs(pitch-0.5)*0.2; }
+      for(i=0;i<dirs.length;i++){
+        for(j=i+1;j<dirs.length;j++){
+          var cr=Math.abs(dirs[i][0]*dirs[j][1]-dirs[i][1]*dirs[j][0]);
+          var dt=dirs[i][0]*dirs[j][0]+dirs[i][1]*dirs[j][1];
+          if(cr<0.22&&dt>0) score-=0.5;
+          if(cr<0.12) score-=0.25;
+        }
+      }
+      if(!mejor||score>mejor.score) mejor={score:score,yaw:yaw,pitch:pitch};
+    }
+  }
+  if(mejor){ figYaw=mejor.yaw; figPitch=mejor.pitch; figYaw0=figYaw; figPitch0=figPitch; }
+}
+function figUnit(v){
+  var n=norma(v);
+  return n===0?[0,0,0]:[v[0]/n,v[1]/n,v[2]/n];
+}
+function figPerp(u){
+  var ref=(Math.abs(u[2])<0.9*Math.max(1,norma(u)))?[0,0,1]:[0,1,0];
+  var e1=figUnit(cruz(u,ref));
+  if(norma(e1)===0) e1=figUnit(cruz(u,[0,1,0]));
+  return [e1,figUnit(cruz(u,e1))];
+}
+function figSum(a,b){ return [a[0]+b[0],a[1]+b[1],a[2]+b[2]]; }
+function figEsc(v,k){ return [v[0]*k,v[1]*k,v[2]*k]; }
+
+function figuraSVG(fig){
+  if(!fig) return '';
+  var W=266, H=202, pad=22, i, j, t;
+  var pts=[[0,0,0]];
+  for(i=0;i<fig.vectores.length;i++) pts.push(fig.vectores[i].p);
+  var ar=fig.solido, vert=[];
+  if(ar){
+    for(i=0;i<8;i++){
+      var v=[(i&1?ar[0][0]:0)+(i&2?ar[1][0]:0)+(i&4?ar[2][0]:0),
+             (i&1?ar[0][1]:0)+(i&2?ar[1][1]:0)+(i&4?ar[2][1]:0),
+             (i&1?ar[0][2]:0)+(i&2?ar[1][2]:0)+(i&4?ar[2][2]:0)];
+      vert.push(v); pts.push(v);
+    }
+  }
+  if(fig.plano){
+    pts.push(fig.plano[0]); pts.push(fig.plano[1]); pts.push(figSum(fig.plano[0],fig.plano[1]));
+  }
+  if(fig.esfera){
+    pts.push([1,0,0]); pts.push([-1,0,0]); pts.push([0,1,0]); pts.push([0,-1,0]); pts.push([0,0,1]); pts.push([0,0,-1]);
+  }
+  var discoPts=[];
+  if(fig.disco){
+    var bs=figPerp(fig.disco), rd=norma(fig.disco)*0.95;
+    for(i=0;i<=36;i++){
+      t=i/36*2*Math.PI;
+      var pd=figSum(figEsc(bs[0],Math.cos(t)*rd),figEsc(bs[1],Math.sin(t)*rd));
+      discoPts.push(pd); pts.push(pd);
+    }
+  }
+  if(fig.proyeccion){
+    var bb=fig.proyeccion.b, aa=fig.proyeccion.a, nb=norma(bb);
+    var ub=figEsc(bb,1/nb), pie=figEsc(ub,punto(aa,bb)/nb);
+    fig._pie=pie; fig._ub=ub; pts.push(pie);
+  }
+  var c=[0,0,0];
+  for(i=0;i<pts.length;i++){ c[0]+=pts[i][0]; c[1]+=pts[i][1]; c[2]+=pts[i][2]; }
+  c=[c[0]/pts.length,c[1]/pts.length,c[2]/pts.length];
+  var R=1;
+  for(i=0;i<pts.length;i++){
+    var dd=norma([pts[i][0]-c[0],pts[i][1]-c[1],pts[i][2]-c[2]]);
+    if(dd>R) R=dd;
+  }
+  if(fig.esfera&&1>R) R=1;
+  var esc=(Math.min(W,H)/2-pad)/R;
+  function P(p){
+    var q=figProy([p[0]-c[0],p[1]-c[1],p[2]-c[2]]);
+    return [W/2+q[0]*esc, H/2+q[1]*esc];
+  }
+  function xy(p){ var r=P(p); return r[0].toFixed(1)+','+r[1].toFixed(1); }
+  function poli(lista,relleno,borde,guion){
+    var d='', k;
+    for(k=0;k<lista.length;k++) d+=(k?' ':'')+xy(lista[k]);
+    return '<polygon points="'+d+'" fill="'+relleno+'" stroke="'+borde+'" stroke-width="1"'+(guion?' stroke-dasharray="4 4"':'')+'/>';
+  }
+  var out='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+escaparHTML(fig.nota||'Esquema del ejercicio')+'">';
+  out+='<defs>';
+  for(var clave in FIG_COL){
+    if(FIG_COL.hasOwnProperty(clave)){
+      out+='<marker id="figFlecha'+clave+'" markerWidth="7" markerHeight="7" refX="5.6" refY="3.5" orient="auto"><path d="M0,0.6 L6.4,3.5 L0,6.4 Z" fill="'+FIG_COL[clave]+'"/></marker>';
+    }
+  }
+  out+='</defs>';
+  out+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#fbfcff"/>';
+  /* retícula del plano z=0 */
+  var xmin=-2,xmax=2,ymin=-2,ymax=2;
+  for(i=0;i<pts.length;i++){
+    if(pts[i][0]<xmin) xmin=pts[i][0];
+    if(pts[i][0]>xmax) xmax=pts[i][0];
+    if(pts[i][1]<ymin) ymin=pts[i][1];
+    if(pts[i][1]>ymax) ymax=pts[i][1];
+  }
+  xmin=Math.max(-12,Math.floor(xmin)); xmax=Math.min(12,Math.ceil(xmax));
+  ymin=Math.max(-12,Math.floor(ymin)); ymax=Math.min(12,Math.ceil(ymax));
+  var paso=Math.max(1,Math.ceil(Math.max(xmax-xmin,ymax-ymin)/6));
+  var rej='';
+  for(i=xmin;i<=xmax;i+=paso) rej+='<line x1="'+P([i,ymin,0])[0].toFixed(1)+'" y1="'+P([i,ymin,0])[1].toFixed(1)+'" x2="'+P([i,ymax,0])[0].toFixed(1)+'" y2="'+P([i,ymax,0])[1].toFixed(1)+'"/>';
+  for(j=ymin;j<=ymax;j+=paso) rej+='<line x1="'+P([xmin,j,0])[0].toFixed(1)+'" y1="'+P([xmin,j,0])[1].toFixed(1)+'" x2="'+P([xmax,j,0])[0].toFixed(1)+'" y2="'+P([xmax,j,0])[1].toFixed(1)+'"/>';
+  out+='<g stroke="#dbe2fd" stroke-width="0.8" opacity="0.85">'+rej+'</g>';
+  /* paralelepípedo */
+  if(ar){
+    var O=[0,0,0], A=ar[0], B=ar[1], C=ar[2];
+    out+=poli([O,A,figSum(A,B),B],'rgba(79,70,229,.07)','#c7d2fe',false);
+    out+=poli([O,B,figSum(B,C),C],'rgba(124,58,237,.07)','#c7d2fe',false);
+    out+=poli([O,C,figSum(C,A),A],'rgba(5,150,105,.06)','#c7d2fe',false);
+    var caras=[[A,figSum(A,B),figSum(figSum(A,B),C),figSum(A,C)],[B,figSum(B,C),figSum(figSum(A,B),C),figSum(A,B)],[C,figSum(A,C),figSum(figSum(A,B),C),figSum(B,C)]];
+    for(i=0;i<caras.length;i++) out+=poli(caras[i],'rgba(79,70,229,.04)','#a5b4fc',true);
+  }
+  /* plano generado por dos vectores */
+  if(fig.plano){
+    out+=poli([[0,0,0],fig.plano[0],figSum(fig.plano[0],fig.plano[1]),fig.plano[1]],'rgba(124,58,237,.10)','#c4b5fd',true);
+  }
+  /* disco perpendicular */
+  if(discoPts.length) out+=poli(discoPts,'rgba(79,70,229,.09)','#a5b4fc',true);
+  /* esfera de radio 1 */
+  if(fig.esfera){
+    var o=P([0,0,0]);
+    out+='<circle cx="'+o[0].toFixed(1)+'" cy="'+o[1].toFixed(1)+'" r="'+esc.toFixed(1)+'" fill="rgba(5,150,105,.05)" stroke="#059669" stroke-width="1.1" stroke-dasharray="4 4"/>';
+    out+='<text x="'+(o[0]+esc*0.72).toFixed(1)+'" y="'+(o[1]-esc*0.72).toFixed(1)+'" font-size="10" font-weight="700" fill="#059669" stroke="#fbfcff" stroke-width="3" paint-order="stroke" text-anchor="middle">r = 1</text>';
+  }
+  /* arco del ángulo */
+  if(fig.arco){
+    var u=fig.arco.u, w=fig.arco.v, nu=norma(u), nw=norma(w);
+    var cs=Math.max(-1,Math.min(1,punto(u,w)/(nu*nw))), ang=Math.acos(cs);
+    if(ang>0.06){
+      var eje=cruz(u,w);
+      if(norma(eje)<1e-9) eje=figPerp(u)[0]; else eje=figUnit(eje);
+      var perp=figUnit(cruz(eje,u)), rr=0.34*Math.min(nu,nw), arco='', ptMedio=null;
+      for(i=0;i<=22;i++){
+        t=ang*i/22;
+        var pw=figSum(figEsc(figUnit(u),Math.cos(t)*rr),figEsc(perp,Math.sin(t)*rr));
+        arco+=(i?' ':'')+xy(pw);
+        if(i===11) ptMedio=P(pw);
+      }
+      out+='<polyline points="'+arco+'" fill="none" stroke="#b45309" stroke-width="1.6"/>';
+      if(ptMedio){
+        var om=P([0,0,0]), dx=ptMedio[0]-om[0], dy=ptMedio[1]-om[1], md=Math.sqrt(dx*dx+dy*dy)||1;
+        out+='<text x="'+(ptMedio[0]+dx/md*13).toFixed(1)+'" y="'+(ptMedio[1]+dy/md*13+3).toFixed(1)+'" font-size="11" font-weight="700" fill="#b45309" stroke="#fbfcff" stroke-width="3" paint-order="stroke" text-anchor="middle">'+escaparHTML(fig.arco.etiqueta||'θ')+'</text>';
+      }
+    }
+  }
+  /* proyección: caída perpendicular y escuadra */
+  if(fig.proyeccion){
+    var pie=fig._pie, ub=fig._ub, aa2=fig.proyeccion.a;
+    var pa=P(aa2), pp=P(pie);
+    out+='<line x1="'+pa[0].toFixed(1)+'" y1="'+pa[1].toFixed(1)+'" x2="'+pp[0].toFixed(1)+'" y2="'+pp[1].toFixed(1)+'" stroke="#b45309" stroke-width="1.3" stroke-dasharray="4 3"/>';
+    var perp2=[aa2[0]-pie[0],aa2[1]-pie[1],aa2[2]-pie[2]], np=norma(perp2);
+    if(np>1e-9){
+      var up=figEsc(perp2,1/np), sg=(punto(aa2,ub)>=0?1:-1), ss=0.13*Math.min(norma(aa2),norma(fig.proyeccion.b));
+      var q1=figSum(pie,figEsc(ub,-sg*ss)), q2=figSum(q1,figEsc(up,ss)), q3=figSum(pie,figEsc(up,ss));
+      out+='<polyline points="'+xy(q1)+' '+xy(q2)+' '+xy(q3)+'" fill="none" stroke="#b45309" stroke-width="1.2"/>';
+    }
+    out+='<circle cx="'+pp[0].toFixed(1)+'" cy="'+pp[1].toFixed(1)+'" r="2.6" fill="#b45309"/>';
+  }
+  /* vectores: los más largos primero para que ninguno quede oculto */
+  var o2=P([0,0,0]);
+  var orden=fig.vectores.slice(0).sort(function(p,q){ return norma(q.p)-norma(p.p); });
+  var etiquetasColocadas=[];
+  for(i=0;i<orden.length;i++){
+    var vv=orden[i], col=FIG_COL[vv.color]||FIG_COL.a, tip=P(vv.p);
+    out+='<line x1="'+o2[0].toFixed(1)+'" y1="'+o2[1].toFixed(1)+'" x2="'+tip[0].toFixed(1)+'" y2="'+tip[1].toFixed(1)+'" stroke="'+col+'" stroke-width="2.4" stroke-linecap="round" marker-end="url(#figFlecha'+(vv.color||'a')+')"/>';
+    var ddx=tip[0]-o2[0], ddy=tip[1]-o2[1], md2=Math.sqrt(ddx*ddx+ddy*ddy)||1;
+    var lx=tip[0]+ddx/md2*14, ly=tip[1]+ddy/md2*14;
+    for(j=0;j<etiquetasColocadas.length;j++){
+      var ea=etiquetasColocadas[j], ddx2=lx-ea[0], ddy2=ly-ea[1], dd2=Math.sqrt(ddx2*ddx2+ddy2*ddy2);
+      if(dd2<17){
+        var px=-ddy/md2, py=ddx/md2, lado=(i%2===0?1:-1);
+        lx+=px*17*lado+(dd2<1?ddx/md2*10:0); ly+=py*17*lado+(dd2<1?ddy/md2*10:0);
+      }
+    }
+    etiquetasColocadas.push([lx,ly]);
+    lx=Math.max(11,Math.min(W-11,lx)); ly=Math.max(13,Math.min(H-6,ly));
+    out+='<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" font-family="Georgia,\'Times New Roman\',serif" font-style="italic" font-size="13" font-weight="700" fill="'+col+'" stroke="#fbfcff" stroke-width="3.2" paint-order="stroke" text-anchor="middle">'+escaparHTML(vv.etiqueta)+'</text>';
+  }
+  out+='<circle cx="'+o2[0].toFixed(1)+'" cy="'+o2[1].toFixed(1)+'" r="2.8" fill="#111827" opacity=".65"/>';
+  out+='</svg>';
+  return out;
+}
+
+function figuraHTML(){
+  if(!figuraActual) return '';
+  return '<figure class="en-figura">'+
+    '<div class="fig-lienzo" id="figLienzo" tabindex="0" role="group" aria-label="Esquema geométrico interactivo: arrastra o usa las flechas para girar">'+figuraSVG(figuraActual)+'</div>'+
+    '<figcaption><b>'+escaparHTML(figuraActual.nota||'')+'</b><span class="girar">'+
+    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>'+
+    'arrastra para girar</span></figcaption></figure>';
+}
+
+function repintarFigura(){
+  var lienzo=document.getElementById('figLienzo');
+  if(lienzo&&figuraActual) lienzo.innerHTML=figuraSVG(figuraActual);
+}
+function girarFigura(dx,dy){
+  figYaw+=dx*0.012;
+  figPitch=Math.max(0.16,Math.min(1.32,figPitch+dy*0.008));
+  if(!figPendiente){
+    figPendiente=true;
+    window.requestAnimationFrame(function(){ figPendiente=false; repintarFigura(); });
+  }
+}
+
+/* =========================================================
+   UI
+   ========================================================= */
+var enunciado=document.getElementById('enunciado');
+var entrada=document.getElementById('respuesta');
+var feedback=document.getElementById('feedback');
+var pistaBox=document.getElementById('pistaBox');
+var explicacionBox=document.getElementById('explicacionBox');
+var btnNuevo=document.getElementById('btnNuevo');
+var btnVerificar=document.getElementById('btnVerificar');
+var btnPista=document.getElementById('btnPista');
+var btnExplicacion=document.getElementById('btnExplicacion');
+var btnReset=document.getElementById('btnReset');
+var mArc=document.getElementById('mArc');
+var mInt=document.getElementById('mInt');
+var mRacha=document.getElementById('mRacha');
+var mPrec=document.getElementById('mPrec');
+var arco=document.getElementById('arco');
+var historialBox=document.getElementById('historial');
+
+var actual=null, resuelto=false, numEjercicio=0;
+var aciertos=0, intentos=0, racha=0, historial=[];
+var CLAVE='genVectorialAlgebra.v1';
+
+var MENSAJES_ERROR=[
+  'Revisa tu procedimiento o pide una pista.',
+  'Vuelve a revisar los signos de cada componente.',
+  'Comprueba la fórmula que estás usando; la pista puede orientarte.',
+  'Revisa la aritmética paso a paso, vas por buen camino.',
+  'Compara tu resultado con la definición antes de volver a intentar.'
+];
+
+function consejo(){
+  var e=etiquetaActual.toLowerCase();
+  if(e.indexOf('vectorial')>=0||e.indexOf('unitario')>=0) return 'Recuerda que la respuesta es un VECTOR: escribe sus tres componentes en orden (x, y, z).';
+  if(e.indexOf('ángulo')>=0) return 'Da el ángulo en grados, entre 0 y 180.';
+  if(e.indexOf('triple')>=0||e.indexOf('volumen')>=0||e.indexOf('propiedades')>=0) return 'El triple producto escalar es un número, no un vector; cuida el signo.';
+  if(e.indexOf('ortogonalidad')>=0) return 'Plantea el producto punto igual a cero y despeja la incógnita.';
+  if(e.indexOf('proyección')>=0) return 'Divide el producto punto entre la norma del vector sobre el que proyectas.';
+  return 'Recuerda que el producto punto devuelve un escalar con signo.';
+}
+
+function pasosHTML(texto){
+  var lineas=String(texto).split('\n'), out='', i, m, cuerpo='';
+  for(i=0;i<lineas.length;i++){
+    if(lineas[i]==='') continue;
+    m=lineas[i].match(/^Paso\s+(\d+)\.\s*([\s\S]*)$/);
+    if(m){ cuerpo+='<li><span class="paso-n">Paso '+m[1]+'.</span><span class="paso-t">'+m[2]+'</span></li>'; }
+    else { out+='<p style="margin:6px 0">'+lineas[i]+'</p>'; }
+  }
+  if(cuerpo) out+='<ol class="pasos">'+cuerpo+'</ol>';
+  return out;
+}
+
+function guardar(){
+  try{
+    window.localStorage.setItem(CLAVE,JSON.stringify({a:aciertos,i:intentos,r:racha,h:historial}));
+  }catch(e){}
+}
+function cargar(){
+  try{
+    var raw=window.localStorage.getItem(CLAVE);
+    if(!raw) return;
+    var d=JSON.parse(raw);
+    if(d&&typeof d.a==='number'&&typeof d.i==='number'){
+      aciertos=d.a; intentos=d.i; racha=d.r||0;
+      historial=(d.h&&d.h.length)?d.h.slice(-16):[];
+    }
+  }catch(e){}
+}
+
+function pintarMarcador(pop){
+  mArc.innerHTML=String(aciertos);
+  mInt.innerHTML=String(intentos);
+  mRacha.innerHTML=String(racha);
+  var pct=intentos>0?Math.round(100*aciertos/intentos):0;
+  mPrec.innerHTML=intentos>0?(pct+'%'):'—';
+  arco.setAttribute('stroke-dashoffset',String(113.1*(1-pct/100)));
+  var h='', i;
+  if(historial.length===0){ h='<span class="vacio">Tu historial de intentos aparecerá aquí.</span>'; }
+  else{
+    for(i=0;i<historial.length;i++){
+      h+='<span class="punto '+(historial[i]?'ok':'err')+'" title="'+(historial[i]?'Acierto':'Intento fallido')+'"></span>';
+    }
+  }
+  historialBox.innerHTML=h;
+  if(pop){
+    var nodo=pop==='ok'?mArc:mInt;
+    nodo.className=nodo.className.replace(' pop','');
+    void nodo.offsetWidth;
+    nodo.className+=' pop';
+  }
+}
+
+function nuevoEjercicio(){
+  actual=genProductosVectoriales();
+  if(figuraActual) figEncuadre(figuraActual);
+  resuelto=false;
+  numEjercicio++;
+  var tipoTxt=actual.tipo==='numerica'?'Respuesta numérica':'Respuesta simbólica';
+  var claseTipo=actual.tipo==='numerica'?'chip chip-tipo':'chip chip-tipo sim';
+  enunciado.innerHTML='<div class="en-head">'+
+      '<span class="chip chip-num">Ejercicio '+numEjercicio+'</span>'+
+      '<span class="chip chip-tema">'+escaparHTML(etiquetaActual)+'</span>'+
+      '<span class="'+claseTipo+'">'+tipoTxt+'</span>'+
+    '</div><div class="en-cuerpo"><div class="en-texto">'+actual.problema+'</div>'+figuraHTML()+'</div>';
+  feedback.className='feedback';
+  feedback.innerHTML='';
+  pistaBox.className='panel pista';
+  pistaBox.innerHTML='<h3>Pista</h3><div>'+actual.pista+'</div>';
+  explicacionBox.className='panel explicacion';
+  explicacionBox.innerHTML='<h3>Explicación paso a paso</h3>'+pasosHTML(actual.explicacion)+
+    '<div class="resp-final"><span class="et">Respuesta</span>'+actual.solucion+'</div>';
+  btnPista.setAttribute('aria-pressed','false');
+  btnExplicacion.setAttribute('aria-pressed','false');
+  entrada.value='';
+  entrada.className='';
+  btnNuevo.className='btn-ghost';
+  tiposet(enunciado); tiposet(pistaBox); tiposet(explicacionBox);
+  entrada.focus();
+}
+
+function alternarPanel(panel,boton){
+  var abierto=panel.className.indexOf('visible')>=0;
+  if(abierto){
+    panel.className=panel.className.replace(' visible','');
+    boton.setAttribute('aria-pressed','false');
+  }else{
+    panel.className+=' visible';
+    boton.setAttribute('aria-pressed','true');
+    tiposet(panel);
+  }
+}
+
+function mostrarCorrecto(texto){
+  feedback.className='feedback ok';
+  feedback.innerHTML='<div class="fb-titulo">✓ ¡Correcto!</div>'+
+    '<div class="fb-linea">Escribiste: <code>'+escaparHTML(texto)+'</code></div>'+
+    '<div class="fb-linea">En notación matemática: $'+actual.respuestaLaTeX+'$</div>';
+  tiposet(feedback);
+}
+
+function mostrarError(texto,vacio){
+  var msg=vacio?'Escribe una respuesta antes de verificar.':azar(MENSAJES_ERROR);
+  feedback.className='feedback err';
+  feedback.innerHTML='<div class="fb-titulo">✗ Todavía no</div>'+
+    '<div class="fb-linea">'+msg+(vacio?'':' '+consejo())+'</div>'+
+    (texto?'<div class="fb-linea">Escribiste: <code>'+escaparHTML(texto)+'</code></div>':'');
+  tiposet(feedback);
+}
+
+function verificar(){
+  if(!actual) return;
+  var texto=entrada.value.replace(/^\s+|\s+$/g,'');
+  if(resuelto){
+    mostrarCorrecto(texto);
+    entrada.className='bien';
+    return;
+  }
+  var vacio=(texto==='');
+  var correcto=false;
+  if(!vacio){
+    if(actual.tipo==='numerica'){
+      var num=aNumero(texto);
+      if(!isNaN(num)&&Math.abs(num-actual.respuesta)<=actual.tolerancia) correcto=true;
+      if(!correcto) correcto=coincideTexto(texto,actual.acepta);
+    }else{
+      correcto=coincideTexto(texto,actual.acepta);
+    }
+  }
+  intentos++;
+  if(correcto){
+    aciertos++; racha++; resuelto=true;
+    historial.push(1);
+    if(historial.length>16) historial=historial.slice(-16);
+    mostrarCorrecto(texto);
+    entrada.className='bien';
+    btnNuevo.className='btn-ghost pulso-nuevo';
+    pintarMarcador('ok');
+  }else{
+    racha=0;
+    historial.push(0);
+    if(historial.length>16) historial=historial.slice(-16);
+    mostrarError(texto,vacio);
+    entrada.className='mal';
+    pintarMarcador('err');
+    setTimeout(function(){ if(entrada.className==='mal') entrada.className=''; },600);
+  }
+  guardar();
+}
+
+/* eventos */
+btnNuevo.onclick=function(){ nuevoEjercicio(); };
+btnVerificar.onclick=function(){ verificar(); };
+btnPista.onclick=function(){ alternarPanel(pistaBox,btnPista); };
+btnExplicacion.onclick=function(){ alternarPanel(explicacionBox,btnExplicacion); };
+btnReset.onclick=function(){
+  aciertos=0; intentos=0; racha=0; historial=[];
+  guardar(); pintarMarcador();
+};
+entrada.addEventListener('keydown',function(e){
+  if(e.key==='Enter'||e.keyCode===13){ e.preventDefault(); verificar(); }
+});
+entrada.addEventListener('input',function(){
+  if(entrada.className==='mal') entrada.className='';
+});
+document.addEventListener('keydown',function(e){
+  var t=e.target||e.srcElement;
+  var tag=(t&&t.tagName)?t.tagName.toLowerCase():'';
+  if(tag==='input'||tag==='textarea'||(t&&t.isContentEditable)) return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.key==='n'||e.key==='N'||e.keyCode===78){ e.preventDefault(); nuevoEjercicio(); }
+});
+
+/* giro del esquema: puntero y teclado */
+enunciado.addEventListener('pointerdown',function(e){
+  var lz=e.target;
+  while(lz&&lz!==enunciado&&!(lz.className&&String(lz.className).indexOf('fig-lienzo')>=0)) lz=lz.parentNode;
+  if(!lz||lz===enunciado) return;
+  figArrastre={x:e.clientX,y:e.clientY};
+  if(lz.setPointerCapture&&e.pointerId!==undefined){ try{ lz.setPointerCapture(e.pointerId); }catch(er){} }
+  e.preventDefault();
+});
+enunciado.addEventListener('pointermove',function(e){
+  if(!figArrastre) return;
+  girarFigura(e.clientX-figArrastre.x,e.clientY-figArrastre.y);
+  figArrastre={x:e.clientX,y:e.clientY};
+});
+enunciado.addEventListener('pointerup',function(){ figArrastre=null; });
+enunciado.addEventListener('pointercancel',function(){ figArrastre=null; });
+enunciado.addEventListener('keydown',function(e){
+  var lz=e.target;
+  if(!lz||!lz.className||String(lz.className).indexOf('fig-lienzo')<0) return;
+  if(e.key==='ArrowLeft'){ girarFigura(-9,0); e.preventDefault(); }
+  else if(e.key==='ArrowRight'){ girarFigura(9,0); e.preventDefault(); }
+  else if(e.key==='ArrowUp'){ girarFigura(0,-9); e.preventDefault(); }
+  else if(e.key==='ArrowDown'){ girarFigura(0,9); e.preventDefault(); }
+});
+enunciado.addEventListener('dblclick',function(e){
+  var lz=e.target;
+  while(lz&&lz!==enunciado&&!(lz.className&&String(lz.className).indexOf('fig-lienzo')>=0)) lz=lz.parentNode;
+  if(!lz||lz===enunciado) return;
+  figYaw=figYaw0; figPitch=figPitch0; repintarFigura();
+});
+
+/* arranque */
+cargar();
+pintarMarcador();
+nuevoEjercicio();
+</script>
+</body>
+</html>
