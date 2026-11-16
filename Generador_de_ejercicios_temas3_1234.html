@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+}
+*{box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); margin:0; padding:24px 16px;
+  min-height:100vh;
+}
+.wrap{max-width:900px; margin:0 auto;}
+.card{
+  background:var(--card); border-radius:16px;
+  box-shadow:0 10px 30px rgba(17,24,39,.08);
+  overflow:hidden; border:1px solid var(--line);
+}
+.head{
+  background:linear-gradient(135deg, var(--brand), var(--brand2));
+  color:#fff; padding:22px 26px;
+}
+.head h1{margin:0 0 6px; font-size:1.4rem;}
+.head p{margin:0; opacity:.92; font-size:.95rem;}
+.body{padding:22px 26px;}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+.row.end{justify-content:flex-end;}
+.btn-primary,.btn-ghost,.btn-soft{
+  border:1px solid transparent; border-radius:10px; padding:9px 14px;
+  font-size:.95rem; cursor:pointer; font-weight:600;
+  transition:transform .05s ease, background .15s ease;
+}
+.btn-primary{background:var(--brand); color:#fff;}
+.btn-primary:hover{background:var(--brand2);}
+.btn-ghost{background:transparent; color:var(--brand); border-color:var(--brand);}
+.btn-ghost:hover{background:#eef2ff;}
+.btn-soft{background:#eef2ff; color:var(--brand); border-color:#e0e7ff;}
+.btn-soft:hover{background:#e0e7ff;}
+.btn-primary:active,.btn-ghost:active,.btn-soft:active{transform:translateY(1px);}
+#enunciado{
+  background:#fafaff; border:1px dashed var(--line); border-radius:10px;
+  padding:14px 16px; font-size:1.02rem; line-height:1.55; margin-bottom:14px;
+}
+#respuesta{
+  flex:1; min-width:220px; padding:10px 12px; border-radius:10px;
+  border:1px solid var(--line); font-size:1rem; outline:none;
+}
+#respuesta:focus{border-color:var(--brand); box-shadow:0 0 0 3px #eef2ff;}
+.feedback{
+  display:none; border-radius:10px; padding:12px 14px; margin:14px 0;
+  font-size:.98rem; line-height:1.5;
+}
+.feedback.ok{display:block; background:var(--okbg); border:1px solid #a7f3d0; color:var(--ok);}
+.feedback.err{display:block; background:var(--errbg); border:1px solid #fecaca; color:var(--err);}
+.feedback code{background:#fff; padding:1px 6px; border-radius:6px; border:1px solid var(--line); color:var(--ink);}
+.panel{display:none; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:.96rem; line-height:1.55;}
+.panel.visible{display:block;}
+.panel.pista{background:var(--warnbg); border:1px solid #fde68a; color:var(--warn);}
+.panel.explicacion{background:#f5f3ff; border:1px solid #ddd6fe; color:#5b21b6;}
+.marcador{
+  display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+  margin-top:16px; padding-top:14px; border-top:1px solid var(--line);
+  font-size:.92rem; color:var(--muted);
+}
+.marcador b{color:var(--ink);}
+.kbd{
+  display:inline-block; padding:2px 8px; border-radius:6px;
+  background:#f3f4f6; border:1px solid var(--line);
+  font-family:ui-monospace,monospace; font-size:.82rem; color:var(--ink);
+}
+footer{text-align:center; color:var(--muted); font-size:.85rem; padding:20px 0;}
+@media (max-width:560px){
+  .body,.head{padding-left:16px; padding-right:16px;}
+  .head h1{font-size:1.15rem;}
+  .row{flex-direction:column; align-items:stretch;}
+  #respuesta{min-width:0;}
+  .btn-primary,.btn-ghost,.btn-soft{width:100%;}
+  .row.end{justify-content:stretch;}
+}
+</style>
+<script>
+window.MathJax = {
+  tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="head">
+      <h1>Generador infinito de ejercicios</h1>
+      <p>Materia: Álgebra · Tema: Polinomios: definición, suma y producto, algoritmo de la división, división larga, división sintética y raíces</p>
+    </div>
+    <div class="body">
+      <div class="row end">
+        <button class="btn-ghost" onclick="nuevoEjercicio()">Nuevo ejercicio</button>
+      </div>
+      <div id="enunciado"></div>
+      <div class="row">
+        <input id="respuesta" type="text" placeholder="Usa ^ para potencias y / para fracciones…" autocomplete="off">
+        <button class="btn-primary" onclick="verificar()">Verificar</button>
+        <button class="btn-soft" onclick="mostrarPista()">Pista</button>
+        <button class="btn-soft" onclick="mostrarExplicacion()">Explicación</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="pistaBox" class="panel pista"></div>
+      <div id="explicacionBox" class="panel explicacion"></div>
+      <div class="marcador">
+        <span>Aciertos: <b id="mArc">0</b></span>
+        <span>Intentos: <b id="mInt">0</b></span>
+        <span><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</span>
+      </div>
+    </div>
+  </div>
+  <footer>Generador aleatorio educativo · Álgebra · Polinomios y sus operaciones</footer>
+</div>
+<script>
+// ===== UTILIDADES =====
+function escaparHTML(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function normalizar(valor){
+  if(valor === null || valor === undefined) return '';
+  var s = String(valor).toLowerCase().trim();
+  s = s.replace(/\$/g,'').replace(/[{}]/g,'').replace(/\s+/g,'').replace(/\*/g,'');
+  s = s.replace(/°/g,'').replace(/grados?/g,'').replace(/deg/g,'');
+  return s;
+}
+function aNumero(v){
+  if(v === null || v === undefined) return null;
+  var s = String(v).trim();
+  s = s.replace(/°/g,'').replace(/grados?/gi,'').replace(/deg/gi,'').trim();
+  if(!s) return null;
+  var m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(m){
+    var a = parseFloat(m[1]), b = parseFloat(m[2]);
+    if(b === 0) return null;
+    return a/b;
+  }
+  var n = parseFloat(s.replace(/,/g,'.'));
+  return isNaN(n) ? null : n;
+}
+function coincideTexto(entrada, acepta){
+  var n = normalizar(entrada);
+  if(!n) return false;
+  for(var i=0;i<acepta.length;i++){
+    if(n === normalizar(acepta[i])) return true;
+  }
+  return false;
+}
+function tiposet(nodo, intento){
+  intento = intento || 0;
+  if(!nodo) return;
+  if(window.MathJax && window.MathJax.typesetPromise){
+    try{ window.MathJax.typesetPromise([nodo]); }catch(e){}
+    return;
+  }
+  if(intento >= 40) return;
+  setTimeout(function(){ tiposet(nodo, intento+1); }, 200);
+}
+function rnd(min, max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+function pick(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+// Protagonistas femeninas e interculturales
+var PROTAS = [
+  'la ingeniera mecatrónica Valeria',
+  'la diseñadora industrial Ana',
+  'la doctora en IA Camila',
+  'la estudiante de robótica Lucía',
+  'la arquitecta bilingüe Nayeli',
+  'la maestra artesana Yolanda',
+  'la investigadora tsotsil Petra',
+  'la ingeniera civil Renata',
+  'la diseñadora Paola',
+  'la científica Frida',
+  'la ingeniera en innovación Sofía',
+  'la estudiante de maestría Ximena'
+];
+function prota(){ return pick(PROTAS); }
+
+function ctxLab(){ return pick([
+  'su laboratorio de mecatrónica',
+  'su taller de innovación y diseño',
+  'el centro de investigación en inteligencia artificial',
+  'su proyecto de robótica colaborativa',
+  'su despacho de diseño industrial'
+]); }
+
+// ===== GENERADOR =====
+function gen(){
+  var variantes = [vSuma, vProducto, vSinteticaCociente, vDivisionResto, vRaiz, vEvaluar, vGrado];
+  return variantes[Math.floor(Math.random()*variantes.length)]();
+}
+
+// V1: Suma de polinomios (simbólica)
+function vSuma(){
+  var casos = [
+    { p1:'2x^2+3x+1', p2:'x^2-4x+2', p1L:'2x^2+3x+1', p2L:'x^2-4x+2', ans:'3x^2-x+3', ansL:'3x^2-x+3' },
+    { p1:'3x^3-x+2',  p2:'x^3+2x^2-x', p1L:'3x^3-x+2',  p2L:'x^3+2x^2-x', ans:'4x^3+2x^2-2x+2', ansL:'4x^3+2x^2-2x+2' },
+    { p1:'x^2-5x+3',  p2:'2x^2+7x-1', p1L:'x^2-5x+3',  p2L:'2x^2+7x-1', ans:'3x^2+2x+2', ansL:'3x^2+2x+2' },
+    { p1:'4x^2+2x-1', p2:'-x^2-x+5',  p1L:'4x^2+2x-1', p2L:'-x^2-x+5',  ans:'3x^2+x+4', ansL:'3x^2+x+4' },
+    { p1:'5x^2-2x+4', p2:'2x^2+6x-3', p1L:'5x^2-2x+4', p2L:'2x^2+6x-3', ans:'7x^2+4x+1', ansL:'7x^2+4x+1' }
+  ];
+  var c = pick(casos);
+  var pr = prota();
+  var problema = pr + ' está procesando dos señales en ' + ctxLab() + ' modeladas por polinomios. Calcula la suma $(P+Q)(x)$, donde $P(x)=' + c.p1L + '$ y $Q(x)=' + c.p2L + '$. Escribe el resultado en forma estándar (por ejemplo x^2+5x+6).';
+  return {
+    tipo:'simbolica',
+    problema: problema,
+    solucion: '$(P+Q)(x)=' + c.ansL + '$.',
+    respuestaLaTeX: c.ansL,
+    acepta: [c.ans],
+    pista: 'Suma los coeficientes de los términos SEMEJANTES (mismo exponente). Ordena el resultado de mayor a menor grado.',
+    explicacion: 'Paso 1. Alinear los términos por grado: $P(x)=' + c.p1L + '$, $Q(x)=' + c.p2L + '$.\nPaso 2. Sumar coeficientes de igual grado.\nPaso 3. Escribir el resultado en orden descendente: $' + c.ansL + '$.'
+  };
+}
+
+// V2: Producto de polinomios (simbólica)
+function vProducto(){
+  var casos = [
+    { p1:'x+2', p2:'x+3',  p1L:'x+2', p2L:'x+3',  ans:'x^2+5x+6', ansL:'x^2+5x+6', pasos:'$x(x+3)+2(x+3)=x^2+3x+2x+6$' },
+    { p1:'x-1', p2:'x+4',  p1L:'x-1', p2L:'x+4',  ans:'x^2+3x-4', ansL:'x^2+3x-4', pasos:'$x(x+4)-1(x+4)=x^2+4x-x-4$' },
+    { p1:'2x+1', p2:'x+3', p1L:'2x+1', p2L:'x+3', ans:'2x^2+7x+3', ansL:'2x^2+7x+3', pasos:'$2x(x+3)+1(x+3)=2x^2+6x+x+3$' },
+    { p1:'x+5', p2:'x-5',  p1L:'x+5', p2L:'x-5',  ans:'x^2-25', ansL:'x^2-25', pasos:'producto notable: $(a+b)(a-b)=a^2-b^2$ con $a=x$, $b=5$' },
+    { p1:'3x+2', p2:'2x-1', p1L:'3x+2', p2L:'2x-1', ans:'6x^2+x-2', ansL:'6x^2+x-2', pasos:'$3x(2x-1)+2(2x-1)=6x^2-3x+4x-2$' }
+  ];
+  var c = pick(casos);
+  var pr = prota();
+  var problema = pr + ' modela en ' + ctxLab() + ' un producto de dos señales polinomiales. Calcula $(P\\cdot Q)(x)$, donde $P(x)=' + c.p1L + '$ y $Q(x)=' + c.p2L + '$. Escribe el resultado en forma estándar (por ejemplo x^2+5x+6).';
+  return {
+    tipo:'simbolica',
+    problema: problema,
+    solucion: '$(P\\cdot Q)(x)=' + c.ansL + '$.',
+    respuestaLaTeX: c.ansL,
+    acepta: [c.ans],
+    pista: 'Aplica la propiedad distributiva: multiplica cada término del primer polinomio por cada término del segundo y luego reduce términos semejantes.',
+    explicacion: 'Paso 1. Distribuir: ' + c.pasos + '.\nPaso 2. Reducir términos semejantes.\nPaso 3. Resultado: $' + c.ansL + '$.'
+  };
+}
+
+// V3: División sintética - cociente (simbólica)
+function vSinteticaCociente(){
+  var casos = [
+    { dividendo:'x^3-6x^2+11x-6', divisor:'x-1', r:1, coefs:'1,-6,11,-6', ans:'x^2-5x+6', ansL:'x^2-5x+6',
+      pasos:'coeficientes 1, -6, 11, -6. Bajar 1. Multiplicar 1·1=1 y sumar: -6+1=-5. Multiplicar -5·1=-5 y sumar: 11-5=6. Multiplicar 6·1=6 y sumar: -6+6=0.' },
+    { dividendo:'x^3-3x^2-10x+24', divisor:'x-2', r:2, coefs:'1,-3,-10,24', ans:'x^2-x-12', ansL:'x^2-x-12',
+      pasos:'coeficientes 1, -3, -10, 24. Bajar 1. Multiplicar 1·2=2 y sumar: -3+2=-1. Multiplicar -1·2=-2 y sumar: -10-2=-12. Multiplicar -12·2=-24 y sumar: 24-24=0.' },
+    { dividendo:'x^2+5x+6', divisor:'x+2', r:-2, coefs:'1,5,6', ans:'x+3', ansL:'x+3',
+      pasos:'coeficientes 1, 5, 6. Bajar 1. Multiplicar 1·(-2)=-2 y sumar: 5-2=3. Multiplicar 3·(-2)=-6 y sumar: 6-6=0.' },
+    { dividendo:'x^3-x^2-14x+24', divisor:'x-3', r:3, coefs:'1,-1,-14,24', ans:'x^2+2x-8', ansL:'x^2+2x-8',
+      pasos:'coeficientes 1, -1, -14, 24. Bajar 1. Multiplicar 1·3=3 y sumar: -1+3=2. Multiplicar 2·3=6 y sumar: -14+6=-8. Multiplicar -8·3=-24 y sumar: 24-24=0.' },
+    { dividendo:'x^3+2x^2-5x-6', divisor:'x+1', r:-1, coefs:'1,2,-5,-6', ans:'x^2+x-6', ansL:'x^2+x-6',
+      pasos:'coeficientes 1, 2, -5, -6. Bajar 1. Multiplicar 1·(-1)=-1 y sumar: 2-1=1. Multiplicar 1·(-1)=-1 y sumar: -5-1=-6. Multiplicar -6·(-1)=6 y sumar: -6+6=0.' }
+  ];
+  var c = pick(casos);
+  var pr = prota();
+  var problema = pr + ' aplica división sintética en ' + ctxLab() + ' para dividir $' + c.dividendo + '$ entre $' + c.divisor + '$. ¿Cuál es el cociente? Escríbelo en forma estándar (por ejemplo x^2-3x+2).';
+  return {
+    tipo:'simbolica',
+    problema: problema,
+    solucion: 'El cociente es $' + c.ansL + '$ (y el residuo es $0$, porque $' + c.divisor + '$ es factor).',
+    respuestaLaTeX: c.ansL,
+    acepta: [c.ans],
+    pista: 'En la división sintética usa la raíz del divisor (si divides entre $x-r$, usa $r$). Coloca los coeficientes del dividendo y aplica el patrón: bajar, multiplicar y sumar.',
+    explicacion: 'Paso 1. Escribir ' + c.pasos + '\nPaso 2. El cociente tiene grado una unidad menor que el dividendo, con los coeficientes obtenidos (sin el último, que es el residuo).\nPaso 3. Cociente: $' + c.ansL + '$.'
+  };
+}
+
+// V4: División - residuo (numérica)
+function vDivisionResto(){
+  var casos = [
+    { dividendo:'x^3-2x^2+3x-4', divisor:'x-2', r:2,  resto:2,  evaluacion:'2^3-2\\cdot2^2+3\\cdot2-4=8-8+6-4=2' },
+    { dividendo:'x^3+x^2-4x+1',  divisor:'x-1', r:1,  resto:-1, evaluacion:'1^3+1^2-4\\cdot1+1=1+1-4+1=-1' },
+    { dividendo:'2x^3-x^2+3x-1', divisor:'x+1', r:-1, resto:-7, evaluacion:'2(-1)^3-(-1)^2+3(-1)-1=-2-1-3-1=-7' },
+    { dividendo:'x^3-4x+2',      divisor:'x-3', r:3,  resto:17, evaluacion:'3^3-4\\cdot3+2=27-12+2=17' },
+    { dividendo:'x^3+2x^2-5x-6', divisor:'x+1', r:-1, resto:0,  evaluacion:'(-1)^3+2(-1)^2-5(-1)-6=-1+2+5-6=0' }
+  ];
+  var c = pick(casos);
+  var pr = prota();
+  var problema = pr + ' divide en ' + ctxLab() + ' el polinomio $' + c.dividendo + '$ entre $' + c.divisor + '$. Sin hacer la división completa, usa el TEOREMA DEL RESTO para obtener el residuo. ¿Cuál es el valor del residuo?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'Por el teorema del resto, el residuo es $P(' + c.r + ')=' + c.resto + '$.',
+    respuestaLaTeX: String(c.resto),
+    acepta: [String(c.resto)],
+    respuesta: c.resto,
+    tolerancia: 0.001,
+    pista: 'Teorema del resto: el residuo de dividir $P(x)$ entre $x-r$ es $P(r)$. Evalúa el polinomio en $x=' + c.r + '$.',
+    explicacion: 'Paso 1. Identificar la raíz del divisor: si divides entre $' + c.divisor + '$, usa $r=' + c.r + '$.\nPaso 2. Evaluar: $P(' + c.r + ')=' + c.evaluacion + '$.\nPaso 3. El residuo es $' + c.resto + '$.'
+  };
+}
+
+// V5: Raíz de polinomio (numérica)
+function vRaiz(){
+  var casos = [
+    { pol:'x^2-5x+6',  polL:'x^2-5x+6',  preg:'la raíz MAYOR (entera)',  ans:3,  pista:'factoriza como (x-2)(x-3).' },
+    { pol:'x^2-7x+12', polL:'x^2-7x+12', preg:'la raíz MAYOR (entera)',  ans:4,  pista:'factoriza como (x-3)(x-4).' },
+    { pol:'x^2-x-6',   polL:'x^2-x-6',   preg:'la raíz NEGATIVA',        ans:-2, pista:'factoriza como (x-3)(x+2).' },
+    { pol:'x^2-4',     polL:'x^2-4',     preg:'la raíz POSITIVA',        ans:2,  pista:'diferencia de cuadrados: (x-2)(x+2).' },
+    { pol:'x^3-6x^2+11x-6', polL:'x^3-6x^2+11x-6', preg:'la raíz MAYOR (entera)', ans:3, pista:'las raíces son 1, 2 y 3; factoriza (x-1)(x-2)(x-3).' },
+    { pol:'x^2-3x-4',  polL:'x^2-3x-4',  preg:'la raíz POSITIVA',        ans:4,  pista:'factoriza como (x-4)(x+1).' },
+    { pol:'x^2+2x-8',  polL:'x^2+2x-8',  preg:'la raíz POSITIVA',        ans:2,  pista:'factoriza como (x+4)(x-2).' }
+  ];
+  var c = pick(casos);
+  var pr = prota();
+  var problema = pr + ' analiza en ' + ctxLab() + ' el polinomio $P(x)=' + c.polL + '$. Encuentra ' + c.preg + ' del polinomio, es decir, un valor $x$ tal que $P(x)=0$.';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'La raíz solicitada es $x=' + c.ans + '$.',
+    respuestaLaTeX: String(c.ans),
+    acepta: [String(c.ans)],
+    respuesta: c.ans,
+    tolerancia: 0.001,
+    pista: 'Prueba con los divisores del término independiente (candidatos enteros). O factoriza el polinomio. Para este caso, ' + c.pista,
+    explicacion: 'Paso 1. Proponer candidatos enteros (divisores del término constante).\nPaso 2. Sustituir y buscar $P(x)=0$.\nPaso 3. Para este polinomio, ' + c.pista + '\nPaso 4. La raíz pedida es $x=' + c.ans + '$.'
+  };
+}
+
+// V6: Evaluar polinomio (numérica)
+function vEvaluar(){
+  var casos = [
+    { pol:'2x^2-3x+1', polL:'2x^2-3x+1', a:2,  ans:3,   sust:'2\\cdot2^2-3\\cdot2+1=8-6+1' },
+    { pol:'x^3-2x+5',  polL:'x^3-2x+5',  a:-1, ans:6,   sust:'(-1)^3-2(-1)+5=-1+2+5' },
+    { pol:'3x^2+x-2',  polL:'3x^2+x-2',  a:3,  ans:28,  sust:'3\\cdot3^2+3-2=27+3-2' },
+    { pol:'x^3+x^2-x+1', polL:'x^3+x^2-x+1', a:2, ans:11, sust:'2^3+2^2-2+1=8+4-2+1' },
+    { pol:'2x^3-x+4',  polL:'2x^3-x+4',  a:-2, ans:-10, sust:'2(-2)^3-(-2)+4=-16+2+4' },
+    { pol:'x^4-2x^2+1', polL:'x^4-2x^2+1', a:2, ans:9,  sust:'2^4-2\\cdot2^2+1=16-8+1' },
+    { pol:'4x^2-5x+2', polL:'4x^2-5x+2', a:-1, ans:11,  sust:'4(-1)^2-5(-1)+2=4+5+2' }
+  ];
+  var c = pick(casos);
+  var pr = prota();
+  var problema = pr + ' está verificando la salida de un modelo en ' + ctxLab() + ' evaluando el polinomio $P(x)=' + c.polL + '$ en $x=' + c.a + '$. ¿Cuál es el valor de $P(' + c.a + ')$?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$P(' + c.a + ')=' + c.sust + '=' + c.ans + '$.',
+    respuestaLaTeX: String(c.ans),
+    acepta: [String(c.ans)],
+    respuesta: c.ans,
+    tolerancia: 0.001,
+    pista: 'Sustituye $x=' + c.a + '$ en cada término. Cuidado con el signo cuando elevas un número negativo a una potencia.',
+    explicacion: 'Paso 1. Sustituir $x=' + c.a + '$ en $P(x)$: $' + c.sust + '$.\nPaso 2. Calcular cada término respetando signos.\nPaso 3. Sumar: $P(' + c.a + ')=' + c.ans + '$.'
+  };
+}
+
+// V7: Grado del polinomio (numérica)
+function vGrado(){
+  var casos = [
+    { pol:'3x^4+2x^2-5x+1', polL:'3x^4+2x^2-5x+1', ans:4, razon:'el término de mayor exponente es $3x^4$.' },
+    { pol:'(x+1)(x^2+1)',   polL:'(x+1)(x^2+1)',   ans:3, razon:'grados $1+2=3$ al multiplicar.' },
+    { pol:'5x^6-2x^4+x',    polL:'5x^6-2x^4+x',     ans:6, razon:'el término de mayor exponente es $5x^6$.' },
+    { pol:'(x^2+1)^3',      polL:'(x^2+1)^3',       ans:6, razon:'grado $2\\cdot3=6$ al elevar al cubo.' },
+    { pol:'-2x^5+x^3-7',    polL:'-2x^5+x^3-7',     ans:5, razon:'el término de mayor exponente es $-2x^5$.' }
+  ];
+  var c = pick(casos);
+  var pr = prota();
+  var problema = pr + ' clasifica un polinomio en ' + ctxLab() + ': $P(x)=' + c.polL + '$. ¿Cuál es el GRADO del polinomio? (escribe solo el número entero)';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'El grado es $' + c.ans + '$, porque ' + c.razon,
+    respuestaLaTeX: String(c.ans),
+    acepta: [String(c.ans)],
+    respuesta: c.ans,
+    tolerancia: 0.001,
+    pista: 'El grado de un polinomio es el MAYOR exponente de $x$ con coeficiente distinto de cero. Si está factorizado, suma los grados de los factores; si está elevado a una potencia $n$, multiplica el grado por $n$.',
+    explicacion: 'Paso 1. Identificar el término de mayor grado.\nPaso 2. En este caso, ' + c.razon + '\nPaso 3. Por lo tanto, el grado es $' + c.ans + '$.'
+  };
+}
+
+// ===== UI =====
+var ejercicioActual = null;
+var aciertos = 0, intentos = 0;
+
+function nuevoEjercicio(){
+  ejercicioActual = gen();
+  var enun = document.getElementById('enunciado');
+  enun.innerHTML = ejercicioActual.problema;
+  tiposet(enun);
+  document.getElementById('respuesta').value = '';
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+  var pistaBox = document.getElementById('pistaBox');
+  pistaBox.className = 'panel pista';
+  pistaBox.innerHTML = '';
+  var expBox = document.getElementById('explicacionBox');
+  expBox.className = 'panel explicacion';
+  expBox.innerHTML = '';
+  document.getElementById('respuesta').focus();
+}
+
+function verificar(){
+  if(!ejercicioActual) return;
+  var entrada = document.getElementById('respuesta').value;
+  var fb = document.getElementById('feedback');
+  var correcto = false;
+
+  if(ejercicioActual.tipo === 'numerica'){
+    var num = aNumero(entrada);
+    if(num !== null && Math.abs(num - ejercicioActual.respuesta) <= ejercicioActual.tolerancia){
+      correcto = true;
+    }
+    if(!correcto && coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  } else {
+    if(coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  }
+
+  intentos++;
+  document.getElementById('mInt').textContent = intentos;
+
+  if(correcto){
+    aciertos++;
+    document.getElementById('mArc').textContent = aciertos;
+    fb.className = 'feedback ok';
+    fb.innerHTML = '<span style="font-weight:600">✓ ¡Correcto!</span><br>Escribiste: <code>' + escaparHTML(entrada) + '</code><br>En notación matemática: $' + ejercicioActual.respuestaLaTeX + '$';
+    tiposet(fb);
+  } else {
+    fb.className = 'feedback err';
+    var extra = '';
+    if(ejercicioActual.tipo === 'simbolica'){
+      extra = ' Recuerda escribir el polinomio en forma estándar, de mayor a menor grado, usando ^ para potencias.';
+    }
+    fb.innerHTML = '✗ Todavía no. Revisa tu procedimiento o pide una pista.' + extra;
+  }
+}
+
+function mostrarPista(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('pistaBox');
+  box.innerHTML = ejercicioActual.pista;
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+function mostrarExplicacion(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('explicacionBox');
+  box.innerHTML = ejercicioActual.explicacion.replace(/\n/g,'<br>');
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+// ===== EVENTOS =====
+document.getElementById('respuesta').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); verificar(); }
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'n' || e.key === 'N'){
+    var activo = document.activeElement;
+    if(activo && activo.id === 'respuesta') return;
+    nuevoEjercicio();
+  }
+});
+
+// ===== ARRANQUE =====
+nuevoEjercicio();
+</script>
+</body>
+</html>
