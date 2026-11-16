@@ -482,6 +482,8 @@ function limpiarNumero(txt){
   s=s.replace(/[{}]/g,'');
   s=s.replace(/\\cdot|\\times/g,'*').replace(/[·⋅×]/g,'*').replace(/\\div/g,'/');
   s=s.replace(/\\sqrt|√/g,'sqrt').replace(/\\pi|π/g,'(3.141592653589793)').replace(/pi/g,'(3.141592653589793)');
+  /* FIX: multiplicación implícita entre dígito y radical: "3sqrt(2)" → "3*sqrt(2)". */
+  s=s.replace(/(\d)sqrt/g,'$1*sqrt');
   s=s.replace(/[−–]/g,'-').replace(/\s+/g,'');
   s=s.replace(/°|grados|grado/g,'');
   s=s.replace(/^(-?\d+),(\d+)$/,'$1.$2');
@@ -872,7 +874,11 @@ function sistemaTex(ecuaciones){
 
 function limpiarLista(txt){
   var s=normalizar(txt);
-  s=s.replace(/[⟨⟩]/g,'').replace(/^[({\[]/,'').replace(/[)}\]]$/,'');
+  s=s.replace(/[⟨⟩]/g,'');
+  /* FIX: sólo desenvolver el paréntesis/corchete EXTERIOR si abre y cierra;
+     antes se comía el ')' final de elementos como "1-sqrt(2)" en una lista. */
+  var env=/^[({[]([\s\S]*)[)}\]]$/.exec(s);
+  if(env) s=env[1];
   s=s.replace(/(^|[,;])[a-z]=/g,'$1').replace(/^[a-z]=/,'');
   s=s.replace(/;|,y|&/g,',').replace(/\s/g,'');
   return s;
@@ -1954,7 +1960,7 @@ function vVieta(){
     var poli='x^2'+termTex(-S,'x',false)+numTex(P,false);
     return {
       tipo:'simbolica',
-      problema:grupo+' conoce las dos raíces de un modelo cuadrático: $x = '+r1+'$ y $x = '+r2+'$. Construye la ecuación MÓNICA (coeficiente principal 1) que las tiene, con el formato x^2+bx+c=0.',
+      problema:grupo+' conoce las dos raíces de un modelo cuadrático: $x = '+r1+'$ y $x = '+r2+'$. Construye la ecuación MÓNICA (coeficiente principal 1) que las tiene, con el formato $x^2+bx+c=0$.',
       solucion:'La ecuación es $'+poli+' = 0$.',
       respuestaLaTeX:poli+' = 0',
       acepta:[poli,poli+'=0','x^2'+signo(-S)+'x'+signo(P),'x^2'+signo(-S)+'x'+signo(P)+'=0','(x'+signo(-r1)+')(x'+signo(-r2)+')'],
@@ -2011,7 +2017,7 @@ function vCuadraticaIrracional(){
   if(raiz===1) pasoForm='Paso 3. Fórmula general: $x = \\dfrac{'+(-b)+'\\pm '+(2*t)+'\\sqrt{'+m+'}}{'+(2*t)+'} = '+p+'\\pm\\sqrt{'+m+'}$.\n';
   return {
     tipo:'simbolica',
-    problema:quien+', investigadora en IA, necesita las raíces EXACTAS de $'+polyTex(a,b,c)+' = 0$ para un cálculo de estabilidad. Escríbelas en forma radical simplificada, separadas por coma (por ejemplo '+(raiz===1?'1+\\sqrt(2), 1-\\sqrt(2)':'1+2*\\sqrt(3), 1-2*\\sqrt(3)')+').',
+    problema:quien+', investigadora en IA, necesita las raíces EXACTAS de $'+polyTex(a,b,c)+' = 0$ para un cálculo de estabilidad. Escríbelas en forma radical simplificada, separadas por coma (por ejemplo $'+(raiz===1?'1+\\sqrt{2},\\; 1-\\sqrt{2}':'1+2\\sqrt{3},\\; 1-2\\sqrt{3}')+'$).',
     solucion:'Las raíces exactas son $x = '+p+'\\pm '+(raiz===1?'':raiz)+'\\sqrt{'+m0+'}$, aproximadamente $'+d1+'$ y $'+d2+'$.',
     respuestaLaTeX:p+'+'+(raiz===1?'':raiz)+'\\sqrt{'+m0+'},\\; '+p+'-'+(raiz===1?'':raiz)+'\\sqrt{'+m0+'}',
     acepta:acept,
