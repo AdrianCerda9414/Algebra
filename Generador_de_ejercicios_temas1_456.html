@@ -1,598 +1,3007 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Generador infinito de ejercicios</title>
-<script>
-window.MathJax = {
-  tex: {inlineMath: [['$', '$'], ['\(', '\)']], displayMath: [['$$', '$$']]},
-  svg: {fontCache: 'global'},
-  options: {skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']}
-};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Generador infinito de ejercicios · ALGEBRA · Ecuaciones y sistemas</title>
 <style>
-:root {
-  --bg: #f4f6fb;
-  --card: #fff;
-  --ink: #111827;
-  --muted: #6b7280;
-  --brand: #4f46e5;
-  --brand2: #7c3aed;
-  --line: #e5e7eb;
-  --ok: #059669;
-  --okbg: #ecfdf5;
-  --err: #dc2626;
-  --errbg: #fef2f2;
-  --warn: #b45309;
-  --warnbg: #fffbeb;
+/* ====== SISTEMA VISUAL ====== */
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+  --brandbg:#eef2ff; --violetbg:#f5f3ff; --surface:#fafbff;
+  --ink2:#374151; --deep:#312e81;
+  --shadow:0 30px 70px -34px rgba(17,24,39,.45), 0 2px 10px rgba(17,24,39,.05);
+  --radius:22px;
 }
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink);
+  min-height:100vh; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  padding:34px 18px 26px;
+  position:relative; overflow-x:hidden;
 }
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 24px 16px;
+/* capas de fondo: aurora + retícula de ingeniería + grano */
+body::before{
+  content:""; position:fixed; inset:-25%; z-index:-3; pointer-events:none;
+  background:
+    radial-gradient(38% 34% at 16% 10%, rgba(79,70,229,.20), transparent 62%),
+    radial-gradient(34% 30% at 86% 6%, rgba(124,58,237,.18), transparent 62%),
+    radial-gradient(42% 38% at 74% 96%, rgba(5,150,105,.12), transparent 64%),
+    radial-gradient(30% 26% at 30% 88%, rgba(180,83,9,.10), transparent 66%);
+  animation:aurora 28s ease-in-out infinite alternate;
 }
-.container {
-  width: 100%;
-  max-width: 900px;
-  background: var(--card);
-  border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 24px;
+body::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
 }
-header {
-  background: linear-gradient(135deg, var(--brand), var(--brand2));
-  color: #fff;
-  padding: 28px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.retricula{
+  position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background-image:
+    linear-gradient(to right, rgba(79,70,229,.075) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(79,70,229,.075) 1px, transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(75% 60% at 50% 30%, #000 20%, transparent 85%);
+  mask-image:radial-gradient(75% 60% at 50% 30%, #000 20%, transparent 85%);
+  animation:rejilla 40s linear infinite;
 }
-h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+@keyframes aurora{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(2%,-1.5%,0) scale(1.06)}
+  100%{transform:translate3d(-2%,2%,0) scale(1.03)}
 }
-.subtitle {
-  font-size: 0.95rem;
-  opacity: 0.9;
-  font-weight: 400;
+@keyframes rejilla{from{background-position:0 0,0 0}to{background-position:34px 34px,34px 34px}}
+
+/* scrollbar propio */
+*{scrollbar-width:thin; scrollbar-color:var(--brand) #e6e9f5}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:#e6e9f5;border-radius:99px}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--brand),var(--brand2));border-radius:99px;border:3px solid #e6e9f5}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#4338ca,#6d28d9)}
+::-webkit-scrollbar-corner{background:#e6e9f5}
+
+/* ====== ESTRUCTURA ====== */
+.wrap{max-width:900px;margin:0 auto}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); overflow:hidden; position:relative;
+  animation:subir .7s cubic-bezier(.2,.7,.3,1) both;
 }
-.content {
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.card::after{
+  content:""; position:absolute; left:0; right:0; top:0; height:3px;
+  background:linear-gradient(90deg,var(--brand),var(--brand2),var(--ok),var(--warn),var(--brand));
+  background-size:300% 100%; animation:cinta 14s linear infinite; opacity:.9;
 }
-.top-row {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+@keyframes cinta{from{background-position:0 0}to{background-position:300% 0}}
+@keyframes subir{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* cabecera */
+.hero{
+  position:relative; overflow:hidden; color:#fff;
+  background:linear-gradient(135deg, var(--brand), var(--brand2));
+  padding:30px 30px 28px; display:flex; gap:20px; align-items:center; justify-content:space-between;
 }
-.btn-ghost {
-  background: transparent;
-  border: 1px solid var(--line);
-  color: var(--ink);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.hero::before{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(60% 90% at 88% 10%, rgba(255,255,255,.22), transparent 60%),
+    radial-gradient(50% 80% at 5% 100%, rgba(49,46,129,.45), transparent 65%);
+  pointer-events:none;
 }
-.btn-ghost:hover {
-  background: var(--bg);
-  border-color: var(--muted);
+.hero::after{
+  content:""; position:absolute; inset:0; opacity:.28; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.55) 1px, transparent 1px);
+  background-size:18px 18px;
+  -webkit-mask-image:linear-gradient(120deg,#000,transparent 65%);
+  mask-image:linear-gradient(120deg,#000,transparent 65%);
 }
-#enunciado {
-  font-size: 1.15rem;
-  line-height: 1.6;
-  color: var(--ink);
-  background: var(--bg);
-  padding: 20px;
-  border-radius: 12px;
-  border-left: 4px solid var(--brand);
+.hero-copy{position:relative;z-index:2;min-width:0}
+.eyebrow{
+  margin:0 0 10px; font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+  font-weight:700; color:rgba(255,255,255,.9);
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28);
+  padding:5px 11px; border-radius:99px; backdrop-filter:blur(3px);
 }
-.input-row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+.eyebrow .pulso{width:7px;height:7px;border-radius:50%;background:#a7f3d0;box-shadow:0 0 0 0 rgba(167,243,208,.8);animation:latir 2.2s ease-out infinite}
+@keyframes latir{0%{box-shadow:0 0 0 0 rgba(167,243,208,.75)}70%{box-shadow:0 0 0 9px rgba(167,243,208,0)}100%{box-shadow:0 0 0 0 rgba(167,243,208,0)}}
+h1{
+  margin:0; font-size:clamp(1.5rem,3.6vw,2.15rem); line-height:1.15;
+  letter-spacing:-.025em; font-weight:800; text-wrap:balance;
+  text-shadow:0 2px 18px rgba(17,24,39,.22);
 }
-#respuesta {
-  flex: 1;
-  min-width: 220px;
-  padding: 12px 16px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s;
+.sub{margin:10px 0 0;font-size:.9rem;color:rgba(255,255,255,.92);max-width:52ch;line-height:1.5}
+.hero-art{position:relative;z-index:2;flex:0 0 236px;width:236px;height:172px;filter:drop-shadow(0 10px 18px rgba(17,24,39,.25))}
+.hero-art svg{width:100%;height:100%;display:block;animation:flotar 9s ease-in-out infinite}
+@keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.trazo{stroke-dasharray:5 6;animation:deslizar 3.4s linear infinite}
+@keyframes deslizar{to{stroke-dashoffset:-22}}
+
+/* cuerpo */
+.body{padding:24px 30px 26px}
+.toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;animation:subir .6s .05s cubic-bezier(.2,.7,.3,1) both}
+
+/* botones */
+.btn-primary,.btn-ghost,.btn-soft{
+  font:inherit; font-weight:650; font-size:.92rem; cursor:pointer;
+  border-radius:12px; padding:11px 17px; border:1px solid transparent;
+  transition:transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .2s, background .2s, color .2s, border-color .2s;
+  display:inline-flex; align-items:center; gap:8px; line-height:1.2; white-space:nowrap;
 }
-#respuesta:focus {
-  border-color: var(--brand);
+.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;box-shadow:0 10px 22px -10px rgba(79,70,229,.85)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 28px -12px rgba(79,70,229,.95)}
+.btn-ghost{background:#fff;color:var(--ink2);border-color:var(--line);box-shadow:0 1px 2px rgba(17,24,39,.04)}
+.btn-ghost:hover{color:var(--brand);border-color:#c7d2fe;background:var(--brandbg);transform:translateY(-2px)}
+.btn-soft{background:var(--brandbg);color:var(--brand);border-color:#dfe3fd}
+.btn-soft:hover{background:#e4e8ff;transform:translateY(-2px)}
+.btn-soft[aria-pressed="true"]{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+.btn-primary:active,.btn-ghost:active,.btn-soft:active{transform:translateY(0) scale(.985)}
+.btn-primary:focus-visible,.btn-ghost:focus-visible,.btn-soft:focus-visible,#respuesta:focus-visible,.mini:focus-visible{outline:3px solid rgba(79,70,229,.35);outline-offset:2px}
+.btn-ghost .ico{transition:transform .5s cubic-bezier(.2,.7,.3,1)}
+.btn-ghost:hover .ico{transform:rotate(180deg)}
+.pulso-nuevo{animation:pulsoNuevo 1.5s ease-out 2}
+@keyframes pulsoNuevo{0%{box-shadow:0 0 0 0 rgba(79,70,229,.45)}70%{box-shadow:0 0 0 12px rgba(79,70,229,0)}100%{box-shadow:0 0 0 0 rgba(79,70,229,0)}}
+
+/* enunciado */
+.enunciado{
+  position:relative; background:linear-gradient(180deg,#fbfcff,#f6f7fd);
+  border:1px solid var(--line); border-radius:16px; padding:18px 20px 18px 22px;
+  animation:subir .6s .1s cubic-bezier(.2,.7,.3,1) both; overflow:hidden;
 }
-.btn-primary {
-  background: var(--brand);
-  color: #fff;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+.enunciado::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--brand),var(--brand2))}
+.en-head{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}
+.chip{
+  font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;background:#fff;border:1px solid var(--line);color:var(--muted);
 }
-.btn-primary:hover {
-  background: #4338ca;
+.chip-num{background:var(--deep);border-color:var(--deep);color:#fff}
+.chip-tema{background:var(--brandbg);border-color:#dfe3fd;color:var(--brand)}
+.chip-tipo{background:var(--okbg);border-color:#bbf7d0;color:#047857}
+.chip-tipo.sim{background:var(--violetbg);border-color:#e4dcff;color:var(--brand2)}
+.en-texto{font-size:1.02rem;color:var(--ink);line-height:1.75}
+.en-texto .dato{color:var(--deep)}
+
+/* fila de respuesta */
+.answer-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:stretch;animation:subir .6s .15s cubic-bezier(.2,.7,.3,1) both}
+#respuesta{
+  flex:1 1 250px; min-width:0; font:inherit; font-size:1rem; color:var(--ink);
+  padding:12px 15px; border:1.5px solid var(--line); border-radius:12px; background:#fff;
+  transition:border-color .2s, box-shadow .2s, background .2s;
 }
-.btn-soft {
-  background: #eef2ff;
-  color: var(--brand);
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+#respuesta::placeholder{color:#9aa2b1}
+#respuesta:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px rgba(79,70,229,.14);background:#fff}
+#respuesta.mal{border-color:var(--err);box-shadow:0 0 0 4px rgba(220,38,38,.12);animation:temblar .4s}
+#respuesta.bien{border-color:var(--ok);box-shadow:0 0 0 4px rgba(5,150,105,.14)}
+@keyframes temblar{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-4px)}}
+
+/* esquema geométrico en vivo */
+.en-cuerpo{display:flex;gap:18px;align-items:flex-start}
+.en-texto{flex:1 1 auto;min-width:0}
+.en-figura{flex:0 0 266px;width:266px;margin:0;padding:0}
+.fig-lienzo{
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px;
+  box-shadow:0 6px 16px -12px rgba(17,24,39,.5); cursor:grab; touch-action:none;
+  user-select:none;-webkit-user-select:none;transition:box-shadow .25s,border-color .25s;
+  animation:figEntra .55s cubic-bezier(.2,.7,.3,1) both;
 }
-.btn-soft:hover {
-  background: #e0e7ff;
+.fig-lienzo:hover{border-color:#c7d2fe;box-shadow:0 12px 24px -14px rgba(79,70,229,.75)}
+.fig-lienzo:active{cursor:grabbing}
+.fig-lienzo:focus-visible{outline:3px solid rgba(79,70,229,.35);outline-offset:2px}
+.fig-lienzo svg{display:block;width:100%;height:auto;border-radius:11px}
+@keyframes figEntra{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.en-figura figcaption{
+  margin-top:7px;font-size:.7rem;line-height:1.45;color:var(--muted);text-align:center;
 }
-.feedback {
-  padding: 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  display: none;
-  line-height: 1.5;
+.en-figura figcaption b{display:block;color:var(--ink2);font-weight:650;font-size:.72rem}
+.en-figura figcaption .girar{display:inline-flex;align-items:center;gap:4px;opacity:.85}
+@media (max-width:760px){
+  .en-cuerpo{display:block}
+  .en-figura{width:100%;max-width:290px;margin:14px auto 0}
 }
-.feedback.ok {
-  background: var(--okbg);
-  color: var(--ok);
-  border: 1px solid #a7f3d0;
+
+/* feedback */
+.feedback{display:none;margin-top:14px;border-radius:14px;padding:13px 16px;font-size:.95rem;border:1px solid transparent}
+.feedback.ok{display:block;background:var(--okbg);border-color:#a7f3d0;color:#065f46;animation:aparecer .35s cubic-bezier(.2,.7,.3,1) both}
+.feedback.err{display:block;background:var(--errbg);border-color:#fecaca;color:#991b1b;animation:aparecer .35s cubic-bezier(.2,.7,.3,1) both}
+@keyframes aparecer{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.fb-titulo{font-weight:600;font-size:1rem;display:flex;align-items:center;gap:6px}
+.feedback.ok .fb-titulo{color:#047857}
+.feedback.err .fb-titulo{color:#b91c1c}
+.fb-linea{margin-top:5px;color:var(--ink2)}
+.feedback code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.88em;
+  background:rgba(17,24,39,.06); border:1px solid rgba(17,24,39,.08);
+  padding:2px 7px; border-radius:7px; color:var(--ink); word-break:break-all;
 }
-.feedback.err {
-  background: var(--errbg);
-  color: var(--err);
-  border: 1px solid #fecaca;
+
+/* paneles */
+.panel{display:none;margin-top:14px;border-radius:14px;padding:14px 17px;font-size:.95rem;line-height:1.7}
+.panel.visible{display:block;animation:abrir .38s cubic-bezier(.2,.7,.3,1) both}
+@keyframes abrir{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.panel.pista{background:var(--warnbg);border:1px solid #fde68a;border-left:4px solid var(--warn);color:#78350f}
+.panel.explicacion{background:var(--violetbg);border:1px solid #e4dcff;border-left:4px solid var(--brand2);color:#3b2a72}
+.panel h3{margin:0 0 8px;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;display:flex;align-items:center;gap:7px}
+.panel.pista h3{color:var(--warn)}
+.panel.explicacion h3{color:var(--brand2)}
+.pasos{list-style:none;margin:0;padding:0;counter-reset:p}
+.pasos li{display:flex;gap:10px;padding:7px 0;border-top:1px dashed rgba(124,58,237,.22)}
+.pasos li:first-child{border-top:0}
+.paso-n{
+  flex:0 0 auto; font-size:.7rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+  background:#fff; color:var(--brand2); border:1px solid #e4dcff; border-radius:8px;
+  padding:3px 8px; height:fit-content; margin-top:2px; white-space:nowrap;
 }
-.feedback.visible {
-  display: block;
+.paso-t{min-width:0}
+.resp-final{
+  margin-top:11px; padding:10px 13px; border-radius:11px; background:#fff;
+  border:1px solid #e4dcff; color:var(--deep); font-weight:600;
 }
-.panel {
-  padding: 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  display: none;
-  line-height: 1.5;
+.resp-final .et{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brand2);display:block;font-weight:800;margin-bottom:2px}
+
+/* marcador */
+.marcador{margin-top:20px;padding-top:17px;border-top:1px solid var(--line);animation:subir .6s .2s cubic-bezier(.2,.7,.3,1) both}
+.marc-fila{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.stat{
+  display:flex;align-items:baseline;gap:8px;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;padding:8px 13px;
 }
-.panel.pista {
-  background: var(--warnbg);
-  color: var(--warn);
-  border: 1px solid #fde68a;
+.stat .et{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.stat .val{font-size:1.22rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat.ok .val{color:var(--ok)}
+.stat.int .val{color:var(--brand)}
+.stat.racha .val{color:var(--warn)}
+.stat .val.pop{animation:pop .45s cubic-bezier(.2,.7,.3,1)}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1)}}
+.anillo{display:flex;align-items:center;gap:9px}
+.anillo svg{width:44px;height:44px;transform:rotate(-90deg)}
+.anillo .pista-anillo{stroke:#e6e9f5}
+.anillo .arco{stroke:url(#gradAnillo);stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.2,.7,.3,1)}
+.anillo .txt{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;line-height:1.3}
+.anillo .txt b{display:block;font-size:1rem;color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.leyenda{margin-left:auto;font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.kbd{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.76rem;font-weight:700;
+  background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:7px;
+  padding:2px 7px;color:var(--ink2);box-shadow:0 1px 0 rgba(17,24,39,.04)
 }
-.panel.explicacion {
-  background: #f5f3ff;
-  color: #6d28d9;
-  border: 1px solid #ddd6fe;
+.marc-extra{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.historial{display:flex;gap:5px;align-items:center;flex-wrap:wrap;min-height:14px}
+.historial .punto{width:11px;height:11px;border-radius:50%;background:#e6e9f5;animation:pop .4s cubic-bezier(.2,.7,.3,1)}
+.historial .punto.ok{background:linear-gradient(135deg,var(--ok),#34d399)}
+.historial .punto.err{background:linear-gradient(135deg,var(--err),#f87171)}
+.historial .vacio{font-size:.78rem;color:var(--muted)}
+.mini{
+  margin-left:auto;font:inherit;font-size:.76rem;font-weight:650;color:var(--muted);background:transparent;
+  border:1px dashed var(--line);border-radius:9px;padding:5px 10px;cursor:pointer;transition:.2s
 }
-.panel.visible {
-  display: block;
+.mini:hover{color:var(--err);border-color:#fecaca;background:var(--errbg)}
+
+/* footer */
+footer{
+  max-width:900px;margin:20px auto 0;text-align:center;color:var(--muted);font-size:.8rem;line-height:1.6;
+  padding:0 6px; animation:subir .7s .25s cubic-bezier(.2,.7,.3,1) both;
 }
-.footer-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
-  color: var(--muted);
-  border-top: 1px solid var(--line);
-  padding-top: 20px;
-  flex-wrap: wrap;
-  gap: 12px;
+footer .sep{color:#c3c8d4;padding:0 4px}
+
+/* respaldo matemático sin conexión (si la CDN no carga) */
+.mfb{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;padding:0 1px}
+.mfb-frac{display:inline-flex;flex-direction:column;vertical-align:-0.55em;text-align:center;font-size:.86em;margin:0 2px}
+.mfb-frac span:first-child{padding:0 3px;line-height:1.15}
+.mfb-frac span:last-child{padding:0 3px;line-height:1.15;border-top:1px solid currentColor}
+.mfb-rad{border-top:1px solid currentColor;padding:0 2px;margin-left:1px}
+.mfb-vec,.mfb-hat{position:relative;padding-top:.1em}
+.mfb-vec::after{content:"\2192";position:absolute;left:0;right:0;top:-.72em;font-size:.62em;text-align:center;font-style:normal}
+.mfb-hat::after{content:"\005E";position:absolute;left:0;right:0;top:-.62em;font-size:.7em;text-align:center;font-style:normal}
+.mfb sup,.mfb sub{font-style:normal;font-size:.72em}
+mjx-container[jax="SVG"]:not([display="true"]){display:inline-block;max-width:100%;overflow-x:auto;overflow-y:hidden}
+mjx-container{max-width:100%}
+mjx-container[display="true"]{margin:.5em 0 !important}
+
+/* controles de nivel y variantes */
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.toolbar-acc{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.nivel{display:inline-flex;align-items:center;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:4px 5px}
+.nivel-et{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:0 7px}
+.nivel-btn{
+  font:inherit;font-size:.82rem;font-weight:650;cursor:pointer;border:1px solid transparent;background:transparent;
+  color:var(--ink2);padding:6px 12px;border-radius:9px;transition:transform .16s,background .2s,color .2s,box-shadow .2s;
 }
-.kbd {
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-bottom-width: 2px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 0.8rem;
+.nivel-btn:hover{background:var(--brandbg);color:var(--brand)}
+.nivel-btn.activo{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;box-shadow:0 8px 16px -10px rgba(79,70,229,.9)}
+.nivel-btn:active{transform:scale(.97)}
+.nivel-btn:focus-visible{outline:3px solid rgba(79,70,229,.35);outline-offset:2px}
+.btn-mini{font-size:.82rem;padding:9px 13px}
+.chip-nivel{background:var(--warnbg);border-color:#fde68a;color:#92400e}
+
+/* sistemas de ecuaciones dentro del enunciado */
+.sistema{
+  display:inline-grid;gap:3px;margin:10px 0;padding:8px 14px 8px 20px;position:relative;
+  background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:0 4px 12px -10px rgba(17,24,39,.5);
 }
-footer {
-  text-align: center;
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: auto;
+.sistema::before{
+  content:"";position:absolute;left:8px;top:7px;bottom:7px;width:7px;
+  border:2px solid var(--brand);border-right:0;border-radius:7px 0 0 7px;
 }
-@media (max-width: 560px) {
-  .content {
-    padding: 20px;
-  }
-  .input-row {
-    flex-direction: column;
-  }
-  .btn-primary, .btn-soft {
-    width: 100%;
-  }
-  .top-row {
-    justify-content: stretch;
-  }
-  .btn-ghost {
-    width: 100%;
-    text-align: center;
-  }
+.sistema span{display:block;line-height:1.9}
+
+/* dominio por bloque */
+.dominio{margin-top:14px;padding-top:13px;border-top:1px dashed var(--line)}
+.dominio-tit{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:8px}
+.dominio-lista{display:grid;gap:7px}
+.dominio-fila{display:grid;grid-template-columns:104px 1fr 108px;align-items:center;gap:10px}
+.dominio-nom{font-size:.78rem;font-weight:650;color:var(--ink2)}
+.dominio-barra{display:block;height:9px;border-radius:99px;background:#e9ecf6;overflow:hidden;border:1px solid var(--line)}
+.dominio-barra i{display:block;height:100%;border-radius:99px;transition:width .55s cubic-bezier(.2,.7,.3,1)}
+.dominio-num{font-size:.74rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+
+/* balanza animada */
+.balanza-viga{transform-origin:133px 74px;animation:balancear 7s ease-in-out infinite}
+@keyframes balancear{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+.fig-lienzo{cursor:default}
+.fig-lienzo.girable{cursor:grab}
+.fig-lienzo.girable:active{cursor:grabbing}
+
+/* matrices y sistemas en el respaldo sin conexión */
+.mfb-mat{display:inline-grid;vertical-align:middle;border-left:2px solid currentColor;border-right:2px solid currentColor;border-radius:4px;padding:2px 7px;margin:0 3px}
+.mfb-fila{display:flex;gap:11px;justify-content:center}
+.mfb-fila span{min-width:1.7em;text-align:center}
+.mfb-casos{display:inline-grid;vertical-align:middle;border-left:2px solid currentColor;border-radius:8px 0 0 8px;padding-left:9px;margin:0 3px;gap:2px}
+.mfb-casos span{display:block}
+
+@media (max-width:560px){
+  .toolbar{gap:9px}
+  .nivel{width:100%;justify-content:space-between}
+  .nivel-btn{flex:1 1 auto;text-align:center;padding:7px 6px}
+  .toolbar-acc{width:100%;margin-left:0}
+  .toolbar-acc .btn-ghost{flex:1 1 auto;justify-content:center}
+  .dominio-fila{grid-template-columns:88px 1fr 84px;gap:7px}
+  .dominio-nom{font-size:.72rem}
+  .dominio-num{font-size:.68rem}
+  .sistema{padding:7px 11px 7px 18px}
+}
+
+/* matemática de bloque en el respaldo sin conexión */
+.mfb-bloque{display:block;margin:10px auto 6px;text-align:center}
+.paso-t mjx-container[display="true"]{margin:10px 0 2px !important}
+.enunciado mjx-container[display="true"]{margin:12px 0 6px !important}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width:560px){
+  body{padding:16px 12px 20px}
+  .hero{padding:22px 20px 20px;display:block}
+  .hero-art{position:absolute;right:-26px;top:-14px;width:180px;height:132px;opacity:.22;z-index:1;pointer-events:none}
+  .hero-copy{position:relative;z-index:2}
+  h1{font-size:1.42rem}
+  .sub{font-size:.83rem}
+  .body{padding:18px 18px 20px}
+  .toolbar .btn-ghost{width:100%;justify-content:center}
+  .enunciado{padding:15px 15px 15px 18px}
+  .en-texto{font-size:.98rem}
+  .answer-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  #respuesta{grid-column:1 / -1}
+  .answer-row .btn-primary{grid-column:1 / -1;justify-content:center}
+  .answer-row .btn-soft{justify-content:center}
+  .marc-fila{gap:8px}
+  .stat{padding:7px 11px;flex:1 1 auto;justify-content:space-between}
+  .leyenda{margin-left:0;width:100%;justify-content:flex-start;font-size:.78rem}
+  .mini{margin-left:0}
+  .pasos li{flex-direction:column;gap:4px}
+  .paso-n{align-self:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  html{scroll-behavior:auto}
 }
 </style>
 </head>
 <body>
+<div class="retricula" aria-hidden="true"></div>
 
-<div class="container">
-  <header>
-    <h1>Generador infinito de ejercicios</h1>
-    <div class="subtitle">Materia: ALGEBRA &middot; Tema: Ecuaciones lineales con una y con dos incognitas, solucion de sistemas de ecuaciones lineales de 2 y tres incognitas con el metodo de Gauss Jordan, y ecuaaciones cuadraticas, con formula general y factorizacion</div>
-  </header>
-  
-  <div class="content">
-    <div class="top-row">
-      <button class="btn-ghost" id="btnNuevo">Nuevo ejercicio</button>
+<div class="wrap">
+  <main class="card">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pulso"></span> Práctica infinita · verificación al instante</p>
+        <h1>Generador infinito de ejercicios</h1>
+        <p class="sub">Materia: ALGEBRA · Tema: Ecuaciones lineales con una y dos incógnitas, sistemas de 2 y 3 incógnitas por Gauss-Jordan y ecuaciones cuadráticas por fórmula general y factorización</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 280 200" role="presentation">
+          <defs>
+            <marker id="heroFlecha" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M0,0.7 L7,4 L0,7.3 Z" fill="#ffffff"/>
+            </marker>
+            <linearGradient id="heroParabola" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0%" stop-color="#a7f3d0"/>
+              <stop offset="100%" stop-color="#ffffff"/>
+            </linearGradient>
+          </defs>
+          <g stroke="#ffffff" stroke-opacity=".15" stroke-width="1">
+            <path d="M28,30 H262 M28,60 H262 M28,90 H262 M28,120 H262 M28,150 H262 M28,180 H262"/>
+            <path d="M60,20 V190 M100,20 V190 M140,20 V190 M180,20 V190 M220,20 V190"/>
+          </g>
+          <g stroke="#ffffff" stroke-opacity=".7" stroke-width="1.6" fill="none">
+            <path d="M28,150 L256,150" marker-end="url(#heroFlecha)"/>
+            <path d="M60,190 L60,24" marker-end="url(#heroFlecha)"/>
+          </g>
+          <path class="trazo" d="M95,38 Q150,292 205,38" fill="none" stroke="url(#heroParabola)" stroke-width="3" stroke-linecap="round"/>
+          <g stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity=".9">
+            <path d="M34,58 L246,176"/>
+            <path d="M40,182 L242,54"/>
+          </g>
+          <circle cx="140" cy="117" r="4.6" fill="#a7f3d0"/>
+          <circle cx="140" cy="117" r="10" fill="none" stroke="#a7f3d0" stroke-opacity=".55" stroke-width="1.3"/>
+          <g stroke="#ffffff" stroke-width="1.7" fill="none" opacity=".85">
+            <path d="M24,26 h-6 v30 h6"/>
+            <path d="M54,26 h6 v30 h-6"/>
+          </g>
+          <g font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle" opacity=".9">
+            <text x="32" y="39">2</text><text x="47" y="39">1</text>
+            <text x="32" y="53">1</text><text x="47" y="53">3</text>
+          </g>
+          <g font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="13" font-weight="700" fill="#ffffff">
+            <text x="146" y="186">f(x)</text>
+            <text x="248" y="188">r&#8321;</text>
+            <text x="246" y="46" fill="#a7f3d0">r&#8322;</text>
+          </g>
+        </svg>
+      </div>
+    </header>
+
+    <div class="body">
+      <!-- a) nuevo ejercicio y controles -->
+      <div class="toolbar">
+        <div class="nivel" role="group" aria-label="Nivel de dificultad">
+          <span class="nivel-et">Nivel</span>
+          <button type="button" class="nivel-btn" data-nivel="1" aria-pressed="false">Base</button>
+          <button type="button" class="nivel-btn activo" data-nivel="2" aria-pressed="true">Reto</button>
+          <button type="button" class="nivel-btn" data-nivel="3" aria-pressed="false">Élite</button>
+        </div>
+        <div class="toolbar-acc">
+          <button type="button" id="btnMismo" class="btn-ghost btn-mini" title="Otro ejercicio del mismo tipo con datos nuevos">Otro del mismo tipo</button>
+          <button type="button" id="btnNuevo" class="btn-ghost">
+            <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+            Nuevo ejercicio
+          </button>
+        </div>
+      </div>
+
+      <!-- b) enunciado -->
+      <div id="enunciado" class="enunciado"></div>
+
+      <!-- c) respuesta y acciones -->
+      <div class="answer-row">
+        <input id="respuesta" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+               placeholder="Usa ^ para potencias y / para fracciones…" aria-label="Tu respuesta">
+        <button type="button" id="btnVerificar" class="btn-primary">Verificar</button>
+        <button type="button" id="btnPista" class="btn-soft" aria-pressed="false" aria-controls="pistaBox">Pista</button>
+        <button type="button" id="btnExplicacion" class="btn-soft" aria-pressed="false" aria-controls="explicacionBox">Explicación</button>
+      </div>
+
+      <!-- d) feedback -->
+      <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+
+      <!-- e) pista -->
+      <div id="pistaBox" class="panel pista"></div>
+
+      <!-- f) explicación -->
+      <div id="explicacionBox" class="panel explicacion"></div>
+
+      <!-- g) marcador -->
+      <div class="marcador">
+        <div class="marc-fila">
+          <div class="stat ok"><span class="et">Aciertos</span><span class="val" id="mArc">0</span></div>
+          <div class="stat int"><span class="et">Intentos</span><span class="val" id="mInt">0</span></div>
+          <div class="stat racha"><span class="et">Racha</span><span class="val" id="mRacha">0</span></div>
+          <div class="anillo" title="Porcentaje de aciertos">
+            <svg viewBox="0 0 44 44" aria-hidden="true">
+              <defs>
+                <linearGradient id="gradAnillo" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#4f46e5"/>
+                  <stop offset="100%" stop-color="#7c3aed"/>
+                </linearGradient>
+              </defs>
+              <circle class="pista-anillo" cx="22" cy="22" r="18" fill="none" stroke-width="5"/>
+              <circle id="arco" class="arco" cx="22" cy="22" r="18" fill="none" stroke-width="5" stroke-dasharray="113.1" stroke-dashoffset="113.1"/>
+            </svg>
+            <span class="txt">Precisión<b id="mPrec">—</b></span>
+          </div>
+          <div class="leyenda"><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</div>
+        </div>
+        <div class="marc-extra">
+          <div class="historial" id="historial"><span class="vacio">Tu historial de intentos aparecerá aquí.</span></div>
+          <button type="button" id="btnReset" class="mini" title="Poner el marcador en cero">Reiniciar marcador</button>
+        </div>
+        <div class="dominio" id="dominio"></div>
+      </div>
     </div>
-    
-    <div id="enunciado">Cargando enunciado...</div>
-    
-    <div class="input-row">
-      <input type="text" id="respuesta" placeholder="Usa ^ para potencias y / para fracciones..." autocomplete="off">
-      <button class="btn-primary" id="btnVerificar">Verificar</button>
-      <button class="btn-soft" id="btnPista">Pista</button>
-      <button class="btn-soft" id="btnExplicacion">Explicación</button>
-    </div>
-    
-    <div id="feedback" class="feedback"></div>
-    <div id="pistaBox" class="panel pista"></div>
-    <div id="explicacionBox" class="panel explicacion"></div>
-    
-    <div class="footer-stats">
-      <div>Aciertos: <span id="mArc">0</span> | Intentos: <span id="mInt">0</span></div>
-      <div><span class="kbd">Enter</span> = verificar &middot; <span class="kbd">N</span> = nuevo</div>
-    </div>
-  </div>
+  </main>
+
+  <footer>Generador aleatorio educativo · ALGEBRA · Ecuaciones lineales con una y dos incógnitas, sistemas de 2 y 3 incógnitas por Gauss-Jordan y ecuaciones cuadráticas por fórmula general y factorización</footer>
 </div>
 
-<footer>
-  Generador aleatorio educativo &middot; ALGEBRA &middot; Ecuaciones lineales con una y con dos incognitas, solucion de sistemas de ecuaciones lineales de 2 y tres incognitas con el metodo de Gauss Jordan, y ecuaaciones cuadraticas, con formula general y factorizacion
-</footer>
+<script>
+window.MathJax = {
+  tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" onerror="window.__mjFallo=true;"></script>
 
 <script>
-var aciertos = 0;
-var intentos = 0;
-var ejercicioActual = null;
-
-function escaparHTML(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+function escaparHTML(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function normalizar(valor) {
-  if (typeof valor !== 'string') {
-    valor = String(valor);
+function normalizar(valor){
+  if(valor===null||valor===undefined) return '';
+  var s=String(valor).toLowerCase();
+  s=s.replace(/\$/g,'').replace(/[{}]/g,'');
+  s=s.replace(/\\left|\\right|\\,|\\;|\\!|\\ /g,'');
+  s=s.replace(/\\cdot|\\times/g,'*').replace(/[·⋅×]/g,'*');
+  s=s.replace(/[−–]/g,'-').replace(/\s+/g,'');
+  s=s.replace(/[áàäâ]/g,'a').replace(/[éèëê]/g,'e').replace(/[íìïî]/g,'i').replace(/[óòöô]/g,'o').replace(/[úùüû]/g,'u').replace(/ñ/g,'n');
+  s=s.replace(/²/g,'^2').replace(/³/g,'^3');
+  var m=s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(m){
+    var den=parseFloat(m[2]);
+    if(den!==0) return String(parseFloat(m[1])/den);
   }
-  var limpio = valor.toLowerCase().replace(/\s+/g, '').replace(/undefined/g, '');
-  var regexFrac = /^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/;
-  var match = limpio.match(regexFrac);
-  if (match) {
-    var num = parseFloat(match[1]);
-    var den = parseFloat(match[2]);
-    if (den !== 0) {
-      return String(num / den);
+  return s;
+}
+
+function limpiarNumero(txt){
+  if(txt===null||txt===undefined) return '';
+  var s=String(txt).toLowerCase();
+  s=s.replace(/\$/g,'').replace(/\\left|\\right|\\,|\\;|\\!/g,'');
+  s=s.replace(/\\frac\s*(-?\d+(?:\.\d+)?)\s*(-?\d+(?:\.\d+)?)/g,'($1/$2)');
+  s=s.replace(/[{}]/g,'');
+  s=s.replace(/\\cdot|\\times/g,'*').replace(/[·⋅×]/g,'*').replace(/\\div/g,'/');
+  s=s.replace(/\\sqrt|√/g,'sqrt').replace(/\\pi|π/g,'(3.141592653589793)').replace(/pi/g,'(3.141592653589793)');
+  s=s.replace(/[−–]/g,'-').replace(/\s+/g,'');
+  s=s.replace(/°|grados|grado/g,'');
+  s=s.replace(/^(-?\d+),(\d+)$/,'$1.$2');
+  return s;
+}
+
+/* evaluador aritmético seguro (sin eval): + - * / ^ ( ) sqrt pi */
+function aNumero(txt){
+  var s=limpiarNumero(txt);
+  if(s==='') return NaN;
+  var i=0, ok=true;
+  function primario(){
+    var c=s.charAt(i);
+    if(c==='('){
+      i++;
+      var v=expr();
+      if(s.charAt(i)===')'){ i++; } else { ok=false; }
+      return v;
     }
+    if(s.substr(i,4)==='sqrt'){ i+=4; return Math.sqrt(primario()); }
+    var m=s.substr(i).match(/^(?:\d+(?:\.\d+)?|\.\d+)/);
+    if(m){ i+=m[0].length; return parseFloat(m[0]); }
+    ok=false; return NaN;
   }
-  return limpio;
-}
-
-function aNumero(val) {
-  var norm = normalizar(val);
-  var num = parseFloat(norm);
-  return isNaN(num) ? null : num;
-}
-
-function coincideTexto(entrada, aceptadas) {
-  var normEntrada = normalizar(entrada);
-  for (var i = 0; i < aceptadas.length; i++) {
-    if (normEntrada === normalizar(aceptadas[i])) {
-      return true;
+  function unario(){
+    var c=s.charAt(i);
+    if(c==='-'){ i++; return -unario(); }
+    if(c==='+'){ i++; return unario(); }
+    return primario();
+  }
+  function potencia(){
+    var base=unario();
+    if(ok&&s.charAt(i)==='^'){ i++; return Math.pow(base,unario()); }
+    return base;
+  }
+  function termino(){
+    var v=potencia();
+    while(ok){
+      var c=s.charAt(i);
+      if(c==='*'){ i++; v*=potencia(); }
+      else if(c==='/'){ i++; var d=potencia(); if(d===0){ ok=false; return NaN; } v/=d; }
+      else if(c==='('){ v*=potencia(); }
+      else break;
     }
+    return v;
+  }
+  function expr(){
+    var v=termino();
+    while(ok){
+      var c=s.charAt(i);
+      if(c==='+'){ i++; v+=termino(); }
+      else if(c==='-'){ i++; v-=termino(); }
+      else break;
+    }
+    return v;
+  }
+  var r=expr();
+  if(!ok||i<s.length||!isFinite(r)) return NaN;
+  return r;
+}
+
+function quitarConstante(s){
+  return String(s).replace(/\+c$/,'').replace(/-c$/,'').replace(/\+k$/,'');
+}
+
+/* comparación tolerante a la constante de integración (temas de integrales) */
+function coincideAntiderivada(entrada,esperado){
+  var a=quitarConstante(normalizar(entrada)), b=quitarConstante(normalizar(esperado));
+  if(a===''||b==='') return false;
+  if(a===b) return true;
+  var na=aNumero(a), nb=aNumero(b);
+  return !isNaN(na)&&!isNaN(nb)&&Math.abs(na-nb)<=1e-6;
+}
+
+/* lectura de vectores escritos en texto plano: (a,b,c), <a,b,c>, ai+bj+ck, (a,b,c)/n */
+function parseVector(txt){
+  var s=normalizar(txt);
+  if(s==='') return null;
+  s=s.replace(/\\vec|\\mathbf|\\hat|\\imath|\\jmath/g,'').replace(/[⟨⟩]/g,'').replace(/\*/g,'');
+  var m, partes, vals, i, v;
+  /* factor externo: 1/3(2,2,1) */
+  m=s.match(/^(-?\d+(?:\.\d+)?(?:\/-?\d+(?:\.\d+)?)?)\(([^()]*)\)$/);
+  if(m){
+    var f=aNumero(m[1]); v=parseVector('('+m[2]+')');
+    if(v&&!isNaN(f)) return [v[0]*f,v[1]*f,v[2]*f];
+    return null;
+  }
+ /* división de un vector entre un escalar: (2,2,1)/3 */
+  m=s.match(/^(\([^()]*\)|<[^<>]*>|\[[^\[\]]*\]|[0-9.+\-ijk]+)\/(-?\d+(?:\.\d+)?)$/);
+  if(m&&/[,(ijk]/.test(m[1])){
+    var d=parseFloat(m[2]); v=parseVector(m[1]);
+    if(v&&d!==0) return [v[0]/d,v[1]/d,v[2]/d];
+  }
+  /* forma de componentes */
+  var interno=s.replace(/^[(<\[]/,'').replace(/[)>\]]$/,'');
+  if(/,/.test(interno)){
+    partes=interno.split(',');
+    if(partes.length!==3) return null;
+    vals=[];
+    for(i=0;i<3;i++){
+      var n=aNumero(partes[i]);
+      if(isNaN(n)) return null;
+      vals.push(n);
+    }
+    return vals;
+  }
+  /* forma i, j, k */
+  if(/^[0-9.+\-\/ijk]+$/.test(interno)&&/[ijk]/.test(interno)){
+    var re=/([+-]?(?:\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)?)([ijk])/g, res=[0,0,0], usado='', mm;
+    while((mm=re.exec(interno))!==null){
+      usado+=mm[0];
+      var co=mm[1];
+      if(co===''||co==='+') co='1';
+      else if(co==='-') co='-1';
+      var num=aNumero(co);
+      if(isNaN(num)) return null;
+      res[mm[2]==='i'?0:(mm[2]==='j'?1:2)]+=num;
+    }
+    if(usado!==interno) return null;
+    return res;
+  }
+  return null;
+}
+
+function vectoresIguales(a,b){
+  return Math.abs(a[0]-b[0])<=0.002&&Math.abs(a[1]-b[1])<=0.002&&Math.abs(a[2]-b[2])<=0.002;
+}
+
+function coincideTexto(entrada,acepta,modo){
+  var e=normalizar(entrada);
+  if(e==='') return false;
+  if(modo==='factor'){
+    var fp=parseFactorizacion(entrada);
+    if(!fp) return false;
+    for(var jf=0;jf<acepta.length;jf++){
+      var fa=parseFactorizacion(acepta[jf]);
+      if(fa&&polinomiosIguales(fp,fa)) return true;
+    }
+    return false;
+  }
+  if(modo==='paralelo'){
+    var dv=parseVector(entrada);
+    if(!dv){ var dl=parseLista(entrada,3); if(dl) dv=dl; }
+    if(!dv) return false;
+    var nd=Math.abs(dv[0])+Math.abs(dv[1])+Math.abs(dv[2]);
+    if(nd<1e-9) return false;
+    for(var jp=0;jp<acepta.length;jp++){
+      var rv=parseVector(acepta[jp]);
+      if(!rv){ var rl=parseLista(acepta[jp],3); if(rl) rv=rl; }
+      if(!rv) continue;
+      var cx=dv[1]*rv[2]-dv[2]*rv[1], cy=dv[2]*rv[0]-dv[0]*rv[2], cz=dv[0]*rv[1]-dv[1]*rv[0];
+      var escala=Math.max(1,nd*(Math.abs(rv[0])+Math.abs(rv[1])+Math.abs(rv[2])));
+      if(Math.abs(cx)+Math.abs(cy)+Math.abs(cz)<=1e-6*escala) return true;
+    }
+    return false;
+  }
+  var ev=parseVector(entrada), en=aNumero(entrada);
+  var el=parseLista(entrada), ec=parseListaCompleja(entrada), ep=coeficientesDe(entrada);
+  for(var i=0;i<acepta.length;i++){
+    var a=normalizar(acepta[i]);
+    if(a==='') continue;
+    if(e===a) return true;
+    var av=parseVector(acepta[i]);
+    if(ev&&av&&vectoresIguales(ev,av)) return true;
+    if(ev&&av===null&&a==='0'&&vectoresIguales(ev,[0,0,0])) return true;
+    if(ev===null&&av&&e==='0'&&vectoresIguales(av,[0,0,0])) return true;
+    var al=parseLista(acepta[i]);
+    if(el&&al&&listasIguales(el,al)) return true;
+    var ac=parseListaCompleja(acepta[i]);
+    if(ec&&ac&&listasComplejasIguales(ec,ac)) return true;
+    var ap=coeficientesDe(acepta[i]);
+    if(ep&&ap&&polinomiosIguales(ep,ap)) return true;
+    var an=aNumero(acepta[i]);
+    if(!isNaN(en)&&!isNaN(an)&&Math.abs(en-an)<=1e-6) return true;
+    if(coincideAntiderivada(e,a)) return true;
   }
   return false;
 }
 
-function tiposet(nodo, intento) {
-  if (typeof intento === 'undefined') {
-    intento = 0;
+/* tiposet: usa MathJax cuando esté listo; si tarda, reintenta; si no llega, respaldo local */
+function tiposet(nodo,intento){
+  intento=intento||0;
+  if(window.MathJax&&window.MathJax.typesetPromise){
+    try{ window.MathJax.typesetPromise(nodo?[nodo]:null)['catch'](function(){}); }catch(e){}
+    return;
   }
-  if (window.MathJax && window.MathJax.typesetPromise) {
-    window.MathJax.typesetPromise([nodo]).catch(function (err) {
-      console.error(err);
-    });
-  } else if (intento < 40) {
-    setTimeout(function() {
-      tiposet(nodo, intento + 1);
-    }, 200);
+  if(window.__mjFallo||intento>=40){ matematicaFallback(nodo||document.body); return; }
+  setTimeout(function(){ tiposet(nodo,intento+1); },200);
+}
+
+/* respaldo sin conexión: convierte el LaTeX inline a HTML legible */
+function latexAHtml(tex){
+  var s=escaparHTML(tex), k;
+  s=s.replace(/\\begin\{(array|pmatrix|bmatrix|vmatrix|matrix|cases)\}(\{[clr| ]*\})?([\s\S]*?)\\end\{\1\}/g,function(todo,ent,spec,cuerpo){
+    var filas=cuerpo.split('\\\\'), out='', i, celdas, j, clase=(ent==='cases'?'mfb-casos':'mfb-mat');
+    for(i=0;i<filas.length;i++){
+      if(filas[i].replace(/\s/g,'')==='') continue;
+      celdas=filas[i].split(/&amp;|&/);
+      out+='<span class="mfb-fila">';
+      for(j=0;j<celdas.length;j++) out+='<span>'+celdas[j]+'</span>';
+      out+='</span>';
+    }
+    return '<span class="'+clase+'">'+out+'</span>';
+  });
+  s=s.replace(/\\left(?![a-zA-Z])|\\right(?![a-zA-Z])|\\,|\\;|\\!|\\ |\\displaystyle|\\quad|\\qquad/g,'');
+  for(k=0;k<3;k++){
+    s=s.replace(/\\(?:text|mathrm|mathbf|operatorname)\{([^{}]*)\}/g,'$1');
+    s=s.replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g,'<span class="mfb-frac"><span>$1</span><span>$2</span></span>');
+    s=s.replace(/\\sqrt\{([^{}]*)\}/g,'&#8730;<span class="mfb-rad">$1</span>');
+  }
+  s=s.replace(/\^\{?\\circ\}?/g,'&#176;');
+  s=s.replace(/\\cdot/g,'&#183;').replace(/\\times/g,'&#215;')
+     .replace(/\\theta/g,'&#952;').replace(/\\tau/g,'&#964;').replace(/\\pi/g,'&#960;')
+     .replace(/\\alpha/g,'&#945;').replace(/\\beta/g,'&#946;').replace(/\\circ/g,'&#176;')
+     .replace(/\\leq|\\le(?![a-zA-Z])/g,'&#8804;').replace(/\\geq|\\ge(?![a-zA-Z])/g,'&#8805;')
+     .replace(/\\neq|\\ne(?![a-zA-Z])/g,'&#8800;')
+     .replace(/\\pm/g,'&#177;').replace(/\\Rightarrow/g,'&#8658;').replace(/\\approx/g,'&#8776;')
+     .replace(/\\\|/g,'&#8214;').replace(/\\arccos/g,'arccos').replace(/\\cos/g,'cos').replace(/\\sin/g,'sin')
+     .replace(/\\to/g,'&#8594;').replace(/\\dots|\\ldots/g,'&#8230;')
+     .replace(/\\pm/g,'&#177;').replace(/\\leftrightarrow/g,'&#8596;').replace(/\\leftarrow/g,'&#8592;')
+     .replace(/\\neq|\\ne(?![a-zA-Z])/g,'&#8800;').replace(/\\times/g,'&#215;')
+     .replace(/\\Delta/g,'&#916;').replace(/\\det/g,'det').replace(/\\infty/g,'&#8734;');
+  for(k=0;k<2;k++){
+    s=s.replace(/\\vec\{([^{}]*)\}/g,'<span class="mfb-vec">$1</span>');
+    s=s.replace(/\\hat\{([^{}]*)\}/g,'<span class="mfb-hat">$1</span>');
+    s=s.replace(/\\vec\s*([^\s{<])/g,'<span class="mfb-vec">$1</span>');
+    s=s.replace(/\\hat\s*([^\s{<])/g,'<span class="mfb-hat">$1</span>');
+  }
+  s=s.replace(/\^\{([^{}]*)\}/g,'<sup>$1</sup>').replace(/\^(-?[0-9a-zA-Z])/g,'<sup>$1</sup>');
+  s=s.replace(/_\{([^{}]*)\}/g,'<sub>$1</sub>').replace(/_(-?[0-9a-zA-Z])/g,'<sub>$1</sub>');
+  s=s.replace(/[{}]/g,'');
+  return s;
+}
+function nodosTexto(el,salida){
+  var n=el.firstChild;
+  while(n){
+    if(n.nodeType===3){ salida.push(n); }
+    else if(n.nodeType===1){
+      var t=n.tagName.toLowerCase();
+      var cls=(n.getAttribute&&n.getAttribute('class'))||'';
+      if(t!=='code'&&t!=='pre'&&t!=='script'&&t!=='style'&&cls.indexOf('mfb')<0) nodosTexto(n,salida);
+    }
+    n=n.nextSibling;
+  }
+}
+function matematicaFallback(nodo){
+  if(!nodo||!nodo.firstChild&&nodo.nodeType!==3) return;
+  var lista=[], i;
+  if(nodo.nodeType===3){ lista.push(nodo); } else { nodosTexto(nodo,lista); }
+  var re=/\$\$([\s\S]+?)\$\$|\$([^$]+?)\$/g;
+  for(i=0;i<lista.length;i++){
+    var tn=lista[i], txt=String(tn.nodeValue);
+    if(txt.indexOf('$')<0) continue;
+    var frag=document.createDocumentFragment(), ultimo=0, m, sp;
+    re.lastIndex=0;
+    while((m=re.exec(txt))!==null){
+      if(m.index>ultimo) frag.appendChild(document.createTextNode(txt.slice(ultimo,m.index)));
+      sp=document.createElement('span');
+      if(m[1]!==undefined){ sp.className='mfb mfb-bloque'; sp.innerHTML=latexAHtml(m[1]); }
+      else { sp.className='mfb'; sp.innerHTML=latexAHtml(m[2]); }
+      frag.appendChild(sp);
+      ultimo=m.index+m[0].length;
+    }
+    if(ultimo===0) continue;
+    if(ultimo<txt.length) frag.appendChild(document.createTextNode(txt.slice(ultimo)));
+    if(tn.parentNode) tn.parentNode.replaceChild(frag,tn);
   }
 }
 
-function genEcuacionLinealUna() {
-  var a = Math.floor(Math.random() * 5) + 2;
-  var xSol = Math.floor(Math.random() * 8) + 1;
-  var b = Math.floor(Math.random() * 10) + 1;
-  var c = a * xSol + b;
-  
-  var enunciado = "En el diseño de un circuito de control para innovación mecatrónica, se plantea la ecuación lineal $";
-  enunciado += a + "x + " + b + " = " + c + "$. Determina el valor de la incógnita $x$.";
-  
-  var pista = "Despeja la incógnita $x$ pasando el término independiente al lado derecho y luego dividiendo entre el coeficiente de $x$.";
-  var explicacion = "Paso 1. Resta $b$ en ambos lados: $" + a + "x = " + c + " - " + b + " = " + (c - b) + "$. Paso 2. Divide entre " + a + ", obteniendo $x = " + (c - b) + " / " + a + " = " + xSol + "$.";
-  
+/* =========================================================
+   APOYOS MATEMÁTICOS Y DE TEXTO
+   ========================================================= */
+function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+function azar(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function nz(a,b){ var v=0; while(v===0){ v=ri(a,b); } return v; }
+function mcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=b; b=a%b; a=t; } return a||1; }
+function fraccion(n,d){
+  if(d===undefined) d=1;
+  if(d<0){ n=-n; d=-d; }
+  if(n===0) return {n:0,d:1};
+  var g=mcd(n,d);
+  return {n:n/g,d:d/g};
+}
+function fracTex(f){
+  if(f.d===1) return String(f.n);
+  return (f.n<0?'-':'')+'\\frac{'+Math.abs(f.n)+'}{'+f.d+'}';
+}
+function fracTxt(f){ return f.d===1?String(f.n):(f.n+'/'+f.d); }
+function decTxt(x){ return String(parseFloat(x.toFixed(4))); }
+function valor(f){ return f.n/f.d; }
+function punto(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+function cruz(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+function norma(v){ return Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]); }
+function vecTex(v){ return '\\left('+v[0]+',\\, '+v[1]+',\\, '+v[2]+'\\right)'; }
+
+/* aritmética exacta con fracciones para las operaciones de renglón */
+function fSuma(a,b){ return fraccion(a.n*b.d+b.n*a.d, a.d*b.d); }
+function fResta(a,b){ return fraccion(a.n*b.d-b.n*a.d, a.d*b.d); }
+function fMult(a,b){ return fraccion(a.n*b.n, a.d*b.d); }
+function fDiv(a,b){ return fraccion(a.n*b.d, a.d*b.n); }
+function fCero(a){ return a.n===0; }
+function matrizF(nums){
+  var M=[], i, j, fila;
+  for(i=0;i<nums.length;i++){
+    fila=[];
+    for(j=0;j<nums[i].length;j++) fila.push(fraccion(nums[i][j],1));
+    M.push(fila);
+  }
+  return M;
+}
+function copiaF(M){
+  var C=[], i, j, fila;
+  for(i=0;i<M.length;i++){ fila=[]; for(j=0;j<M[i].length;j++) fila.push(fraccion(M[i][j].n,M[i][j].d)); C.push(fila); }
+  return C;
+}
+function matrizTex(M,separador){
+  var cols=M[0].length, spec='', i, j, filas=[], fila;
+  for(i=0;i<cols;i++){ spec+=((separador!==undefined&&i===separador)?'|':'')+'c'; }
+  for(i=0;i<M.length;i++){
+    fila=[];
+    for(j=0;j<cols;j++) fila.push(fracTex(M[i][j]));
+    filas.push(fila.join(' & '));
+  }
+  return '\\left[\\begin{array}{'+spec+'}'+filas.join(' \\\\ ')+'\\end{array}\\right]';
+}
+function determinante2(M){ return M[0][0]*M[1][1]-M[0][1]*M[1][0]; }
+function determinante3(m){
+  return m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])
+        -m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])
+        +m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+}
+/* Gauss-Jordan exacto: devuelve los pasos con sus matrices */
+function gaussJordanPasos(nums){
+  var M=matrizF(nums), n=M.length, pasos=[], col, i, j, piv, ops, factor, fila;
+  for(col=0;col<n;col++){
+    piv=-1;
+    for(i=col;i<n;i++){ if(!fCero(M[i][col])){ piv=i; break; } }
+    if(piv<0) continue;
+    ops=[];
+    if(piv!==col){ fila=M[col]; M[col]=M[piv]; M[piv]=fila; ops.push('R'+(col+1)+'\\leftrightarrow R'+(piv+1)); }
+    if(!(M[col][col].n===M[col][col].d)){
+      var inv=fraccion(M[col][col].d,M[col][col].n);
+      for(j=0;j<M[col].length;j++) M[col][j]=fMult(M[col][j],inv);
+      ops.push('R'+(col+1)+'\\leftarrow '+fracTex(inv)+'\\,R'+(col+1));
+    }
+    for(i=0;i<n;i++){
+      if(i===col||fCero(M[i][col])) continue;
+      factor=M[i][col];
+      for(j=0;j<M[i].length;j++) M[i][j]=fResta(M[i][j],fMult(factor,M[col][j]));
+      ops.push('R'+(i+1)+'\\leftarrow R'+(i+1)+(factor.n>0?'-':'+')+fracTex(fraccion(Math.abs(factor.n),factor.d))+'\\,R'+(col+1));
+    }
+    pasos.push({ops:ops,matriz:copiaF(M)});
+  }
+  return {pasos:pasos,final:M};
+}
+
+/* ---------- escritura de expresiones ---------- */
+function signo(n){ return (n<0?'-':'+')+Math.abs(n); }
+function termTex(coef,variable,primero){
+  if(coef===0) return '';
+  var mag=Math.abs(coef)===1?'':String(Math.abs(coef));
+  if(primero) return (coef<0?'-':'')+mag+variable;
+  return (coef<0?' - ':' + ')+mag+variable;
+}
+function numTex(n,primero){
+  if(n===0) return '';
+  if(primero) return String(n);
+  return (n<0?' - ':' + ')+Math.abs(n);
+}
+function linealTex(a,b,v){
+  var s=termTex(a,v,true);
+  if(b!==0||s==='') s+=numTex(b,s==='');
+  return s;
+}
+function ladoTex(a,b,c,v){ return linealTex(a,b,v)+' = '+c; }
+function polyTex(a,b,c){
+  var s=termTex(a,'x^2',true);
+  s+=termTex(b,'x',s==='');
+  s+=numTex(c,s==='');
+  return s===''?'0':s;
+}
+function sistemaHTML(ecuaciones){
+  var out='<div class="sistema">', i;
+  for(i=0;i<ecuaciones.length;i++) out+='<span>$'+ecuaciones[i]+'$</span>';
+  return out+'</div>';
+}
+function sistemaTex(ecuaciones){
+  return '$\\begin{cases}'+ecuaciones.join(' \\\\ ')+'\\end{cases}$';
+}
+
+/* ---------- lectura de respuestas estructuradas ---------- */
+function limpiarLista(txt){
+  var s=normalizar(txt);
+  s=s.replace(/[⟨⟩]/g,'').replace(/^[({\[]/,'').replace(/[)}\]]$/,'');
+  s=s.replace(/(^|[,;])[a-z]=/g,'$1').replace(/^[a-z]=/,'');
+  s=s.replace(/;|,y|&/g,',').replace(/\s/g,'');
+  return s;
+}
+function parseLista(txt,n){
+  var s=limpiarLista(txt);
+  if(s===''||s.indexOf(',')<0) return null;
+  var partes=s.split(','), out=[], i, v;
+  if(n&&partes.length!==n) return null;
+  if(partes.length<2||partes.length>5) return null;
+  for(i=0;i<partes.length;i++){
+    v=aNumero(partes[i]);
+    if(isNaN(v)) return null;
+    out.push(v);
+  }
+  return out;
+}
+function listasIguales(a,b){
+  if(a.length!==b.length) return false;
+  for(var i=0;i<a.length;i++){ if(Math.abs(a[i]-b[i])>0.0025) return false; }
+  return true;
+}
+/* polinomios en x: coeficientes [c0,c1,c2] ascendentes */
+function terminosDe(s){
+  var terms=s.match(/[+-]?[^+-]+/g), out=[], i, t, coef, parte;
+  if(!terms) return null;
+  for(i=0;i<terms.length;i++){
+    t=terms[i];
+    if(t===''||t==='+'||t==='-') return null;
+    out.push(t);
+  }
+  return out;
+}
+function parseLineal(s){
+  if(!s||/[^0-9x+\-*/.()]/.test(s)) return null;
+  var ts=terminosDe(s), c0=0, c1=0, i, t, neg, mag, num;
+  if(!ts) return null;
+  for(i=0;i<ts.length;i++){
+    t=ts[i];
+    if(t.indexOf('x')>=0){
+      if(t.split('x').length>2) return null;
+      mag=t.replace('x','');
+      if(mag===''||mag==='+') num=1;
+      else if(mag==='-') num=-1;
+      else num=aNumero(mag);
+      if(isNaN(num)) return null;
+      c1+=num;
+    }else{
+      num=aNumero(t);
+      if(isNaN(num)) return null;
+      c0+=num;
+    }
+  }
+  return [c0,c1];
+}
+function multiplicaPoly(a,b){
+  var out=[0,0,0,0,0], i, j;
+  for(i=0;i<a.length;i++) for(j=0;j<b.length;j++) out[i+j]+=a[i]*b[j];
+  return out;
+}
+function parsePolinomio(txt){
+  var s=normalizar(txt).replace(/\*/g,'').replace(/=0$/,'');
+  if(!s||/[,;()]/.test(s)||s.indexOf('x')<0) return null;
+  if(/[^0-9x^+\-/.]/.test(s)) return null;
+  var ts=terminosDe(s), poly=[0,0,0], i, t, mag, num, grado;
+  if(!ts) return null;
+  for(i=0;i<ts.length;i++){
+    t=ts[i];
+    grado=0;
+    if(t.indexOf('x^2')>=0){ grado=2; mag=t.replace('x^2',''); }
+    else if(t.indexOf('x')>=0){ grado=1; mag=t.replace('x',''); }
+    else { mag=t; }
+    if(mag===''||mag==='+') num=1;
+    else if(mag==='-') num=-1;
+    else num=aNumero(mag);
+    if(isNaN(num)) return null;
+    poly[grado]+=num;
+  }
+  return poly;
+}
+function parseFactorizacion(txt){
+  var s=normalizar(txt).replace(/\*/g,'').replace(/=0$/,'');
+  if(!s||s.indexOf('(')<0||/[,;]/.test(s)) return null;
+  if(/[^0-9x+\-/().]/.test(s)) return null;
+  var k=1, m=s.match(/^(-?\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)\(/);
+  if(m){ k=aNumero(m[1]); if(isNaN(k)) return null; s=s.substring(m[1].length); }
+  var poly=[k,0,0], cuenta=0, re=/^\(([^()]+)\)/, mm, lin;
+  while((mm=s.match(re))!==null){
+    lin=parseLineal(mm[1]);
+    if(!lin) return null;
+    poly=multiplicaPoly(poly,[lin[0],lin[1],0]);
+    cuenta++;
+    s=s.substring(mm[0].length);
+    if(cuenta>3) return null;
+  }
+  if(s!==''||cuenta<1) return null;
+  if(Math.abs(poly[3])>1e-9||Math.abs(poly[4])>1e-9) return null;
+  return [poly[0],poly[1],poly[2]];
+}
+function polinomiosIguales(a,b){
+  return Math.abs(a[0]-b[0])<0.002&&Math.abs(a[1]-b[1])<0.002&&Math.abs(a[2]-b[2])<0.002;
+}
+function coeficientesDe(txt){
+  var f=parseFactorizacion(txt);
+  if(f) return f;
+  return parsePolinomio(txt);
+}
+/* números complejos en texto plano: a+bi, bi+a, -i, 5 */
+function parseComplejo(txt){
+  var s=normalizar(txt).replace(/\*/g,'').replace(/\s/g,'');
+  if(!s||/[,;()]/.test(s)) return null;
+  if(!/^[0-9i+\-/.]+$/.test(s)) return null;
+  var re=0, im=0, ts=terminosDe(s), i, t, mag, num;
+  if(!ts) return null;
+  for(i=0;i<ts.length;i++){
+    t=ts[i];
+    if(t.indexOf('i')>=0){
+      if(t.split('i').length>2) return null;
+      mag=t.replace('i','');
+      if(mag===''||mag==='+') num=1;
+      else if(mag==='-') num=-1;
+      else num=aNumero(mag);
+      if(isNaN(num)) return null;
+      im+=num;
+    }else{
+      num=aNumero(t);
+      if(isNaN(num)) return null;
+      re+=num;
+    }
+  }
+  return [re,im];
+}
+function parseListaCompleja(txt){
+  var s=limpiarLista(txt);
+  if(s==='') return null;
+  var partes=s.split(','), out=[], i, c;
+  if(partes.length<2||partes.length>3) return null;
+  for(i=0;i<partes.length;i++){
+    c=parseComplejo(partes[i]);
+    if(!c) return null;
+    out.push(c);
+  }
+  return out;
+}
+function listasComplejasIguales(a,b){
+  if(a.length!==b.length) return false;
+  for(var i=0;i<a.length;i++){ if(!listasIguales(a[i],b[i])) return false; }
+  return true;
+}
+
+/* ---------- variantes textuales aceptadas ---------- */
+function aceptaNumero(x){
+  var f=fraccion(Math.round(x*10000),10000);
+  var out=[decTxt(x)];
+  if(Math.abs(x-Math.round(x))<1e-9) out.push(String(Math.round(x)));
+  else out.push(fracTxt(f), decTxt(valor(f)));
+  return out;
+}
+function aceptaTupla(vals){
+  var txt=[], i;
+  for(i=0;i<vals.length;i++) txt.push(typeof vals[i]==='string'?vals[i]:decTxt(vals[i]));
+  var t=txt.join(','), conEsp=txt.join(', '), nombres=['x','y','z','w'], eq=[];
+  for(i=0;i<txt.length;i++) eq.push(nombres[i]+'='+txt[i]);
+  return ['('+t+')', t, '('+conEsp+')', '<'+t+'>', '['+t+']', eq.join(','), eq.join(', '), txt.join(';')];
+}
+function aceptaRaices(a,b){
+  var out=aceptaTupla([a,b]).concat(aceptaTupla([b,a]));
+  out.push(a+' y '+b, b+' y '+a, 'x='+a+' y x='+b, 'x='+b+' y x='+a);
+  return out;
+}
+
+/* =========================================================
+   GENERADOR · BLOQUE 1: ECUACIONES LINEALES Y SISTEMAS 2x2
+   ========================================================= */
+var NOMBRES=['Ximena','Itzel','Nayeli','Rocío','Citlali','Ameyalli','Marisol','Selene','Yolotl','Sayra','Eréndira','Tonantzin'];
+var COLECTIVOS=['Un colectivo intercultural de diseño digital','Una cooperativa de artesanas zapotecas junto con un laboratorio de diseño','Un equipo mixe de innovación tecnológica','Un taller comunitario de robótica de la sierra','Un grupo nahua de estudiantes de mecatrónica','Una red de mujeres indígenas que diseña equipo agrícola'];
+function porNivel(a,b,c){ return nivel===1?a:(nivel===2?b:c); }
+function ladoPlano(a,b,v){
+  var s='';
+  if(a!==0) s=(a<0?'-':'')+(Math.abs(a)===1?'':Math.abs(a))+v;
+  if(b!==0||s==='') s+=(s===''?String(b):(b<0?' - ':' + ')+Math.abs(b));
+  return s;
+}
+function figuraBalanza(izq,der,nota){
+  return {tipo:'balanza',izq:izq,der:der,nota:nota||'Los dos lados pesan lo mismo'};
+}
+function figuraMatriz(M,sep,nota,resalta,operacion){
+  return {tipo:'matriz',matriz:M,sep:sep,nota:nota,resalta:resalta||null,operacion:operacion||''};
+}
+function figuraPlano(datos,nota){
+  datos.tipo='plano';
+  datos.nota=nota;
+  datos.cualitativo=true;
+  return datos;
+}
+
+/* L1 · Ecuación lineal con una incógnita */
+function vLinealUna(){
+  var quien=azar(NOMBRES);
+  var escena=azar(['la calibración de un sensor de corriente','el ajuste de un controlador de temperatura','la puesta a cero de una celda de carga','la compensación de un encoder óptico']);
+  var x0,a,c,b,d;
+  if(nivel===1){
+    x0=fraccion(ri(1,9),1); a=ri(2,6); c=0; b=ri(1,9);
+  }else if(nivel===3){
+    var q=ri(2,5), p=nz(-14,14), salto=q*ri(2,4)*(Math.random()<0.5?-1:1);
+    x0=fraccion(p,q); a=ri(3,9)*(Math.random()<0.5?-1:1); c=a-salto; b=nz(-14,14);
+  }else{
+    var lim=porNivel(6,9,12);
+    x0=fraccion(nz(-lim,lim),1); a=nz(-6,6); c=nz(-6,6);
+    while(c===a) c=nz(-6,6);
+    b=nz(-9,9);
+  }
+  d=Math.round(valor(x0)*(a-c))+b;
+  var izq=linealTex(a,b,'x'), der=(c===0?String(d):linealTex(c,d,'x'));
+  figuraActual=figuraBalanza(ladoPlano(a,b,'x'),(c===0?String(d):ladoPlano(c,d,'x')),'Agrupa las x en un lado');
+  var dif=a-c, resta=d-b;
+  var ladoIzq=fSuma(fMult(fraccion(a,1),x0),fraccion(b,1));
+  var ladoDer=fSuma(fMult(fraccion(c,1),x0),fraccion(d,1));
   return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "El valor de $x$ es $" + xSol + "$",
-    respuestaLaTeX: String(xSol),
-    acepta: [String(xSol)],
-    respuesta: xSol,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
+    tipo:'numerica',
+    problema:quien+', ingeniera mecatrónica, trabaja en '+escena+'. El banco de pruebas devuelve la igualdad $'+izq+' = '+der+'$. Determina el valor de $x$'+(x0.d===1?'.':' y exprésalo como fracción.'),
+    solucion:'$x = '+fracTex(x0)+'$ satisface la igualdad: ambos lados valen $'+fracTex(ladoIzq)+'$.',
+    respuestaLaTeX:fracTex(x0),
+    acepta:aceptaNumero(valor(x0)).concat([fracTxt(x0)]),
+    respuesta:valor(x0),
+    tolerancia:(x0.d===1?0.001:0.01),
+    pista:'Agrupa los términos con $x$ en un lado y las constantes en el otro. Recuerda que al cruzar un término cambia de signo, y que después hay que DIVIDIR entre el coeficiente de $x$.',
+    explicacion:'Paso 1. Lleva las $x$ al lado izquierdo y las constantes al derecho: $'+linealTex(dif,0,'x')+' = '+d+(b<0?' + ':' - ')+Math.abs(b)+'$.\n'+
+      'Paso 2. Simplifica el lado derecho: $'+dif+'x = '+resta+'$.\n'+
+      'Paso 3. Divide entre el coeficiente: $x = \\dfrac{'+resta+'}{'+dif+'} = '+fracTex(x0)+'$.\n'+
+      'Paso 4. Verifica sustituyendo: izquierda $= '+fracTex(ladoIzq)+'$ y derecha $= '+fracTex(ladoDer)+'$. Coinciden, así que la solución es correcta.'
   };
 }
 
-function genEcuacionLinealDos() {
-  var xVal = Math.floor(Math.random() * 5) + 1;
-  var yVal = Math.floor(Math.random() * 5) + 1;
-  
-  var a1 = 1, b1 = 1, c1 = xVal + yVal;
-  var a2 = 2, b2 = 1, c2 = 2 * xVal + yVal;
-  
-  var b1Str = "+ y";
-  var b2Str = "+ y";
-  
-  var enunciado = "Para calibrar un sistema de coordenadas en un brazo robótico, se resuelve el sistema lineal de dos variables:\\\\";
-  enunciado += "$$ \\begin{cases} x " + b1Str + " = " + c1 + " \\\\ " + a2 + "x " + b2Str + " = " + c2 + " \\end{cases} $$";
-  enunciado += "Determina el valor de la variable $x$.";
-  
-  var pista = "Puedes utilizar el método de sustitución o resta entre ecuaciones para despejar una de las variables.";
-  var explicacion = "Paso 1. Resta la primera ecuación de la segunda: $(" + a2 + "x + y) - (x + y) = " + c2 + " - " + c1 + "$. Paso 2. Simplifica para obtener $x = " + xVal + "$.";
-  
+/* L2 · Lineal con paréntesis y denominadores */
+function vLinealFracciones(){
+  var grupo=azar(COLECTIVOS);
+  var escena=azar(['un brazo dosificador para una planta de café','un mecanismo de riego por goteo','una prensa artesanal automatizada']);
+  var m=azar([2,3,4]), n=azar([2,3,4,6]);
+  while(n===m) n=azar([2,3,4,6]);
+  var A=1, p=nz(-6,6), q=nz(-6,6), x0=fraccion(nivel===1?ri(1,8):nz(-9,9),1);
+  var conFracciones=(nivel===2&&Math.random()<0.6)||nivel===3;
+  if(nivel===3){
+    A=azar([2,3]); m=azar([2,3,4,5]); n=azar([2,3,4,5,6]);
+    while(n===m||A*n===m) n=azar([2,3,4,5,6]);
+    p=nz(-8,8); q=nz(-8,8); x0=fraccion(nz(-12,12),1);
+  }
+  var L=m*n/mcd(m,n), u=A*L/m, w=L/n;
+  var coef,cte,rhs,izq,der,planoIzq,exp,k;
+  if(conFracciones){
+    coef=u-w; cte=u*p+w*q;
+    rhs=fraccion(coef*valor(x0)+cte,1);
+    var r=fraccion(valor(rhs),L);
+    izq='\\frac{'+(A===1?'x'+signo(p):A+'\\left(x'+signo(p)+'\\right)')+'}{'+m+'} - \\frac{x'+signo(-q)+'}{'+n+'}';
+    der=fracTex(r);
+    planoIzq=(A===1?'(x'+signo(p)+')':A+'(x'+signo(p)+')')+'/'+m+' - (x'+signo(-q)+')/'+n;
+    exp='Paso 1. El mínimo común múltiplo de $'+m+'$ y $'+n+'$ es $'+L+'$; multiplica los dos lados por $'+L+'$.\n'+
+      'Paso 2. Queda $'+u+'\\left(x'+signo(p)+'\\right) - '+w+'\\left(x'+signo(-q)+'\\right) = '+fracTex(rhs)+'$.\n'+
+      'Paso 3. Desarrolla y agrupa: $'+coef+'x'+numTex(cte,false)+' = '+fracTex(rhs)+'$, es decir $'+coef+'x = '+fracTex(fResta(rhs,fraccion(cte,1)))+'$.\n'+
+      'Paso 4. Despeja: $x = '+fracTex(x0)+'$.\n'+
+      'Paso 5. Sustituye en la ecuación original: ambos lados valen $'+fracTex(r)+'$.';
+    figuraActual=figuraBalanza(planoIzq,fracTxt(r),'Elimina denominadores antes de agrupar');
+  }else{
+    coef=m-n; cte=m*p+n*q; k=coef*valor(x0)+cte;
+    rhs=fraccion(k,1);
+    izq=m+'\\left(x'+signo(p)+'\\right) - '+n+'\\left(x'+signo(-q)+'\\right)';
+    der=String(k);
+    planoIzq=m+'(x'+signo(p)+') - '+n+'(x'+signo(-q)+')';
+    exp='Paso 1. Distribuye cuidando el signo menos: $'+m+'x'+numTex(m*p,false)+' - '+n+'x'+numTex(n*q,false)+' = '+k+'$.\n'+
+      'Paso 2. Agrupa términos semejantes: $'+coef+'x'+numTex(cte,false)+' = '+k+'$.\n'+
+      'Paso 3. Pasa la constante al otro lado: $'+coef+'x = '+(k-cte)+'$.\n'+
+      'Paso 4. Divide entre $'+coef+'$: $x = '+fracTex(x0)+'$ y comprueba sustituyendo en los dos paréntesis.';
+    figuraActual=figuraBalanza(planoIzq,String(k),'Distribuye y agrupa términos semejantes');
+  }
   return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "El valor de $x$ es $" + xVal + "$",
-    respuestaLaTeX: String(xVal),
-    acepta: [String(xVal)],
-    respuesta: xVal,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
+    tipo:'numerica',
+    problema:grupo+' ajusta '+escena+'. La condición de equilibrio del mecanismo se escribe $'+izq+' = '+der+'$. Resuelve la ecuación y da el valor de $x$.',
+    solucion:'$x = '+fracTex(x0)+'$.',
+    respuestaLaTeX:fracTex(x0),
+    acepta:aceptaNumero(valor(x0)).concat([fracTxt(x0)]),
+    respuesta:valor(x0),
+    tolerancia:0.001,
+    pista:conFracciones?'Multiplica TODA la ecuación por el mínimo común múltiplo de los denominadores, $\\mathrm{mcm}('+m+','+n+')='+L+'$, para eliminar las fracciones antes de agrupar.':'Aplica la propiedad distributiva en los dos paréntesis: el signo menos que precede al segundo cambia el signo de TODOS sus términos.'
+    ,
+    explicacion:exp
   };
 }
 
-function genGaussJordan2() {
-  var xSol = 2;
-  var ySol = 3;
-  
-  var enunciado = "Una ingeniera aplica el método de Gauss-Jordan para resolver el sistema matricial asociado a un circuito de sensores:\\\\";
-  enunciado += "$$ \\begin{cases} 1x + 2y = 8 \\\\ 3x + 1y = 9 \\end{cases} $$";
-  enunciado += "Determina el valor de la variable $y$.";
-  
-  var pista = "Convierte la matriz aumentada en su forma escalonada reducida aplicando operaciones elementales entre renglones.";
-  var explicacion = "Paso 1. Multiplica el primer renglón por $-3$ y súmalo al segundo para eliminar el coeficiente de $x$. Paso 2. Opera y normaliza para despejar el valor de $y$, obteniendo $y = " + ySol + "$.";
-  
+/* L3 · Lineal con parámetro */
+function vLinealParametro(){
+  var quien=azar(NOMBRES);
+  var modo=azar(nivel===1?['solucion','solucion','sin']:['solucion','sin','infinitas']);
+  var a=nz(2,6), c=nz(-5,6), b=nz(-8,8), d=nz(-8,8), x0=nz(-6,6), m=ri(2,4), k, enunciado, exp, sol, figIzq, figDer;
+  while(c===a) c=nz(-5,6);
+  if(nivel===3){
+    /* estructura con paréntesis: a(x + b) = k(x + c) + d */
+    a=azar([2,3,4,5]); b=nz(-7,7); c=nz(-7,7);
+    while(c===b) c=nz(-7,7);
+    var ladoIzq=a+'\\left(x'+signo(b)+'\\right)', planoIzq=a+'(x'+signo(b)+')';
+    if(modo==='solucion'){
+      k=nz(-6,6); while(k===a) k=nz(-6,6);
+      x0=nz(-8,8); while(x0+c===0) x0=nz(-8,8);
+      d=a*(x0+b)-k*(x0+c);
+      var vi=a*(x0+b), den=x0+c;
+      enunciado='El ajuste de un servo queda descrito por $'+ladoIzq+' = k\\left(x'+signo(c)+'\\right)'+numTex(d,false)+'$. Halla el valor de $k$ para que la solución sea $x = '+x0+'$.';
+      sol='Con $x = '+x0+'$ la igualdad obliga a $k = '+k+'$.';
+      exp='Paso 1. Sustituye el valor pedido: $'+a+'('+x0+numTex(b,false)+') = k('+x0+numTex(c,false)+')'+numTex(d,false)+'$.\n'+
+        'Paso 2. Calcula los números: $'+vi+' = '+den+'k'+numTex(d,false)+'$, de donde $'+den+'k = '+(vi-d)+'$.\n'+
+        'Paso 3. Divide entre $'+den+'$: $k = \\dfrac{'+(vi-d)+'}{'+den+'} = '+k+'$.\n'+
+        'Paso 4. Comprueba: con $k = '+k+'$ la ecuación queda $('+a+'-'+k+')x = '+(k*c+d-a*b)+'$, cuya única solución es $x = '+x0+'$.';
+      figIzq=planoIzq; figDer='k(x'+signo(c)+')'+(d<0?' - ':' + ')+Math.abs(d);
+    }else{
+      k=a;
+      d=(modo==='infinitas'?a*(b-c):a*(b-c)+nz(1,7)*(Math.random()<0.5?-1:1));
+      var cteDer=a*c+d-a*b;
+      enunciado=(modo==='sin'
+        ? 'En un modelo de IA se comparan dos sensores mediante $'+ladoIzq+' = k\\left(x'+signo(c)+'\\right)'+numTex(d,false)+'$. Determina el valor de $k$ para que la ecuación NO tenga solución.'
+        : 'Un taller de innovación modela la posición de una guía con $'+ladoIzq+' = k\\left(x'+signo(c)+'\\right)'+numTex(d,false)+'$. Halla $k$ para que la igualdad se cumpla con CUALQUIER valor de $x$ (infinitas soluciones).');
+      sol=(modo==='sin'
+        ? 'Con $k = '+a+'$ los coeficientes de $x$ se anulan y queda $0 = '+cteDer+'$: no hay solución.'
+        : 'Con $k = '+a+'$ los dos lados son idénticos: la igualdad vale para cualquier $x$.');
+      var kcTex=(c<0?' - '+Math.abs(c)+'k':' + '+c+'k');
+      exp='Paso 1. Desarrolla los dos lados: $'+a+'x'+numTex(a*b,false)+' = kx'+kcTex+numTex(d,false)+'$.\n'+
+        'Paso 2. Agrupa en la forma $Ax = B$: $('+a+'-k)x = k('+c+')'+numTex(d-a*b,false)+'$.\n'+
+        'Paso 3. '+(modo==='sin'
+          ? 'No hay solución cuando $A = 0$ y $B\\neq 0$: exige $'+a+'-k = 0$, es decir $k = '+a+'$; entonces $B = '+a+'('+c+')'+numTex(d-a*b,false)+' = '+cteDer+'\\neq 0$.'
+          : 'Hay infinitas soluciones cuando $A = 0$ y $B = 0$: exige $k = '+a+'$; entonces $B = '+a+'('+c+')'+numTex(d-a*b,false)+' = '+cteDer+'$.')+'\n'+
+        'Paso 4. Conclusión: $k = '+k+'$ '+(modo==='sin'?'deja la igualdad imposible ($0 = '+cteDer+'$).':'convierte la igualdad en una identidad ($0 = 0$).');
+      figIzq=planoIzq; figDer='k(x'+signo(c)+')'+(d<0?' - ':' + ')+Math.abs(d);
+    }
+    figuraActual=figuraBalanza(figIzq,figDer,'El parámetro decide el tipo de solución');
+    return {
+      tipo:'numerica',
+      problema:quien+', especialista en automatización, analiza un prototipo. '+enunciado,
+      solucion:sol,
+      respuestaLaTeX:String(k),
+      acepta:aceptaNumero(k),
+      respuesta:k,
+      tolerancia:0.001,
+      pista:'Desarrolla los paréntesis y escribe la ecuación como $Ax = B$. Hay solución única si $A\\neq 0$, ninguna si $A=0$ y $B\\neq 0$, e infinitas si $A=0$ y $B=0$.',
+      explicacion:exp
+    };
+  }
+  if(modo==='solucion'){
+    k=(a-c)*x0+b;
+    enunciado='El ajuste de un servo en un prototipo de diseño queda descrito por $'+a+'x'+signo(b)+' = '+c+'x + k$. Halla el valor de $k$ para que la solución sea $x = '+x0+'$.';
+    sol='Con $x='+x0+'$ la igualdad obliga a $k = '+k+'$.';
+    exp='Paso 1. Sustituye el valor pedido: $'+a+'('+x0+')'+signo(b)+' = '+c+'('+x0+') + k$.\n'+
+        'Paso 2. Calcula cada lado: $'+(a*x0+b)+' = '+(c*x0)+' + k$.\n'+
+        'Paso 3. Despeja: $k = '+(a*x0+b)+' - '+(c*x0)+' = '+k+'$.\n'+
+        'Paso 4. Comprueba: con ese valor la ecuación se satisface exactamente en $x='+x0+'$.';
+    figuraActual=figuraBalanza(ladoPlano(a,b,'x'),ladoPlano(c,0,'x')+' + k','El parámetro equilibra la balanza');
+  }else if(modo==='sin'){
+    while(d===b) d=nz(-8,8);
+    k=a;
+    enunciado='En un modelo de IA se compara la salida de dos sensores mediante $'+a+'x'+signo(b)+' = kx'+signo(d)+'$. Determina el valor de $k$ para que la ecuación NO tenga solución.';
+    sol='Si $k = '+a+'$ los coeficientes de $x$ coinciden y las constantes no: la ecuación es imposible.';
+    exp='Paso 1. Agrupa: $('+a+'-k)x = '+(d-b)+'$.\n'+
+        'Paso 2. Una ecuación lineal no tiene solución cuando el coeficiente de $x$ se anula y la constante no.\n'+
+        'Paso 3. Exige $'+a+'-k = 0$, es decir $k = '+a+'$; como $'+(d-b)+'\\neq 0$, queda $0 = '+(d-b)+'$, absurdo.\n'+
+        'Paso 4. Conclusión: con $k = '+a+'$ la ecuación es incompatible.';
+    figuraActual=figuraBalanza(ladoPlano(a,b,'x'),'kx'+(d<0?' - ':' + ')+Math.abs(d),'Mismo coeficiente, distinta constante');
+  }else{
+    k=a*m;
+    enunciado='Un taller de innovación modela la posición de una guía con $'+a+'x + k = '+a+'\\left(x'+signo(m)+'\\right)$. Halla $k$ para que la igualdad se cumpla con CUALQUIER valor de $x$ (infinitas soluciones).';
+    sol='$k = '+k+'$ convierte la igualdad en una identidad.';
+    exp='Paso 1. Desarrolla el lado derecho: $'+a+'x + k = '+a+'x'+signo(a*m)+'$.\n'+
+        'Paso 2. Resta $'+a+'x$ en ambos lados: queda $k = '+a*m+'$.\n'+
+        'Paso 3. Con ese valor los dos lados son idénticos, así que cualquier $x$ satisface la ecuación.\n'+
+        'Paso 4. Conclusión: $k = '+k+'$ produce infinitas soluciones (identidad).';
+    figuraActual=figuraBalanza(ladoPlano(a,0,'x')+' + k',a+'(x'+signo(m)+')','Identidad: los lados son iguales');
+  }
   return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "El valor de $y$ es $" + ySol + "$",
-    respuestaLaTeX: String(ySol),
-    acepta: [String(ySol)],
-    respuesta: ySol,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
+    tipo:'numerica',
+    problema:quien+', especialista en automatización, analiza un prototipo. '+enunciado,
+    solucion:sol,
+    respuestaLaTeX:String(k),
+    acepta:aceptaNumero(k),
+    respuesta:k,
+    tolerancia:0.001,
+    pista:'Una ecuación lineal $Ax = B$ tiene solución única si $A\\neq 0$, ninguna si $A=0$ y $B\\neq 0$, e infinitas si $A=0$ y $B=0$. Escribe la ecuación en esa forma antes de decidir.',
+    explicacion:exp
   };
 }
 
-function genGaussJordan3() {
-  var zSol = 1;
-  
-  var enunciado = "En un sistema de tres nodos para una red de inteligencia artificial, el modelo matricial resuelto por Gauss-Jordan conduce a la ecuación escalonada reducida final equivalente a:\\\\";
-  enunciado += "$$ \\begin{pmatrix} 1 & 0 & 0 & | & 2 \\\\ 0 & 1 & 0 & | & 3 \\\\ 0 & 0 & 1 & | & " + zSol + " \\end{pmatrix} $$";
-  enunciado += "Indica el valor de la tercera variable $z$.";
-  
-  var pista = "La última fila de la matriz aumentada en forma escalonada reducida directa representa la solución directa para la variable $z$.";
-  var explicacion = "Paso 1. Identifica la última fila de la matriz aumentada. Paso 2. La ecuación correspondiente es $1z = " + zSol + "$, por lo que $z = " + zSol + "$.";
-  
+/* L4 · Recta en dos variables: pendiente e interceptos */
+function vRectaDosVariables(){
+  var grupo=azar(COLECTIVOS);
+  var lim=(nivel===3?8:(nivel===2?6:5)), limC=(nivel===3?15:9);
+  var a=nz(-lim,lim), b=nz(-lim,lim), c=nz(-limC,limC);
+  if(nivel===3){ while(Math.abs(a)<3) a=nz(-lim,lim); while(Math.abs(b)<3) b=nz(-lim,lim); }
+  var pidePendiente=(Math.random()<0.5)||nivel===1;
+  var m=fraccion(-a,b), corte=fraccion(c,a), corteY=fraccion(c,b);
+  var ordenada=(corteY.n===0?'':(corteY.n<0?' - ':' + ')+fracTex({n:Math.abs(corteY.n),d:corteY.d}));
+  figuraActual=figuraPlano({lineas:[{a:a,b:b,c:c,color:'a',etiqueta:'r'}]},'Trazo cualitativo de la recta');
+  if(pidePendiente){
+    return {
+      tipo:'numerica',
+      problema:grupo+' describe la trayectoria de un carrito con la recta $'+a+'x'+signo(b)+'y = '+c+'$. Calcula la PENDIENTE de esa recta (como fracción si no es entera).',
+      solucion:'Al despejar $y$ queda $y = '+fracTex(m)+'x'+ordenada+'$, así que la pendiente es $'+fracTex(m)+'$.',
+      respuestaLaTeX:fracTex(m),
+      acepta:aceptaNumero(valor(m)).concat([fracTxt(m)]),
+      respuesta:valor(m),
+      tolerancia:(m.d===1?0.001:0.01),
+      pista:'Despeja $y$ para llegar a la forma $y = mx + b$: el coeficiente que acompaña a $x$ es la pendiente. También puedes usar $m = -\\dfrac{a}{b}$ en $ax + by = c$.',
+      explicacion:'Paso 1. Parte de $'+a+'x'+signo(b)+'y = '+c+'$ y aísla el término con $y$: $'+b+'y = '+(-a)+'x'+signo(c)+'$.\n'+
+        'Paso 2. Divide todo entre $'+b+'$: $y = \\dfrac{'+(-a)+'}{'+b+'}x + \\dfrac{'+c+'}{'+b+'}$.\n'+
+        'Paso 3. Simplifica el coeficiente de $x$: $m = '+fracTex(m)+'$.\n'+
+        'Paso 4. Interpretación: por cada unidad que avanza $x$, $y$ cambia $'+fracTex(m)+'$ unidades.'
+    };
+  }
   return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "El valor de $z$ es $" + zSol + "$",
-    respuestaLaTeX: String(zSol),
-    acepta: [String(zSol)],
-    respuesta: zSol,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
+    tipo:'simbolica',
+    problema:grupo+' traza la guía de un mecanismo con la recta $'+a+'x'+signo(b)+'y = '+c+'$. Escribe el PUNTO donde la recta corta al eje $x$, con el formato (x, y) y usando fracciones si hace falta.',
+    solucion:'El corte con el eje $x$ es $\\left('+fracTex(corte)+',\\, 0\\right)$.',
+    respuestaLaTeX:'\\left('+fracTex(corte)+',\\, 0\\right)',
+    acepta:aceptaTupla([fracTxt(corte),'0']),
+    pista:'Sobre el eje $x$ se cumple $y = 0$. Sustituye ese valor en la ecuación y despeja $x$; la segunda coordenada del punto es cero.',
+    explicacion:'Paso 1. En el eje $x$ la ordenada es cero: sustituye $y = 0$ en $'+a+'x'+signo(b)+'y = '+c+'$.\n'+
+      'Paso 2. Queda $'+a+'x = '+c+'$.\n'+
+      'Paso 3. Despeja: $x = \\dfrac{'+c+'}{'+a+'} = '+fracTex(corte)+'$.\n'+
+      'Paso 4. El punto de corte es $\\left('+fracTex(corte)+',\\, 0\\right)$.'
   };
 }
 
-function genCuadraticaFormula() {
-  var r = 3;
-  var bTerm = -5;
-  var cTerm = 6;
-  
-  var enunciado = "Para optimizar la trayectoria de un vehículo autónomo, un algoritmo de inteligencia artificial analiza la ecuación cuadrática $x^2 - 5x + 6 = 0$. Determina la menor de sus dos soluciones reales.";
-  var pista = "Puedes aplicar la fórmula general cuadrática $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$ o factorizar directamente.";
-  var explicacion = "Paso 1. Identifica $a=1, b=-5, c=6$. Paso 2. Calcula el discriminante: $(-5)^2 - 4(1)(6) = 25 - 24 = 1$. Paso 3. Aplica la fórmula general para obtener las raíces $2$ y $3$. La menor es $2$.";
-  
+/* S1 · Sistema 2x2 con solución única */
+function sistema2Aleatorio(){
+  var lim=porNivel(4,6,9), x0, y0, a1,b1,a2,b2,det, intentos=0;
+  do{
+    x0=(nivel===1?ri(1,6):nz(-lim,lim));
+    y0=(nivel===1?ri(1,6):nz(-lim,lim));
+    a1=nz(-5,6); b1=nz(-5,6); a2=nz(-5,6); b2=nz(-5,6);
+    det=a1*b2-a2*b1;
+    intentos++;
+  }while((det===0||Math.abs(det)>26)&&intentos<80);
+  if(det===0||Math.abs(det)>26){ a1=2; b1=1; a2=1; b2=-3; det=-7; x0=3; y0=-2; }
+  return {a1:a1,b1:b1,c1:a1*x0+b1*y0,a2:a2,b2:b2,c2:a2*x0+b2*y0,x:x0,y:y0,det:det};
+}
+function vSistema2(){
+  var quien=azar(NOMBRES);
+  var s=sistema2Aleatorio();
+  var eq1=s.a1+'x'+signo(s.b1)+'y = '+s.c1, eq2=s.a2+'x'+signo(s.b2)+'y = '+s.c2;
+  var nx=s.c1*s.b2-s.c2*s.b1, ny=s.c1*s.a2-s.c2*s.a1;
+  figuraActual=figuraPlano({lineas:[{a:s.a1,b:s.b1,c:s.c1,color:'a',etiqueta:'r_1'},{a:s.a2,b:s.b2,c:s.c2,color:'b',etiqueta:'r_2'}]},'Dos rectas: la solución es su cruce');
   return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "La menor solución es $2$",
-    respuestaLaTeX: "2",
-    acepta: ["2"],
-    respuesta: 2,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
+    tipo:'simbolica',
+    problema:quien+', ingeniera en mecatrónica, equilibra dos sensores de un robot móvil y obtiene el sistema '+sistemaHTML([eq1,eq2])+'Determina la pareja solución y escríbela como (x, y).',
+    solucion:'La solución es $(x,y) = \\left('+s.x+',\\, '+s.y+'\\right)$; las rectas se cortan en ese punto.',
+    respuestaLaTeX:'\\left('+s.x+',\\, '+s.y+'\\right)',
+    acepta:aceptaTupla([s.x,s.y]),
+    pista:'Iguala los coeficientes de una variable multiplicando cada ecuación por un número adecuado y réstalas: quedará una ecuación con una sola incógnita. También sirve sustituir una variable despejada.',
+    explicacion:'Paso 1. Multiplica la primera ecuación por $'+s.b2+'$ y la segunda por $'+s.b1+'$ para igualar los coeficientes de $y$.\n'+
+      'Paso 2. Resta: $('+s.a1*s.b2+' - '+s.a2*s.b1+')x = '+s.c1*s.b2+' - '+s.c2*s.b1+'$, es decir $'+s.det+'x = '+nx+'$.\n'+
+      'Paso 3. Despeja $x = '+fracTex(fraccion(nx,s.det))+'$.\n'+
+      'Paso 4. Sustituye en la primera ecuación: $'+s.b1+'y = '+s.c1+' - '+s.a1+'('+s.x+')$, de donde $y = '+fracTex(fraccion(s.c1-s.a1*s.x,s.b1))+'$.\n'+
+      'Paso 5. Verifica en la segunda: $'+s.a2+'('+s.x+')'+signo(s.b2)+'('+s.y+') = '+s.c2+'$. Se cumple.'
   };
 }
 
-function genCuadraticaFactorizacion() {
-  var r1 = 2;
-  var r2 = 4;
-  
-  var enunciado = "En el diseño estructural de una pieza mecatrónica, se modela el esfuerzo mediante el polinomio $x^2 - 6x + 8 = 0$. Factoriza la ecuación para encontrar la mayor raíz real.";
-  var pista = "Busca dos números que multiplicados den $8$ y sumados den $-6$.";
-  var explicacion = "Paso 1. Factoriza el trinomio como $(x - 2)(x - 4) = 0$. Paso 2. Iguala cada factor a cero para hallar las raíces $x = 2$ y $x = 4$. Paso 3. La mayor raíz es $4$.";
-  
+/* S2 · Clasificación de un sistema 2x2 */
+function vSistema2Clasifica(){
+  var grupo=azar(COLECTIVOS);
+  var caso=azar(['determinado','incompatible','indeterminado']);
+  var elite=(nivel===3), lim=(elite?9:6), limC=(elite?15:9);
+  var a1=nz(-lim,lim), b1=nz(-lim,lim), c1=nz(-limC,limC), a2,b2,c2;
+  var par=elite?azar([[2,1],[3,1],[-2,1],[3,2]]):[azar([2,3]),1], fn=par[0], fd=par[1];
+  if(fd>1){
+    while(a1%fd!==0) a1=nz(-lim,lim);
+    while(b1%fd!==0) b1=nz(-lim,lim);
+    while(c1%fd!==0) c1=nz(-limC,limC);
+  }
+  var escala=function(v){ return fn*v/fd; };
+  if(caso==='determinado'){
+    if(elite){
+      a2=escala(a1); b2=escala(b1)+(Math.random()<0.5?1:-1);
+    }else{
+      a2=nz(-lim,lim); b2=nz(-lim,lim);
+      while(a1*b2-a2*b1===0){ a2=nz(-lim,lim); b2=nz(-lim,lim); }
+    }
+    c2=nz(-limC,limC);
+  }else{
+    a2=escala(a1); b2=escala(b1);
+    c2=(caso==='indeterminado'?escala(c1):escala(c1)+nz(1,6));
+  }
+  var fTex=(fd===1?String(fn):'\\dfrac{'+fn+'}{'+fd+'}');
+  var eq1=a1+'x'+signo(b1)+'y = '+c1, eq2=a2+'x'+signo(b2)+'y = '+c2;
+  var acepta, sol, cierre;
+  if(caso==='determinado'){
+    acepta=['determinado','compatible determinado','sistema compatible determinado','solucion unica','una solucion','compatible','determinada'];
+    sol='Los coeficientes no son proporcionales: el sistema es compatible determinado (solución única).';
+    cierre='Paso 4. Como $\\dfrac{'+a1+'}{'+a2+'}\\neq\\dfrac{'+b1+'}{'+b2+'}$ (el determinante vale $'+(a1*b2-a2*b1)+'$), las rectas se cortan en un solo punto: sistema COMPATIBLE DETERMINADO.';
+  }else if(caso==='incompatible'){
+    acepta=['incompatible','inconsistente','sin solucion','no tiene solucion','sistema incompatible','ninguna solucion','imposible'];
+    sol='Los coeficientes son proporcionales pero las constantes no: sistema incompatible, sin solución.';
+    cierre='Paso 4. Los coeficientes guardan la razón $'+fTex+'$ pero las constantes no: las rectas son paralelas distintas, así que el sistema es INCOMPATIBLE.';
+  }else{
+    acepta=['indeterminado','compatible indeterminado','sistema compatible indeterminado','infinitas soluciones','infinitas','dependiente','muchas soluciones'];
+    sol='La segunda ecuación es un múltiplo exacto de la primera: sistema compatible indeterminado.';
+    cierre='Paso 4. Toda la segunda ecuación es $'+fTex+'$ veces la primera: son la misma recta y hay INFINITAS SOLUCIONES (compatible indeterminado).';
+  }
+  figuraActual=figuraMatriz([[a1,b1,c1],[a2,b2,c2]],2,'Matriz aumentada del sistema');
   return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "La mayor raíz es $4$",
-    respuestaLaTeX: "4",
-    acepta: ["4"],
-    respuesta: 4,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
+    tipo:'simbolica',
+    problema:grupo+' modela dos restricciones de un dispositivo con el sistema '+sistemaHTML([eq1,eq2])+'Sin resolverlo, CLASIFICA el sistema: escribe determinado, indeterminado o incompatible.',
+    solucion:sol,
+    respuestaLaTeX:'\\text{'+caso+'}',
+    acepta:acepta,
+    pista:'Compara las razones $\\dfrac{a_1}{a_2}$, $\\dfrac{b_1}{b_2}$ y $\\dfrac{c_1}{c_2}$. Si las dos primeras son distintas hay solución única; si las tres coinciden hay infinitas; si sólo las dos primeras coinciden, no hay solución.',
+    explicacion:'Paso 1. Escribe la matriz aumentada: $$'+matrizTex(matrizF([[a1,b1,c1],[a2,b2,c2]]),2)+'$$\n'+
+      'Paso 2. Compara los coeficientes: $\\dfrac{'+a1+'}{'+a2+'}$ frente a $\\dfrac{'+b1+'}{'+b2+'}$.\n'+
+      'Paso 3. Compara también las constantes: $\\dfrac{'+c1+'}{'+c2+'}$.\n'+cierre
   };
 }
 
-var generadores = [
-  genEcuacionLinealUna,
-  genEcuacionLinealDos,
-  genGaussJordan2,
-  genGaussJordan3,
-  genCuadraticaFormula,
-  genCuadraticaFactorizacion
+/* S3 · Parámetro en un sistema 2x2 */
+function vSistema2Parametro(){
+  var quien=azar(NOMBRES);
+  var elite=(nivel===3);
+  var f=azar(elite?[2,3,4]:[2,3]), b1=nz(-6,6), c1=nz(-8,8);
+  var tipo=azar(['incompatible','indeterminado']);
+  var c2=(tipo==='indeterminado'?f*c1:f*c1+nz(1,6));
+  var k,eq1,eq2,M,exp;
+  if(elite){
+    k=nz(-7,7);
+    var a2=f*k, b2=f*b1;
+    eq1='kx'+signo(b1)+'y = '+c1; eq2=a2+'x'+signo(b2)+'y = '+c2;
+    M=[['k',b1,c1],[a2,b2,c2]];
+    exp='Paso 1. Compara los coeficientes de $y$: la razón es $\\dfrac{'+b1+'}{'+b2+'} = '+fracTex(fraccion(1,f))+'$.\n'+
+      'Paso 2. Para que no haya solución única, los coeficientes de $x$ deben guardar esa misma razón: $\\dfrac{k}{'+a2+'} = '+fracTex(fraccion(1,f))+'$.\n'+
+      'Paso 3. Despeja: $k = \\dfrac{'+a2+'}{'+f+'} = '+k+'$.\n'+
+      'Paso 4. Con ese valor la razón de las constantes es $\\dfrac{'+c1+'}{'+c2+'}$, '+(tipo==='incompatible'?'distinta de $'+fracTex(fraccion(1,f))+'$: el sistema es INCOMPATIBLE.':'igual a $'+fracTex(fraccion(1,f))+'$: el sistema tiene INFINITAS SOLUCIONES.')+'\n'+
+      'Paso 5. Comprueba el determinante: $('+k+')('+b2+') - ('+a2+')('+b1+') = '+(k*b2-a2*b1)+'$, nulo como se esperaba.';
+  }else{
+    var a1=azar([1,2,3]);
+    k=f*b1;
+    var a2b=f*a1;
+    eq1=a1+'x'+signo(b1)+'y = '+c1; eq2=a2b+'x + ky = '+c2;
+    M=[[a1,b1,c1],[a2b,'k',c2]];
+    exp='Paso 1. La razón entre los coeficientes de $x$ es $\\dfrac{'+a1+'}{'+a2b+'} = '+fracTex(fraccion(1,f))+'$.\n'+
+      'Paso 2. Para eliminar la solución única, los coeficientes de $y$ deben guardar la misma razón: $\\dfrac{'+b1+'}{k} = '+fracTex(fraccion(1,f))+'$.\n'+
+      'Paso 3. Despeja: $k = '+f+'\\cdot('+b1+') = '+k+'$.\n'+
+      'Paso 4. Con ese valor, las constantes quedan en razón $\\dfrac{'+c1+'}{'+c2+'}$, '+(tipo==='incompatible'?'distinta de la anterior: el sistema es incompatible.':'igual a la anterior: el sistema tiene infinitas soluciones.');
+  }
+  figuraActual=figuraMatriz(M,2,'El parámetro decide la compatibilidad',elite?[0,0]:[1,1]);
+  return {
+    tipo:'numerica',
+    problema:quien+', investigadora en inteligencia artificial, entrena un modelo con dos restricciones lineales: '+sistemaHTML([eq1,eq2])+'Halla el valor de $k$ para que el sistema sea '+tipo.toUpperCase()+(tipo==='incompatible'?' (sin solución).':' (con infinitas soluciones).'),
+    solucion:'$k = '+k+'$ hace proporcionales los coeficientes'+(tipo==='incompatible'?' y las constantes no coinciden: no hay solución.':', y también las constantes: hay infinitas soluciones.'),
+    respuestaLaTeX:String(k),
+    acepta:aceptaNumero(k),
+    respuesta:k,
+    tolerancia:0.001,
+    pista:'Para que las rectas sean paralelas o coincidentes los coeficientes deben ser proporcionales. Las constantes deciden después si hay infinitas soluciones o ninguna.',
+    explicacion:exp
+  };
+}
+
+/* S4 · Determinantes y regla de Cramer */
+function vCramer2(){
+  var grupo=azar(COLECTIVOS);
+  var modo=azar(nivel===3?['cramer','det3','det3']:['det2','cramer']);
+  var s=sistema2Aleatorio(), respuesta, tex, exp, sol, acept;
+  if(modo==='det3'){
+    var e3=(nivel===3?9:4), M3=function(){ return [[nz(-e3,e3+1),nz(-e3,e3+1),nz(-e3,e3+1)],[nz(-e3,e3+1),nz(-e3,e3+1),nz(-e3,e3+1)],[nz(-e3,e3+1),nz(-e3,e3+1),nz(-e3,e3+1)]]; };
+    var M=M3();
+    var d3=determinante3(M), intentos=0;
+    while((d3===0||Math.abs(d3)>(nivel===3?600:90))&&intentos<80){
+      M=M3();
+      d3=determinante3(M); intentos++;
+    }
+    if(d3===0){ M=[[2,1,0],[1,3,1],[0,1,2]]; d3=determinante3(M); }
+    respuesta=d3; tex=String(d3); acept=aceptaNumero(d3);
+    sol='El determinante vale $'+d3+'$.';
+    figuraActual=figuraMatriz(M,undefined,'Determinante de orden 3');
+    exp='Paso 1. Expande por la primera fila: $\\det = '+M[0][0]+'\\,M_{11} - ('+M[0][1]+')\\,M_{12} + '+M[0][2]+'\\,M_{13}$.\n'+
+      'Paso 2. Menores: $M_{11} = '+(M[1][1]*M[2][2]-M[1][2]*M[2][1])+'$, $M_{12} = '+(M[1][0]*M[2][2]-M[1][2]*M[2][0])+'$, $M_{13} = '+(M[1][0]*M[2][1]-M[1][1]*M[2][0])+'$.\n'+
+      'Paso 3. Sustituye: $('+M[0][0]+')('+(M[1][1]*M[2][2]-M[1][2]*M[2][1])+') - ('+M[0][1]+')('+(M[1][0]*M[2][2]-M[1][2]*M[2][0])+') + ('+M[0][2]+')('+(M[1][0]*M[2][1]-M[1][1]*M[2][0])+')$.\n'+
+      'Paso 4. Suma con signos: $\\det = '+d3+'$. '+(d3!==0?'Al ser distinto de cero, el sistema asociado tiene solución única.':'');
+  }else if(modo==='det2'){
+    respuesta=s.det; tex=String(s.det); acept=aceptaNumero(s.det);
+    sol='El determinante de los coeficientes vale $'+s.det+'$.';
+    figuraActual=figuraMatriz([[s.a1,s.b1],[s.a2,s.b2]],undefined,'Determinante de los coeficientes');
+    exp='Paso 1. Para una matriz $2\\times 2$, $\\det = ad - bc$.\n'+
+      'Paso 2. Sustituye: $\\det = ('+s.a1+')('+s.b2+') - ('+s.b1+')('+s.a2+')$.\n'+
+      'Paso 3. Calcula: $'+(s.a1*s.b2)+' - ('+(s.b1*s.a2)+') = '+s.det+'$.\n'+
+      'Paso 4. '+(s.det!==0?'Como $\\det\\neq 0$, el sistema tiene solución única y Cramer es aplicable.':'Con determinante cero habría que estudiar la compatibilidad.');
+  }else{
+    var dx=s.c1*s.b2-s.c2*s.b1, fx=fraccion(dx,s.det);
+    respuesta=valor(fx); tex=fracTex(fx); acept=aceptaNumero(valor(fx)).concat([fracTxt(fx)]);
+    sol='Por Cramer, $x = \\dfrac{D_x}{D} = '+fracTex(fx)+'$.';
+    figuraActual=figuraMatriz([[s.a1,s.b1,s.c1],[s.a2,s.b2,s.c2]],2,'Cramer: sustituye la columna de x');
+    exp='Paso 1. Determinante del sistema: $D = ('+s.a1+')('+s.b2+') - ('+s.b1+')('+s.a2+') = '+s.det+'$.\n'+
+      'Paso 2. Sustituye la columna de $x$ por las constantes: $D_x = ('+s.c1+')('+s.b2+') - ('+s.b1+')('+s.c2+') = '+dx+'$.\n'+
+      'Paso 3. Aplica Cramer: $x = \\dfrac{D_x}{D} = \\dfrac{'+dx+'}{'+s.det+'} = '+fracTex(fx)+'$.\n'+
+      'Paso 4. El mismo procedimiento con la columna de $y$ daría $y = '+s.y+'$.';
+  }
+  return {
+    tipo:'numerica',
+    problema:grupo+' analiza la matriz de un sistema de dos restricciones. '+(modo==='det3'?'Calcula el determinante de la matriz $$'+matrizTex(matrizF(M))+'$$':(modo==='det2'?'Calcula el determinante de los coeficientes del sistema '+sistemaHTML([s.a1+'x'+signo(s.b1)+'y = '+s.c1,s.a2+'x'+signo(s.b2)+'y = '+s.c2]):'Usa la REGLA DE CRAMER para hallar el valor de $x$ en el sistema '+sistemaHTML([s.a1+'x'+signo(s.b1)+'y = '+s.c1,s.a2+'x'+signo(s.b2)+'y = '+s.c2])+'Da el resultado como fracción si no es entero.')),
+    solucion:sol,
+    respuestaLaTeX:tex,
+    acepta:acept,
+    respuesta:respuesta,
+    tolerancia:(Math.abs(respuesta-Math.round(respuesta))<1e-9?0.001:0.01),
+    pista:modo==='det3'?'Expande por cofactores a lo largo de una fila: alterna los signos $+,-,+$ y multiplica cada entrada por su menor $2\\times 2$.':(modo==='det2'?'En una matriz $2\\times 2$ el determinante es el producto de la diagonal principal menos el producto de la otra diagonal.':'Cramer: $x = D_x/D$, donde $D_x$ se obtiene sustituyendo la columna de $x$ por el vector de términos independientes.'),
+    explicacion:exp
+  };
+}
+
+/* =========================================================
+   GENERADOR · BLOQUE 2: GAUSS-JORDAN, RANGO Y SISTEMAS 3x3
+   ========================================================= */
+
+/* G1 · Gauss-Jordan 2x2 con matrices en cada paso */
+function vGaussJordan2(){
+  var quien=azar(NOMBRES);
+  var s=sistema2Aleatorio();
+  var inicial=[[s.a1,s.b1,s.c1],[s.a2,s.b2,s.c2]];
+  var gj=gaussJordanPasos(inicial);
+  var p1=gj.pasos[0], p2=gj.pasos[1];
+  figuraActual=figuraMatriz(inicial,2,'Matriz aumentada inicial');
+  return {
+    tipo:'simbolica',
+    problema:quien+', ingeniera mecatrónica, resuelve por GAUSS-JORDAN el sistema de un actuador con dos restricciones: '+sistemaHTML([s.a1+'x'+signo(s.b1)+'y = '+s.c1,s.a2+'x'+signo(s.b2)+'y = '+s.c2])+'Lleva la matriz aumentada a su forma escalonada reducida y escribe la solución como (x, y).',
+    solucion:'La forma escalonada reducida es la identidad aumentada con $\\left('+s.x+',\\, '+s.y+'\\right)$.',
+    respuestaLaTeX:'\\left('+s.x+',\\, '+s.y+'\\right)',
+    acepta:aceptaTupla([s.x,s.y]),
+    pista:'Trabaja sobre la matriz aumentada $'+matrizTex(matrizF(inicial),2)+'$. Primero convierte el pivote de la primera columna en 1 y anula lo que queda debajo; después haz lo mismo en la segunda columna, hacia arriba.',
+    explicacion:'Paso 1. Escribe la matriz aumentada del sistema: $$'+matrizTex(matrizF(inicial),2)+'$$\n'+
+      'Paso 2. Normaliza el primer pivote y anula lo que queda debajo con $'+p1.ops.join('$ y $')+'$: $$'+matrizTex(p1.matriz,2)+'$$\n'+
+      'Paso 3. Haz lo mismo en la segunda columna, hacia arriba, con $'+p2.ops.join('$ y $')+'$: $$'+matrizTex(p2.matriz,2)+'$$\n'+
+      'Paso 4. La parte izquierda ya es la identidad, así que $x = '+s.x+'$ y $y = '+s.y+'$.\n'+
+      'Paso 5. Verifica en la segunda ecuación original: $'+s.a2+'('+s.x+')'+signo(s.b2)+'('+s.y+') = '+s.c2+'$.'
+  };
+}
+
+/* G2 · Gauss-Jordan 3x3 */
+function sistema3Aleatorio(){
+  var lim=porNivel(3,4,5), coef=porNivel(3,4,5), x,y,z,A,det,intentos=0,i,j,fila;
+  do{
+    x=(nivel===1?ri(1,4):nz(-lim,lim));
+    y=(nivel===1?ri(1,4):nz(-lim,lim));
+    z=(nivel===1?ri(1,4):nz(-lim,lim));
+    A=[];
+    for(i=0;i<3;i++){ fila=[]; for(j=0;j<3;j++) fila.push(nz(-coef,coef)); A.push(fila); }
+    det=determinante3(A);
+    intentos++;
+  }while((det===0||Math.abs(det)>48)&&intentos<90);
+  if(det===0||Math.abs(det)>48){ A=[[2,1,-1],[1,-1,2],[3,2,1]]; det=determinante3(A); x=1; y=2; z=-1; }
+  var b=[A[0][0]*x+A[0][1]*y+A[0][2]*z, A[1][0]*x+A[1][1]*y+A[1][2]*z, A[2][0]*x+A[2][1]*y+A[2][2]*z];
+  return {A:A,b:b,x:x,y:y,z:z,det:det};
+}
+function ecuacion3(fila,b){
+  return termTex(fila[0],'x',true)+termTex(fila[1],'y',false)+termTex(fila[2],'z',false)+' = '+b;
+}
+function vGaussJordan3(){
+  var grupo=azar(COLECTIVOS);
+  var s=sistema3Aleatorio();
+  var inicial=[[s.A[0][0],s.A[0][1],s.A[0][2],s.b[0]],[s.A[1][0],s.A[1][1],s.A[1][2],s.b[1]],[s.A[2][0],s.A[2][1],s.A[2][2],s.b[2]]];
+  var gj=gaussJordanPasos(inicial), p=gj.pasos;
+  var eqs=[ecuacion3(s.A[0],s.b[0]),ecuacion3(s.A[1],s.b[1]),ecuacion3(s.A[2],s.b[2])];
+  figuraActual=figuraMatriz(inicial,3,'Matriz aumentada 3x4');
+  return {
+    tipo:'simbolica',
+    problema:grupo+' equilibra tres recursos de un taller con el sistema '+sistemaHTML(eqs)+'Resuélvelo por GAUSS-JORDAN y escribe la solución como (x, y, z).',
+    solucion:'$(x,y,z) = \\left('+s.x+',\\, '+s.y+',\\, '+s.z+'\\right)$.',
+    respuestaLaTeX:'\\left('+s.x+',\\, '+s.y+',\\, '+s.z+'\\right)',
+    acepta:aceptaTupla([s.x,s.y,s.z]),
+    pista:'Normaliza el pivote de cada columna y anula el resto de entradas de esa columna, arriba y abajo. Si algún pivote queda en cero, intercambia renglones antes de continuar; las fracciones que aparecen son normales.',
+    explicacion:'Paso 1. Escribe la matriz aumentada $3\\times 4$: $$'+matrizTex(matrizF(inicial),3)+'$$\n'+
+      'Paso 2. Primera columna: pivote 1 y ceros debajo con $'+p[0].ops.join('$ y $')+'$: $$'+matrizTex(p[0].matriz,3)+'$$\n'+
+      'Paso 3. Segunda columna: pivote 1 y ceros arriba y abajo con $'+p[1].ops.join('$ y $')+'$: $$'+matrizTex(p[1].matriz,3)+'$$\n'+
+      'Paso 4. Tercera columna: pivote 1 y ceros arriba con $'+p[2].ops.join('$ y $')+'$: $$'+matrizTex(p[2].matriz,3)+'$$\n'+
+      'Paso 5. Lectura directa: $x = '+s.x+'$, $y = '+s.y+'$, $z = '+s.z+'$. Comprueba en la primera ecuación: $'+(s.A[0][0]*s.x+s.A[0][1]*s.y+s.A[0][2]*s.z)+' = '+s.b[0]+'$.'
+  };
+}
+
+/* G3 · Operación elemental entre renglones */
+function vGaussJordanPaso(){
+  var quien=azar(NOMBRES);
+  var filas=(nivel===1?2:azar([2,3])), cols=filas+1;
+  var M=[], i, j;
+  for(i=0;i<filas;i++){ var f=[]; for(j=0;j<cols;j++) f.push(nz(-5,6)); M.push(f); }
+  var destino=ri(0,filas-1), origen=ri(0,filas-1);
+  while(origen===destino) origen=ri(0,filas-1);
+  var mult=nz(2,4), nueva=[], k;
+  for(j=0;j<cols;j++) nueva.push(M[destino][j]-mult*M[origen][j]);
+  var pideFila=(nivel>=2&&Math.random()<0.5);
+  var col=ri(0,cols-1);
+  var op='R'+(destino+1)+'\\leftarrow R'+(destino+1)+(mult>0?'-':'+')+Math.abs(mult)+'\\,R'+(origen+1);
+  var opPlano='R'+(destino+1)+' = R'+(destino+1)+(mult>0?' - ':' + ')+Math.abs(mult)+'*R'+(origen+1);
+  figuraActual=figuraMatriz(M,cols-1,'Aplica la operación y observa la marca',[destino,col],opPlano);
+  var desarrollo=[], j2;
+  for(j=0;j<cols;j++) desarrollo.push('('+M[destino][j]+') - '+mult+'('+M[origen][j]+') = '+nueva[j]);
+  if(pideFila){
+    return {
+      tipo:'simbolica',
+      problema:quien+', analista de datos, aplica una operación elemental a la matriz aumentada $$'+matrizTex(matrizF(M),cols-1)+'$$ Ejecuta $'+op+'$ y escribe el RENGLÓN '+nombresRenglones(destino)+' completo, separado por comas.',
+      solucion:'El renglón queda $\\left('+nueva.join(',\\, ')+'\\right)$.',
+      respuestaLaTeX:'\\left('+nueva.join(',\\, ')+'\\right)',
+      acepta:aceptaTupla(nueva),
+      pista:'La operación afecta sólo al renglón destino: cada entrada nueva es la entrada antigua menos $'+mult+'$ veces la entrada correspondiente del renglón '+nombresRenglones(origen)+'. El renglón origen NO cambia.',
+      explicacion:'Paso 1. Identifica el renglón destino $R'+(destino+1)+' = \\left('+M[destino].join(',\\, ')+'\\right)$ y el origen $R'+(origen+1)+' = \\left('+M[origen].join(',\\, ')+'\\right)$.\n'+
+        'Paso 2. Aplica la operación entrada por entrada: $'+desarrollo.slice(0,2).join('$ ; $')+'$.\n'+
+        'Paso 3. Continúa con las entradas restantes: $'+desarrollo.slice(2).join('$ ; $')+'$.\n'+
+        'Paso 4. El nuevo renglón es $\\left('+nueva.join(',\\, ')+'\\right)$; los demás permanecen iguales.'
+    };
+  }
+  return {
+    tipo:'numerica',
+    problema:quien+', analista de datos, aplica una operación elemental a la matriz aumentada $$'+matrizTex(matrizF(M),cols-1)+'$$ Ejecuta $'+op+'$ y determina la entrada que queda en la posición marcada (renglón '+(destino+1)+', columna '+(col+1)+').',
+    solucion:'La entrada marcada vale $'+nueva[col]+'$.',
+    respuestaLaTeX:String(nueva[col]),
+    acepta:aceptaNumero(nueva[col]),
+    respuesta:nueva[col],
+    tolerancia:0.001,
+    pista:'Sólo cambia el renglón destino. La entrada buscada se obtiene con (entrada antigua del destino) menos $'+mult+'$ por (entrada de la misma columna en el renglón origen).',
+    explicacion:'Paso 1. Entrada antigua del destino: $'+M[destino][col]+'$; entrada del origen en la misma columna: $'+M[origen][col]+'$.\n'+
+      'Paso 2. Aplica la operación: $('+M[destino][col]+') - '+mult+'('+M[origen][col]+')$.\n'+
+      'Paso 3. Calcula el producto: $'+mult+'\\cdot('+M[origen][col]+') = '+(mult*M[origen][col])+'$.\n'+
+      'Paso 4. Resta: $'+M[destino][col]+' - ('+(mult*M[origen][col])+') = '+nueva[col]+'$.'
+  };
+}
+function nombresRenglones(i){ return (i+1); }
+
+/* G4 · Rango y compatibilidad de un sistema 3x3 */
+function vRangoSistema3(){
+  var grupo=azar(COLECTIVOS);
+  var e4=(nivel===3?7:(nivel===2?5:4)), b4=(nivel===3?14:8);
+  var r1=[nz(-e4,e4+1),nz(-e4,e4+1),nz(-e4,e4+1)], r2=[nz(-e4,e4+1),nz(-e4,e4+1),nz(-e4,e4+1)];
+  var alfa=nz(1,nivel===3?3:2), beta=nz(-(nivel===3?3:2),nivel===3?3:2), i;
+  var r3=[], dependiente=(Math.random()<0.65||nivel===1);
+  for(i=0;i<3;i++) r3.push(alfa*r1[i]+beta*r2[i]);
+  if(!dependiente){ r3=[nz(-e4,e4+1),nz(-e4,e4+1),nz(-e4,e4+1)]; }
+  var b1=nz(-b4,b4), b2=nz(-b4,b4), b3;
+  var caso;
+  if(dependiente){
+    caso=(Math.random()<0.5?'indeterminado':'incompatible');
+    b3=alfa*b1+beta*b2+(caso==='indeterminado'?0:nz(1,6));
+  }else{
+    caso='determinado'; b3=nz(-b4,b4);
+    var A=[r1,r2,r3], intentos=0;
+    while(determinante3(A)===0&&intentos<40){ r3=[nz(-e4,e4+1),nz(-e4,e4+1),nz(-e4,e4+1)]; A=[r1,r2,r3]; intentos++; }
+    if(determinante3(A)===0){ r3=[0,0,1]; A=[r1,r2,r3]; }
+    if(determinante3(A)===0){ r1=[1,0,0]; r2=[0,1,0]; r3=[0,0,1]; }
+  }
+  var M=[[r1[0],r1[1],r1[2],b1],[r2[0],r2[1],r2[2],b2],[r3[0],r3[1],r3[2],b3]];
+  var pideRango=(Math.random()<0.5);
+  figuraActual=figuraMatriz(M,3,'Busca dependencias entre renglones');
+  var relacion='$R_3 = '+alfa+'\\,R_1'+(beta<0?' - ':' + ')+Math.abs(beta)+'\\,R_2$';
+  var expBase='Paso 1. Observa los renglones de la matriz de coeficientes: $R_1 = \\left('+r1.join(',\\, ')+'\\right)$, $R_2 = \\left('+r2.join(',\\, ')+'\\right)$, $R_3 = \\left('+r3.join(',\\, ')+'\\right)$.\n';
+  if(pideRango){
+    var rango=(dependiente?2:3);
+    return {
+      tipo:'numerica',
+      problema:grupo+' revisa si tres restricciones de diseño son independientes. La matriz de coeficientes es $$'+matrizTex(matrizF([r1,r2,r3]))+'$$ Determina el RANGO de esa matriz.',
+      solucion:'El rango es $'+rango+'$'+(dependiente?' porque el tercer renglón combina los dos primeros.':' porque los tres renglones son linealmente independientes.'),
+      respuestaLaTeX:String(rango),
+      acepta:aceptaNumero(rango),
+      respuesta:rango,
+      tolerancia:0.001,
+      pista:'El rango es el número de renglones linealmente independientes. Comprueba si alguno se obtiene como combinación de los otros; si no, el determinante distinto de cero confirma rango máximo.',
+      explicacion:expBase+
+        (dependiente?
+        'Paso 2. Prueba una combinación lineal: '+relacion+'.\n'+
+        'Paso 3. Comprueba componente a componente: $'+alfa+'('+r1[0]+')'+(beta<0?'-':'+')+Math.abs(beta)+'('+r2[0]+') = '+r3[0]+'$, y lo mismo en las otras dos columnas.\n'+
+        'Paso 4. El tercer renglón depende de los otros dos y $R_1$ no es múltiplo de $R_2$, así que el rango es $2$.'
+        :
+        'Paso 2. Ningún renglón es múltiplo de otro ni combinación de los restantes.\n'+
+        'Paso 3. Calcula el determinante: $\\det = '+determinante3([r1,r2,r3])+'\\neq 0$.\n'+
+        'Paso 4. Un determinante distinto de cero implica tres renglones independientes: el rango es $3$.')
+    };
+  }
+  var acepta,sol,cierre;
+  if(caso==='determinado'){
+    acepta=['determinado','compatible determinado','solucion unica','una solucion','compatible'];
+    sol='Rango 3 en coeficientes y en la ampliada: sistema compatible determinado.';
+    cierre='Paso 4. El rango de la matriz de coeficientes y el de la ampliada valen 3 e igualan el número de incógnitas: sistema COMPATIBLE DETERMINADO.';
+  }else if(caso==='indeterminado'){
+    acepta=['indeterminado','compatible indeterminado','infinitas soluciones','infinitas','dependiente'];
+    sol='Rango 2 en ambas matrices con 3 incógnitas: sistema compatible indeterminado.';
+    cierre='Paso 4. También las constantes cumplen la misma combinación, así que el rango de la ampliada es 2: hay INFINITAS SOLUCIONES (compatible indeterminado).';
+  }else{
+    acepta=['incompatible','inconsistente','sin solucion','no tiene solucion','sistema incompatible'];
+    sol='Rango 2 en coeficientes y 3 en la ampliada: sistema incompatible.';
+    cierre='Paso 4. Las constantes NO cumplen la combinación, así que la ampliada tiene rango 3 frente a rango 2 de los coeficientes: sistema INCOMPATIBLE.';
+  }
+  return {
+    tipo:'simbolica',
+    problema:grupo+' modela tres restricciones con la matriz aumentada $$'+matrizTex(matrizF(M),3)+'$$ Sin resolver el sistema, CLASIFÍCALO: escribe determinado, indeterminado o incompatible.',
+    solucion:sol,
+    respuestaLaTeX:'\\text{'+caso+'}',
+    acepta:acepta,
+    pista:'Teorema de Rouché-Frobenius: compara el rango de la matriz de coeficientes con el de la ampliada. Si difieren, no hay solución; si coinciden e igualan el número de incógnitas, la solución es única; si coinciden y son menores, hay infinitas.',
+    explicacion:expBase+
+      'Paso 2. '+(dependiente?'Los coeficientes cumplen '+relacion+', así que el rango de la matriz de coeficientes es 2.':'El determinante de los coeficientes es $'+determinante3([r1,r2,r3])+'\\neq 0$: el rango es 3.')+'\n'+
+      'Paso 3. '+(dependiente?'Revisa las constantes: $'+alfa+'('+b1+')'+(beta<0?'-':'+')+Math.abs(beta)+'('+b2+') = '+(alfa*b1+beta*b2)+'$, y el valor real es $'+b3+'$.':'La ampliada no puede tener rango mayor que 3.')+'\n'+cierre
+  };
+}
+
+/* G5 · Sistema de 3 incógnitas con 2 ecuaciones: recta solución */
+function vSistemaParametrico(){
+  var quien=azar(NOMBRES);
+  var e5=(nivel===3?6:(nivel===2?4:3)), tope=(nivel===3?42:18);
+  var n1,n2,d,intentos=0;
+  do{
+    n1=[nz(-e5,e5+1),nz(-e5,e5+1),nz(-e5,e5+1)];
+    n2=[nz(-e5,e5+1),nz(-e5,e5+1),nz(-e5,e5+1)];
+    d=cruz(n1,n2);
+    intentos++;
+  }while((norma(d)===0||Math.max(Math.abs(d[0]),Math.abs(d[1]),Math.abs(d[2]))>tope)&&intentos<120);
+  if(norma(d)===0){ n1=[1,2,1]; n2=[2,1,-1]; d=cruz(n1,n2); }
+  var P0=[nz(-3,3),nz(-3,3),nz(-3,3)];
+  var d1=punto(n1,P0), d2=punto(n2,P0);
+  var base1=figPerp(n1), base2=figPerp(n2);
+  figuraActual={tipo:'espacio',
+    vectores:[{p:n1,color:'a',etiqueta:'n1'},{p:n2,color:'b',etiqueta:'n2'}],
+    planos:[[figEsc(base1[0],3),figEsc(base1[1],3)],[figEsc(base2[0],3),figEsc(base2[1],3)]],
+    nota:'La recta solución es perpendicular a ambas normales'};
+  var g=mcd(mcd(Math.abs(d[0]),Math.abs(d[1])),Math.abs(d[2]))||1;
+  var reducido=[d[0]/g,d[1]/g,d[2]/g];
+  var acept=aceptaTupla(reducido).concat(aceptaTupla(d));
+  acept.push(ijkTxt(d));
+  return {
+    tipo:'simbolica',
+    modo:'paralelo',
+    problema:quien+', investigadora en IA, reduce un modelo a dos ecuaciones con tres incógnitas: '+sistemaHTML([ecuacion3(n1,d1),ecuacion3(n2,d2)])+'El conjunto solución es una recta. Escribe un VECTOR DIRECTOR de esa recta con el formato (a, b, c); se acepta cualquier múltiplo no nulo.',
+    solucion:'Un vector director es $'+vecTex(d)+'$ (o cualquier múltiplo no nulo), perpendicular a las dos normales.',
+    respuestaLaTeX:vecTex(d),
+    acepta:acept,
+    pista:'Cada ecuación representa un plano cuyo vector normal son sus coeficientes. La recta intersección es perpendicular a las dos normales, así que su dirección se obtiene con el PRODUCTO VECTORIAL de ellas.',
+    explicacion:'Paso 1. Las normales son $\\vec n_1 = '+vecTex(n1)+'$ y $\\vec n_2 = '+vecTex(n2)+'$.\n'+
+      'Paso 2. Calcula $\\vec n_1\\times\\vec n_2$ por componentes: $\\left(('+n1[1]+')('+n2[2]+')-('+n1[2]+')('+n2[1]+'),\\; ('+n1[2]+')('+n2[0]+')-('+n1[0]+')('+n2[2]+'),\\; ('+n1[0]+')('+n2[1]+')-('+n1[1]+')('+n2[0]+')\\right)$.\n'+
+      'Paso 3. Simplifica: $\\vec d = '+vecTex(d)+'$.\n'+
+      'Paso 4. Verifica perpendicularidad: $\\vec d\\cdot\\vec n_1 = '+punto(d,n1)+'$ y $\\vec d\\cdot\\vec n_2 = '+punto(d,n2)+'$.\n'+
+      'Paso 5. Con el punto $'+vecTex(P0)+'$, que satisface ambas ecuaciones, la recta es $\\left('+P0.join(',\\, ')+'\\right) + t\\,'+vecTex(d)+'$.'
+  };
+}
+function ijkTxt(v){
+  var letras=['i','j','k'], out='', i, c, mag;
+  for(i=0;i<3;i++){
+    c=v[i];
+    if(c===0) continue;
+    mag=(Math.abs(c)===1?'':String(Math.abs(c)));
+    out+=(out===''?(c<0?'-':''):(c<0?'-':'+'))+mag+letras[i];
+  }
+  return out===''?'0':out;
+}
+
+/* =========================================================
+   GENERADOR · BLOQUE 3: ECUACIONES CUADRÁTICAS
+   ========================================================= */
+function parabolaFig(a,b,c,nota){
+  figuraActual=figuraPlano({parabola:{a:a,b:b,c:c,color:'a'}},nota||'Trazo cualitativo de la parábola');
+  return figuraActual;
+}
+function verticeDe(a,b,c){ return {h:fraccion(-b,2*a),k:fraccion(4*a*c-b*b,4*a)}; }
+function raicesTex(r1,r2){ return fracTex(r1)+'\\quad\\text{y}\\quad '+fracTex(r2); }
+
+/* Q1 · Fórmula general: las dos raíces */
+function vCuadraticaRaices(){
+  var grupo=azar(COLECTIVOS);
+  var a,r1,r2,b,c;
+  if(nivel===3&&Math.random()<0.45){
+    var q=azar([2,3]), p1=nz(-6,6), p2=nz(-6,6);
+    while(p1===p2) p2=nz(-6,6);
+    a=q*q; r1=fraccion(p1,q); r2=fraccion(p2,q);
+    b=-q*(p1+p2); c=p1*p2;
+  }else{
+    a=(nivel===1?1:azar([1,1,2,3]));
+    var lim=porNivel(6,8,9);
+    var e1=(nivel===1?ri(1,lim):nz(-lim,lim)), e2=(nivel===1?ri(1,lim):nz(-lim,lim)), guardas=0;
+    while(e2===e1&&guardas<30){ e2=(nivel===1?ri(1,lim):nz(-lim,lim)); guardas++; }
+    if(e2===e1) e2=e1+1;
+    r1=fraccion(e1,1); r2=fraccion(e2,1);
+    b=-a*(e1+e2); c=a*e1*e2;
+  }
+  var disc=b*b-4*a*c, raiz=Math.round(Math.sqrt(disc));
+  parabolaFig(a,b,c,'Trazo cualitativo: la forma, no los valores');
+  return {
+    tipo:'simbolica',
+    problema:grupo+' modela el perfil de una pieza con la ecuación $'+polyTex(a,b,c)+' = 0$. Resuelve con la FÓRMULA GENERAL y escribe las dos raíces separadas por coma'+(r1.d===1?'.':' (usa fracciones).'),
+    solucion:'Las raíces son $x = '+fracTex(r1)+'$ y $x = '+fracTex(r2)+'$.',
+    respuestaLaTeX:fracTex(r1)+',\\; '+fracTex(r2),
+    acepta:aceptaRaices(fracTxt(r1),fracTxt(r2)),
+    pista:'Identifica $a$, $b$ y $c$, calcula el discriminante $\\Delta = b^2-4ac$ y aplica $x = \\dfrac{-b\\pm\\sqrt{\\Delta}}{2a}$. El signo $\\pm$ produce DOS valores: no olvides ninguno.',
+    explicacion:'Paso 1. Coeficientes: $a = '+a+'$, $b = '+b+'$, $c = '+c+'$.\n'+
+      'Paso 2. Discriminante: $\\Delta = ('+b+')^2 - 4('+a+')('+c+') = '+(b*b)+' - ('+(4*a*c)+') = '+disc+'$.\n'+
+      'Paso 3. Raíz del discriminante: $\\sqrt{'+disc+'} = '+raiz+'$.\n'+
+      'Paso 4. Aplica la fórmula: $x = \\dfrac{'+(-b)+'\\pm '+raiz+'}{'+(2*a)+'}$, es decir $x = '+fracTex(r1)+'$ y $x = '+fracTex(r2)+'$.\n'+
+      'Paso 5. Comprueba con las relaciones de Vieta: suma $= '+fracTex(fSuma(r1,r2))+' = -\\dfrac{b}{a}$ y producto $= '+fracTex(fMult(r1,r2))+' = \\dfrac{c}{a}$.'
+  };
+}
+
+/* Q2 · Factorización del trinomio */
+function vCuadraticaFactoriza(){
+  var quien=azar(NOMBRES);
+  var p,r,q,s,A,B,C;
+  if(nivel===1){ p=1; r=1; q=ri(1,6); s=ri(1,6); }
+  else if(nivel===2){ p=1; r=1; q=nz(-7,7); s=nz(-7,7); }
+  else{ p=azar([1,2,3]); r=azar([1,2]); q=nz(-6,6); s=nz(-6,6); }
+  A=p*r; B=p*s+q*r; C=q*s;
+  var f1='('+linealTex(p,q,'x')+')', f2='('+linealTex(r,s,'x')+')';
+  var acept=[f1+f2, f2+f1, f1+' '+f2, f2+' '+f1, f1+'*'+f2];
+  if(A===1&&B>0&&C>0&&C<=12&&B<=8){
+    figuraActual={tipo:'mosaico',b:B,c:C,nota:'Modelo de área: arma un rectángulo con las piezas'};
+  }else{
+    parabolaFig(A,B,C,'Trazo cualitativo de la parábola');
+  }
+  var ac=A*C;
+  return {
+    tipo:'simbolica',
+    modo:'factor',
+    problema:quien+', diseñadora industrial, necesita FACTORIZAR el trinomio que describe el esfuerzo de una pieza: $'+polyTex(A,B,C)+'$. Escribe la factorización completa, por ejemplo con el formato (x + p)(x + q).',
+    solucion:'$'+polyTex(A,B,C)+' = '+f1+f2+'$.',
+    respuestaLaTeX:f1+f2,
+    acepta:acept,
+    pista:A===1?'Busca dos números cuyo PRODUCTO sea $'+C+'$ y cuya SUMA sea $'+B+'$; con ellos se escriben los dos binomios.':'Usa el método $ac$: busca dos números con producto $'+ac+'$ y suma $'+B+'$, parte el término central y factoriza por agrupación.'
+    ,
+    explicacion:'Paso 1. Identifica $a = '+A+'$, $b = '+B+'$, $c = '+C+'$; el producto clave es $ac = '+ac+'$.\n'+
+      'Paso 2. Los números que multiplican $'+ac+'$ y suman $'+B+'$ son $'+(p*s)+'$ y $'+(q*r)+'$.\n'+
+      'Paso 3. Reescribe el término central y agrupa: $'+termTex(A,'x^2',true)+termTex(p*s,'x',false)+termTex(q*r,'x',false)+numTex(C,false)+'$.\n'+
+      'Paso 4. Factor común por parejas: $'+f1+f2+'$.\n'+
+      'Paso 5. Verifica desarrollando: $'+f1+f2+' = '+polyTex(A,B,C)+'$. Las raíces son $x = '+fracTex(fraccion(-q,p))+'$ y $x = '+fracTex(fraccion(-s,r))+'$.'
+  };
+}
+
+/* Q3 · Discriminante */
+function vDiscriminante(){
+  var grupo=azar(COLECTIVOS);
+  var a=(nivel===3?azar([2,3,4,5]):azar([1,1,2,3])), tipo=azar(['positivo','nulo','negativo']);
+  var b,c,r=nz(-(nivel===3?9:5),nivel===3?9:5), q=ri(1,nivel===3?6:4);
+  if(tipo==='positivo'){ var r2=r+nz(1,nivel===3?8:5); b=-a*(r+r2); c=a*r*r2; }
+  else if(tipo==='nulo'){ b=-2*a*r; c=a*r*r; }
+  else{ b=-2*a*r; c=a*(r*r+q*q); }
+  var disc=b*b-4*a*c;
+  parabolaFig(a,b,c,'La forma revela el signo de Δ, no su valor');
+  return {
+    tipo:'numerica',
+    problema:grupo+' evalúa si un perfil de diseño corta al eje de referencia. Para la ecuación $'+polyTex(a,b,c)+' = 0$, calcula el DISCRIMINANTE $\\Delta = b^2-4ac$.',
+    solucion:'$\\Delta = '+disc+'$'+(disc>0?': dos raíces reales distintas.':(disc===0?': una raíz real doble. ':': dos raíces complejas conjugadas.')),
+    respuestaLaTeX:String(disc),
+    acepta:aceptaNumero(disc),
+    respuesta:disc,
+    tolerancia:0.001,
+    pista:'Sustituye con signos en $\\Delta = b^2-4ac$. Elevar un número negativo da positivo, y restar un producto negativo equivale a sumarlo.',
+    explicacion:'Paso 1. Coeficientes: $a = '+a+'$, $b = '+b+'$, $c = '+c+'$.\n'+
+      'Paso 2. Cuadrado del término lineal: $b^2 = ('+b+')^2 = '+(b*b)+'$.\n'+
+      'Paso 3. Producto $4ac = 4('+a+')('+c+') = '+(4*a*c)+'$.\n'+
+      'Paso 4. Resta: $\\Delta = '+(b*b)+' - ('+(4*a*c)+') = '+disc+'$.\n'+
+      'Paso 5. Interpretación: '+(disc>0?'al ser $\\Delta > 0$ hay dos raíces reales distintas.':(disc===0?'al ser $\\Delta = 0$ hay una raíz real doble (la parábola toca el eje).':'al ser $\\Delta < 0$ las raíces son complejas conjugadas y la parábola no corta el eje.'))
+  };
+}
+
+/* Q4 · Raíces complejas conjugadas */
+function vCuadraticaComplejas(){
+  var quien=azar(NOMBRES);
+  var a=(nivel===3?azar([1,2]):1), p=nz(-5,5), q=ri(1,5);
+  var b=-2*a*p, c=a*(p*p+q*q);
+  var r1=(p===0?'':p+'+')+q+'i', r2=(p===0?'-':p+'-')+q+'i';
+  var acept=[r1+','+r2, r2+','+r1, '('+r1+'),('+r2+')', r1+', '+r2, r2+', '+r1,
+             (p===0?'':p)+'±'+q+'i', (p===0?'':p)+'+-'+q+'i', r1+' y '+r2, r2+' y '+r1,
+             p+'+'+q+'*i,'+p+'-'+q+'*i'];
+  if(p===0){ acept.push(q+'i,-'+q+'i','-'+q+'i,'+q+'i','±'+q+'i'); }
+  parabolaFig(a,b,c,'La parábola no corta al eje x');
+  return {
+    tipo:'simbolica',
+    problema:quien+', ingeniera en inteligencia artificial, analiza la respuesta de un filtro y llega a $'+polyTex(a,b,c)+' = 0$. Halla las dos raíces COMPLEJAS y escríbelas separadas por coma con el formato a+bi.',
+    solucion:'Las raíces son $x = '+r1+'$ y $x = '+r2+'$, conjugadas entre sí.',
+    respuestaLaTeX:r1+',\\; '+r2,
+    acepta:acept,
+    pista:'Cuando $\\Delta < 0$ se escribe $\\sqrt{\\Delta} = \\sqrt{|\\Delta|}\\,i$. Las dos raíces resultantes son conjugadas: misma parte real y partes imaginarias opuestas.',
+    explicacion:'Paso 1. Coeficientes: $a = '+a+'$, $b = '+b+'$, $c = '+c+'$; el discriminante es $\\Delta = '+(b*b)+' - '+(4*a*c)+' = '+(b*b-4*a*c)+'$.\n'+
+      'Paso 2. Como $\\Delta < 0$, usa $\\sqrt{'+(b*b-4*a*c)+'} = '+(2*a*q)+'i$.\n'+
+      'Paso 3. Fórmula general: $x = \\dfrac{'+(-b)+'\\pm '+(2*a*q)+'i}{'+(2*a)+'}$.\n'+
+      'Paso 4. Simplifica: $x = '+r1+'$ y $x = '+r2+'$.\n'+
+      'Paso 5. Verifica: la suma es $'+(2*p)+' = -\\dfrac{b}{a}$ y el producto es $'+(p*p+q*q)+' = \\dfrac{c}{a}$.'
+  };
+}
+
+/* Q5 · Vértice, eje de simetría y valor extremo */
+function vVertice(){
+  var grupo=azar(COLECTIVOS);
+  var a,b,c;
+  if(nivel===3){
+    a=azar([2,3,-2,-3]);
+    var hp=azar([1,3,5,7])*(Math.random()<0.5?-1:1);
+    b=-a*hp; c=nz(-18,18);
+  }else{
+    var q0=(nivel===2&&Math.random()<0.4)?2:1;
+    a=(q0===2?4:azar([1,2,3]));
+    var hp2=nz(-5,5), h2=fraccion(hp2,q0), k2=nz(-6,6);
+    b=Math.round(-2*a*valor(h2)); c=Math.round(k2+a*valor(h2)*valor(h2));
+  }
+  var v=verticeDe(a,b,c);
+  var modo=azar(['vertice','eje','extremo']);
+  parabolaFig(a,b,c,'Trazo cualitativo de la parábola');
+  var base='Paso 1. La abscisa del vértice es $h = -\\dfrac{b}{2a} = -\\dfrac{'+b+'}{'+(2*a)+'} = '+fracTex(v.h)+'$.\n'+
+    'Paso 2. Sustituye en la función: $k = f\\left('+fracTex(v.h)+'\\right) = '+a+'\\left('+fracTex(v.h)+'\\right)^2'+(b<0?'-':'+')+Math.abs(b)+'\\left('+fracTex(v.h)+'\\right)'+(c<0?'-':'+')+Math.abs(c)+' = '+fracTex(v.k)+'$.\n';
+  if(modo==='vertice'){
+    return {
+      tipo:'simbolica',
+      problema:grupo+' ajusta la curva de un perfil aerodinámico con $f(x) = '+polyTex(a,b,c)+'$. Determina el VÉRTICE de la parábola y escríbelo como (h, k), con fracciones si hace falta.',
+      solucion:'El vértice es $\\left('+fracTex(v.h)+',\\, '+fracTex(v.k)+'\\right)$.',
+      respuestaLaTeX:'\\left('+fracTex(v.h)+',\\, '+fracTex(v.k)+'\\right)',
+      acepta:aceptaTupla([fracTxt(v.h),fracTxt(v.k)]),
+      pista:'El vértice se obtiene con $h = -\\dfrac{b}{2a}$ y después evaluando $k = f(h)$. También puedes completar el cuadrado para leerlo directamente.',
+      explicacion:base+'Paso 3. El vértice es $\\left('+fracTex(v.h)+',\\, '+fracTex(v.k)+'\\right)$.\n'+
+        'Paso 4. Como $a '+(a>0?'> 0':'< 0')+'$, la parábola abre hacia '+(a>0?'arriba y el vértice es un mínimo.':'abajo y el vértice es un máximo.')
+    };
+  }
+  if(modo==='eje'){
+    return {
+      tipo:'numerica',
+      problema:grupo+' necesita el eje de simetría de la curva $f(x) = '+polyTex(a,b,c)+'$ para colocar un soporte. Calcula el valor de $x$ en ese eje vertical.',
+      solucion:'El eje de simetría es la recta $x = '+fracTex(v.h)+'$.',
+      respuestaLaTeX:fracTex(v.h),
+      acepta:aceptaNumero(valor(v.h)).concat([fracTxt(v.h),'x='+fracTxt(v.h)]),
+      respuesta:valor(v.h),
+      tolerancia:(v.h.d===1?0.001:0.01),
+      pista:'El eje de simetría pasa por el vértice: $x = -\\dfrac{b}{2a}$. Es el punto medio entre las dos raíces.',
+      explicacion:base+'Paso 3. El eje de simetría es la recta vertical $x = '+fracTex(v.h)+'$.\n'+
+        'Paso 4. Comprueba: las raíces, si existen, quedan a la misma distancia de ese valor.'
+    };
+  }
+  return {
+    tipo:'numerica',
+    problema:grupo+' estudia la función de costo $f(x) = '+polyTex(a,b,c)+'$. Determina el valor '+(a>0?'MÍNIMO':'MÁXIMO')+' que alcanza la función.',
+    solucion:'El valor '+(a>0?'mínimo':'máximo')+' es $'+fracTex(v.k)+'$, alcanzado en $x = '+fracTex(v.h)+'$.',
+    respuestaLaTeX:fracTex(v.k),
+    acepta:aceptaNumero(valor(v.k)).concat([fracTxt(v.k)]),
+    respuesta:valor(v.k),
+    tolerancia:(v.k.d===1?0.001:0.01),
+    pista:'El valor extremo es la ordenada del vértice: primero $h = -\\dfrac{b}{2a}$ y luego $k = f(h)$. El signo de $a$ decide si es mínimo o máximo.',
+    explicacion:base+'Paso 3. Como $a '+(a>0?'> 0':'< 0')+'$, ese valor es un '+(a>0?'mínimo':'máximo')+'.\n'+
+      'Paso 4. Conclusión: el valor '+(a>0?'mínimo':'máximo')+' de la función es $'+fracTex(v.k)+'$.'
+  };
+}
+
+/* Q6 · Cuadráticas incompletas */
+function vCuadraticaIncompleta(){
+  var quien=azar(NOMBRES);
+  var elite6=(nivel===3);
+  var a=(elite6?azar([2,3,4,5]):azar([1,1,2,3])), n=(elite6?ri(4,9):ri(1,6)), modo=azar(['factor','pura','puraImaginaria']);
+  var b,c,acept,sol,exp,tex;
+  if(modo==='factor'){
+    if(elite6){ b=nz(-16,16); while(b%a===0) b=nz(-16,16); }
+    else b=nz(-6,6)*a;
+    c=0;
+    var r2=fraccion(-b,a);
+    tex='0,\\; '+fracTex(r2);
+    acept=aceptaRaices('0',fracTxt(r2));
+    sol='Las raíces son $x = 0$ y $x = '+fracTex(r2)+'$.';
+    exp='Paso 1. No hay término independiente: saca factor común $x$, quedando $x\\left('+linealTex(a,b,'x')+'\\right) = 0$.\n'+
+      'Paso 2. Un producto es cero si alguno de sus factores es cero.\n'+
+      'Paso 3. Del primer factor, $x = 0$.\n'+
+      'Paso 4. Del segundo, $'+linealTex(a,b,'x')+' = 0$ da $x = '+fracTex(r2)+'$.';
+  }else if(modo==='pura'){
+    b=0; c=-a*n*n;
+    tex='-'+n+',\\; '+n;
+    acept=aceptaRaices(String(-n),String(n)).concat(['±'+n,'+-'+n]);
+    sol='Las raíces son $x = '+n+'$ y $x = -'+n+'$.';
+    exp='Paso 1. Despeja el cuadrado: $'+a+'x^2 = '+(a*n*n)+'$.\n'+
+      'Paso 2. Divide entre $'+a+'$: $x^2 = '+(n*n)+'$.\n'+
+      'Paso 3. Extrae la raíz considerando los DOS signos: $x = \\pm '+n+'$.\n'+
+      'Paso 4. Verifica: $('+n+')^2 = '+(n*n)+'$ y $(-'+n+')^2 = '+(n*n)+'$.';
+  }else{
+    b=0; c=a*n*n;
+    tex=n+'i,\\; -'+n+'i';
+    acept=[n+'i,-'+n+'i','-'+n+'i,'+n+'i','±'+n+'i',n+'*i,-'+n+'*i'];
+    sol='Las raíces son imaginarias puras: $x = '+n+'i$ y $x = -'+n+'i$.';
+    exp='Paso 1. Despeja: $'+a+'x^2 = '+(-a*n*n)+'$, de donde $x^2 = '+(-n*n)+'$.\n'+
+      'Paso 2. No hay raíz real de un número negativo: se usa $i=\\sqrt{-1}$.\n'+
+      'Paso 3. Entonces $x = \\pm\\sqrt{'+(n*n)+'}\\,i = \\pm '+n+'i$.\n'+
+      'Paso 4. Verifica: $('+n+'i)^2 = '+(n*n)+'i^2 = '+(-n*n)+'$.';
+  }
+  parabolaFig(a,b,c,'Trazo cualitativo de la parábola');
+  return {
+    tipo:'simbolica',
+    problema:quien+', ingeniera mecatrónica, simplifica el modelo de un resorte y obtiene la ecuación INCOMPLETA $'+polyTex(a,b,c)+' = 0$. Resuélvela sin usar la fórmula general y escribe todas sus raíces separadas por coma.',
+    solucion:sol,
+    respuestaLaTeX:tex,
+    acepta:acept,
+    pista:modo==='factor'?'Si falta el término independiente, saca factor común $x$: uno de los factores da la raíz $x = 0$.':'Si falta el término lineal, despeja $x^2$ y extrae la raíz con los dos signos; si el número es negativo, la respuesta es imaginaria.'
+    ,
+    explicacion:exp
+  };
+}
+
+/* Q7 · Relaciones de Vieta */
+function vVieta(){
+  var grupo=azar(COLECTIVOS);
+  var modo=azar(nivel===1?['suma','producto']:['suma','producto','construir']);
+  var a,r1,r2,b,c,r1Tex,r2Tex,sumaTex,prodTex;
+  if(nivel===3&&modo!=='construir'){
+    var q7=azar([2,3]), t7=azar([1,2]), p7=nz(-9,9), s7=nz(-9,9);
+    a=q7*q7*t7; b=-q7*t7*(p7+s7); c=t7*p7*s7;
+    r1=fraccion(p7,q7); r2=fraccion(s7,q7);
+    r1Tex=fracTex(r1); r2Tex=fracTex(r2);
+    sumaTex=fracTex(fraccion(p7+s7,q7)); prodTex=fracTex(fraccion(p7*s7,q7*q7*t7));
+  }else{
+    a=azar(nivel===3?[3,4,5,6]:[1,2,3,4]); r1=nz(-(nivel===3?9:6),nivel===3?9:6); r2=nz(-(nivel===3?9:6),nivel===3?9:6);
+    b=-a*(r1+r2); c=a*r1*r2;
+    r1Tex=String(r1); r2Tex=String(r2);
+    sumaTex=String(r1+r2); prodTex=String(r1*r2);
+  }
+  parabolaFig(a,b,c,'Trazo cualitativo de la parábola');
+  if(modo==='construir'){
+    var S=r1+r2, P=r1*r2;
+    var poli='x^2'+termTex(-S,'x',false)+numTex(P,false);
+    return {
+      tipo:'simbolica',
+      problema:grupo+' conoce las dos raíces de un modelo cuadrático: $x = '+r1+'$ y $x = '+r2+'$. Construye la ecuación MÓNICA (coeficiente principal 1) que las tiene, con el formato x^2+bx+c=0.',
+      solucion:'La ecuación es $'+poli+' = 0$.',
+      respuestaLaTeX:poli+' = 0',
+      acepta:[poli,poli+'=0','x^2'+signo(-S)+'x'+signo(P),'x^2'+signo(-S)+'x'+signo(P)+'=0','(x'+signo(-r1)+')(x'+signo(-r2)+')'],
+      pista:'Si las raíces son $r_1$ y $r_2$, la ecuación mónica es $x^2-(r_1+r_2)x+r_1r_2 = 0$: el coeficiente lineal es el OPUESTO de la suma.',
+      explicacion:'Paso 1. Suma de raíces: $r_1+r_2 = '+r1+' + ('+r2+') = '+S+'$.\n'+
+        'Paso 2. Producto de raíces: $r_1r_2 = ('+r1+')('+r2+') = '+P+'$.\n'+
+        'Paso 3. Aplica $x^2-(\\text{suma})x+(\\text{producto}) = 0$: $'+poli+' = 0$.\n'+
+        'Paso 4. Verifica factorizando: $(x'+signo(-r1)+')(x'+signo(-r2)+') = '+poli+'$.'
+    };
+  }
+  var f=(modo==='suma'?fraccion(-b,a):fraccion(c,a));
+  return {
+    tipo:'numerica',
+    problema:grupo+' trabaja con la ecuación $'+polyTex(a,b,c)+' = 0$ y necesita '+(modo==='suma'?'la SUMA':'el PRODUCTO')+' de sus raíces SIN resolverla. Calcula ese valor como fracción si no es entero.',
+    solucion:(modo==='suma'?'La suma':'El producto')+' de las raíces es $'+fracTex(f)+'$.',
+    respuestaLaTeX:fracTex(f),
+    acepta:aceptaNumero(valor(f)).concat([fracTxt(f)]),
+    respuesta:valor(f),
+    tolerancia:(f.d===1?0.001:0.01),
+    pista:'Relaciones de Vieta para $ax^2+bx+c=0$: la suma de las raíces es $-\\dfrac{b}{a}$ y el producto es $\\dfrac{c}{a}$. No hace falta calcular las raíces.',
+    explicacion:'Paso 1. Identifica $a = '+a+'$, $b = '+b+'$, $c = '+c+'$.\n'+
+      'Paso 2. '+(modo==='suma'?'La suma de raíces es $-\\dfrac{b}{a} = -\\dfrac{'+b+'}{'+a+'}$.\n':'El producto de raíces es $\\dfrac{c}{a} = \\dfrac{'+c+'}{'+a+'}$.\n')+
+      'Paso 3. Simplifica la fracción: $'+fracTex(f)+'$.\n'+
+      'Paso 4. Comprobación: las raíces son $'+r1Tex+'$ y $'+r2Tex+'$, y en efecto '+(modo==='suma'?'su suma es $'+sumaTex+'$.':'su producto es $'+prodTex+'$.')
+  };
+}
+
+/* Q8 · Raíces irracionales exactas */
+function vCuadraticaIrracional(){
+  var quien=azar(NOMBRES);
+  var elite8=(nivel===3);
+  var p=nz(-(elite8?7:5),elite8?7:5);
+  var m0=azar([2,3,5,6,7,10,11]), raiz=1, m=m0, t=1;
+  if(elite8){
+    m0=azar([2,3,5,6,7]); raiz=azar([2,3]); m=raiz*raiz*m0; t=azar([2,3]);
+  }
+  var a=t, b=-2*t*p, c=t*(p*p-m);
+  var simple=(raiz===1?'sqrt('+m+')':raiz+'*sqrt('+m0+')');
+  var r1=p+'+'+simple, r2=p+'-'+simple;
+  var crudo1=p+'+sqrt('+m+')', crudo2=p+'-sqrt('+m+')';
+  var d1=decTxt(p+Math.sqrt(m)), d2=decTxt(p-Math.sqrt(m));
+  var disc=b*b-4*a*c;
+  parabolaFig(a,b,c,'Trazo cualitativo de la parábola');
+  var acept=[crudo1+','+crudo2, crudo2+','+crudo1, r1+','+r2, r2+','+r1,
+    p+'±sqrt('+m+')', p+'+-sqrt('+m+')', crudo1+', '+crudo2, crudo2+', '+crudo1,
+    p+'+√'+m+','+p+'-√'+m, p+'±√'+m, d1+','+d2, d2+','+d1, '('+crudo1+'),('+crudo2+')'];
+  if(raiz>1){
+    acept=acept.concat([p+'+'+raiz+'√'+m0+','+p+'-'+raiz+'√'+m0, p+'±'+raiz+'√'+m0,
+      p+'+'+raiz+'sqrt('+m0+'),'+p+'-'+raiz+'sqrt('+m0+')', p+'±'+raiz+'*sqrt('+m0+')']);
+  }
+  var pasoRad=(raiz===1
+    ? 'Paso 2. Simplifica el radical: $\\sqrt{'+disc+'} = '+(2*t)+'\\sqrt{'+m+'}$.\n'
+    : 'Paso 2. Simplifica el radical: $\\sqrt{'+disc+'} = '+(2*t)+'\\sqrt{'+m+'} = '+(2*t*raiz)+'\\sqrt{'+m0+'}$, porque $'+m+' = '+(raiz*raiz)+'\\cdot '+m0+'$.\n');
+  var pasoForm='Paso 3. Fórmula general: $x = \\dfrac{'+(-b)+'\\pm '+(2*t*raiz)+'\\sqrt{'+m0+'}}{'+(2*t)+'} = '+p+'\\pm '+raiz+'\\sqrt{'+m0+'}$.\n';
+  if(raiz===1) pasoForm='Paso 3. Fórmula general: $x = \\dfrac{'+(-b)+'\\pm '+(2*t)+'\\sqrt{'+m+'}}{'+(2*t)+'} = '+p+'\\pm\\sqrt{'+m+'}$.\n';
+  return {
+    tipo:'simbolica',
+    problema:quien+', investigadora en IA, necesita las raíces EXACTAS de $'+polyTex(a,b,c)+' = 0$ para un cálculo de estabilidad. Escríbelas en forma radical simplificada, separadas por coma (por ejemplo '+(raiz===1?'1+sqrt(2), 1-sqrt(2)':'1+2*sqrt(3), 1-2*sqrt(3)')+').',
+    solucion:'Las raíces exactas son $x = '+p+'\\pm '+(raiz===1?'':raiz)+'\\sqrt{'+m0+'}$, aproximadamente $'+d1+'$ y $'+d2+'$.',
+    respuestaLaTeX:p+'+'+(raiz===1?'':raiz)+'\\sqrt{'+m0+'},\\; '+p+'-'+(raiz===1?'':raiz)+'\\sqrt{'+m0+'}',
+    acepta:acept,
+    pista:'Aplica la fórmula general y simplifica el radical extrayendo los factores cuadrados. Después divide numerador y denominador por el mismo número: el radical queda con el radicando más pequeño posible.',
+    explicacion:'Paso 1. Discriminante: $\\Delta = ('+b+')^2 - 4('+a+')('+c+') = '+disc+'$.\n'+
+      pasoRad+
+      pasoForm+
+      'Paso 4. Valores aproximados: $'+d1+'$ y $'+d2+'$.\n'+
+      'Paso 5. Verifica con Vieta: la suma es $'+(2*p)+' = -\\dfrac{b}{a}$ y el producto es $'+(p*p-m)+' = \\dfrac{c}{a}$.'
+  };
+}
+
+/* Q9 · Modelo cuadrático aplicado */
+function vCuadraticaAplicacion(){
+  var grupo=azar(COLECTIVOS);
+  var escena=azar(['panel','dron','consecutivos']);
+  var x0=(nivel===3?ri(7,15):ri(2,9)), d=(nivel===3?ri(3,9):ri(1,6)), A=x0*(x0+d);
+  var T=(nivel===3?ri(5,11):ri(2,6)), h1=(nivel===3?ri(3,9):ri(1,6)), h0=T*h1, v=5*T-h1;
+  var xCons=(nivel===3?ri(9,19):x0), N=xCons*(xCons+1);
+  var problema,sol,tex,resp,acept,exp,pista;
+  if(escena==='panel'){
+    figuraActual=figuraPlano({rectangulo:{ancho:'x',alto:'x + '+d,area:A}},'El área fija la ecuación');
+    problema='Un lado del panel mide $'+d+'$ cm más que el otro y su área es $'+A+'$ cm². Plantea la ecuación cuadrática y determina cuánto mide el lado MENOR.';
+    sol='El lado menor mide $'+x0+'$ cm y el mayor $'+(x0+d)+'$ cm.';
+    tex=String(x0); resp=x0; acept=aceptaNumero(x0).concat([x0+' cm']);
+    exp='Paso 1. Llama $x$ al lado menor; el mayor es $x + '+d+'$.\n'+
+      'Paso 2. El área da la ecuación $x(x+'+d+') = '+A+'$, es decir $x^2'+signo(d)+'x - '+A+' = 0$.\n'+
+      'Paso 3. Factoriza: $(x - '+x0+')(x + '+(x0+d)+') = 0$, con raíces $'+x0+'$ y $-'+(x0+d)+'$.\n'+
+      'Paso 4. Una longitud no puede ser negativa, así que $x = '+x0+'$ cm.\n'+
+      'Paso 5. Comprueba: $'+x0+'\\cdot'+(x0+d)+' = '+A+'$ cm².';
+    pista='Traduce el enunciado a una ecuación: área $=$ producto de los lados. Al resolver obtendrás dos raíces y sólo una tiene sentido físico.';
+  }else if(escena==='dron'){
+    parabolaFig(-5,v,h0,'Altura del dron contra el tiempo');
+    problema='La altura de un dron de inspección, en metros, se modela con $h(t) = -5t^2'+signo(v)+'t'+signo(h0)+'$, con $t$ en segundos. Determina en qué instante toca el suelo ($h = 0$).';
+    sol='El dron toca el suelo en $t = '+T+'$ s.';
+    tex=String(T); resp=T; acept=aceptaNumero(T).concat([T+' s',T+' segundos']);
+    exp='Paso 1. Iguala la altura a cero: $-5t^2'+signo(v)+'t'+signo(h0)+' = 0$.\n'+
+      'Paso 2. Multiplica por $-1$ y factoriza: $5t^2'+signo(-v)+'t'+signo(-h0)+' = 0$ equivale a $(t - '+T+')(5t + '+h1+') = 0$.\n'+
+      'Paso 3. Las raíces son $t = '+T+'$ y $t = -'+fracTex(fraccion(h1,5))+'$.\n'+
+      'Paso 4. El tiempo negativo no tiene sentido físico: $t = '+T+'$ s.\n'+
+      'Paso 5. Verifica: $-5('+T+')^2'+signo(v)+'('+T+')'+signo(h0)+' = '+(-5*T*T+v*T+h0)+'$.';
+    pista='Iguala la altura a cero y resuelve la cuadrática. Obtendrás dos valores de tiempo: descarta el que no tenga sentido físico.';
+  }else{
+    figuraActual=figuraPlano({rectangulo:{ancho:'x',alto:'x + 1',area:N}},'Dos enteros consecutivos');
+    problema='El producto de dos números enteros consecutivos positivos es $'+N+'$. Plantea la ecuación cuadrática y determina el número MENOR.';
+    sol='Los números son $'+xCons+'$ y $'+(xCons+1)+'$.';
+    tex=String(xCons); resp=xCons; acept=aceptaNumero(xCons);
+    exp='Paso 1. Los números son $x$ y $x+1$, así que $x(x+1) = '+N+'$.\n'+
+      'Paso 2. Desarrolla: $x^2 + x - '+N+' = 0$.\n'+
+      'Paso 3. Factoriza: $(x - '+xCons+')(x + '+(xCons+1)+') = 0$.\n'+
+      'Paso 4. La raíz negativa se descarta por el contexto: $x = '+xCons+'$.\n'+
+      'Paso 5. Comprueba: $'+xCons+'\\cdot'+(xCons+1)+' = '+N+'$.';
+    pista='Llama $x$ al menor y $x+1$ al siguiente. Su producto genera una cuadrática; de las dos raíces, sólo la positiva cumple el enunciado.';
+  }
+  return {
+    tipo:'numerica',
+    problema:grupo+' resuelve un problema de diseño real. '+problema,
+    solucion:sol,
+    respuestaLaTeX:tex,
+    acepta:acept,
+    respuesta:resp,
+    tolerancia:0.001,
+    pista:pista,
+    explicacion:exp
+  };
+}
+
+/* =========================================================
+   ÍNDICE DE VARIANTES Y SELECTOR ANTIRREPETICIÓN
+   ========================================================= */
+var nivel=2;
+var VARIANTES=[
+  {nombre:'Lineal · una incógnita',familia:'Lineales',gen:vLinealUna},
+  {nombre:'Lineal · paréntesis y fracciones',familia:'Lineales',gen:vLinealFracciones},
+  {nombre:'Lineal · parámetro k',familia:'Lineales',gen:vLinealParametro},
+  {nombre:'Recta · pendiente y cortes',familia:'Lineales',gen:vRectaDosVariables},
+  {nombre:'Sistema 2x2 · solución',familia:'Sistemas',gen:vSistema2},
+  {nombre:'Sistema 2x2 · clasificación',familia:'Sistemas',gen:vSistema2Clasifica},
+  {nombre:'Sistema 2x2 · parámetro k',familia:'Sistemas',gen:vSistema2Parametro},
+  {nombre:'Determinantes y Cramer',familia:'Sistemas',gen:vCramer2},
+  {nombre:'Gauss-Jordan 2x2',familia:'Gauss-Jordan',gen:vGaussJordan2},
+  {nombre:'Gauss-Jordan 3x3',familia:'Gauss-Jordan',gen:vGaussJordan3},
+  {nombre:'Operación entre renglones',familia:'Gauss-Jordan',gen:vGaussJordanPaso},
+  {nombre:'Rango y compatibilidad',familia:'Gauss-Jordan',gen:vRangoSistema3},
+  {nombre:'Recta solución en 3D',familia:'Gauss-Jordan',gen:vSistemaParametrico},
+  {nombre:'Cuadrática · fórmula general',familia:'Cuadráticas',gen:vCuadraticaRaices},
+  {nombre:'Cuadrática · factorización',familia:'Cuadráticas',gen:vCuadraticaFactoriza},
+  {nombre:'Discriminante',familia:'Cuadráticas',gen:vDiscriminante},
+  {nombre:'Raíces complejas',familia:'Cuadráticas',gen:vCuadraticaComplejas},
+  {nombre:'Vértice y eje de simetría',familia:'Cuadráticas',gen:vVertice},
+  {nombre:'Cuadrática incompleta',familia:'Cuadráticas',gen:vCuadraticaIncompleta},
+  {nombre:'Suma y producto de raíces',familia:'Cuadráticas',gen:vVieta},
+  {nombre:'Raíces irracionales exactas',familia:'Cuadráticas',gen:vCuadraticaIrracional},
+  {nombre:'Modelo cuadrático aplicado',familia:'Cuadráticas',gen:vCuadraticaAplicacion}
+];
+var ultimasVariantes=[], firmasRecientes=[], ultimaVariante=-1, ultimaFamilia='';
+var etiquetaActual='', familiaActual='';
+
+function genEcuacionesSistemas(mismoTipo){
+  var i, k, ej, firma, intentos=0;
+  if(mismoTipo&&ultimaVariante>=0){
+    i=ultimaVariante;
+  }else{
+    var candidatas=[];
+    for(k=0;k<VARIANTES.length;k++){
+      if(ultimasVariantes.indexOf(k)>=0) continue;
+      if(VARIANTES[k].familia===ultimaFamilia&&Math.random()<0.55) continue;
+      candidatas.push(k);
+    }
+    if(candidatas.length===0){
+      for(k=0;k<VARIANTES.length;k++){ if(k!==ultimaVariante) candidatas.push(k); }
+    }
+    i=candidatas[Math.floor(Math.random()*candidatas.length)];
+  }
+  do{
+    figuraActual=null;
+    ej=VARIANTES[i].gen();
+    firma=ej.problema;
+    intentos++;
+  }while(firmasRecientes.indexOf(firma)>=0&&intentos<12);
+  firmasRecientes.push(firma);
+  if(firmasRecientes.length>70) firmasRecientes.shift();
+  ultimasVariantes.push(i);
+  if(ultimasVariantes.length>7) ultimasVariantes.shift();
+  ultimaVariante=i;
+  ultimaFamilia=VARIANTES[i].familia;
+  etiquetaActual=VARIANTES[i].nombre;
+  familiaActual=VARIANTES[i].familia;
+  return ej;
+}
+
+
+/* =========================================================
+   ESQUEMA GEOMÉTRICO EN VIVO (SVG, proyección ortográfica)
+   ========================================================= */
+var figuraActual=null;
+var figYaw=35*Math.PI/180, figPitch=30*Math.PI/180;
+var figArrastre=null, figPendiente=false, figYaw0=figYaw, figPitch0=figPitch;
+var FIG_COL={a:'#4f46e5',b:'#7c3aed',c:'#059669',d:'#b45309'};
+
+function figProyCon(p,yaw,pitch){
+  var ct=Math.cos(yaw), st=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch);
+  var x1=p[0]*ct-p[1]*st, y1=p[0]*st+p[1]*ct;
+  return [x1, y1*sp-p[2]*cp];
+}
+function figProy(p){ return figProyCon(p,figYaw,figPitch); }
+/* elige la cámara que mejor muestra los vectores del ejercicio */
+function figEncuadre(fig){
+  var vecs=[], i, j;
+  for(i=0;i<fig.vectores.length;i++) vecs.push(fig.vectores[i].p);
+  if(!vecs.length) return;
+  var mejor=null, alturas=[0.34,0.55,0.82];
+  for(var yi=0;yi<24;yi++){
+    for(var pi=0;pi<alturas.length;pi++){
+      var yaw=yi*Math.PI/12, pitch=alturas[pi], dirs=[], lens=[], prom=0;
+      for(i=0;i<vecs.length;i++){
+        var q=figProyCon(vecs[i],yaw,pitch), L=Math.sqrt(q[0]*q[0]+q[1]*q[1]), n=norma(vecs[i]);
+        lens.push(n>0?L/n:1);
+        dirs.push(L>1e-6?[q[0]/L,q[1]/L]:[0,0]);
+      }
+      var minL=1;
+      for(i=0;i<lens.length;i++){ if(lens[i]<minL) minL=lens[i]; prom+=lens[i]; }
+      prom/=lens.length;
+      var score=minL*2+prom-Math.abs(pitch-0.55)*0.3;
+      if(fig.disco){ score=2.2*(1-Math.abs(prom-0.55)/0.55)+0.5*prom-Math.abs(pitch-0.5)*0.2; }
+      for(i=0;i<dirs.length;i++){
+        for(j=i+1;j<dirs.length;j++){
+          var cr=Math.abs(dirs[i][0]*dirs[j][1]-dirs[i][1]*dirs[j][0]);
+          var dt=dirs[i][0]*dirs[j][0]+dirs[i][1]*dirs[j][1];
+          if(cr<0.22&&dt>0) score-=0.5;
+          if(cr<0.12) score-=0.25;
+        }
+      }
+      if(!mejor||score>mejor.score) mejor={score:score,yaw:yaw,pitch:pitch};
+    }
+  }
+  if(mejor){ figYaw=mejor.yaw; figPitch=mejor.pitch; figYaw0=figYaw; figPitch0=figPitch; }
+}
+function figUnit(v){
+  var n=norma(v);
+  return n===0?[0,0,0]:[v[0]/n,v[1]/n,v[2]/n];
+}
+function figPerp(u){
+  var ref=(Math.abs(u[2])<0.9*Math.max(1,norma(u)))?[0,0,1]:[0,1,0];
+  var e1=figUnit(cruz(u,ref));
+  if(norma(e1)===0) e1=figUnit(cruz(u,[0,1,0]));
+  return [e1,figUnit(cruz(u,e1))];
+}
+function figSum(a,b){ return [a[0]+b[0],a[1]+b[1],a[2]+b[2]]; }
+function figEsc(v,k){ return [v[0]*k,v[1]*k,v[2]*k]; }
+
+function figura3D(fig){
+  if(!fig) return '';
+  var W=266, H=202, pad=22, i, j, t;
+  var pts=[[0,0,0]];
+  for(i=0;i<fig.vectores.length;i++) pts.push(fig.vectores[i].p);
+  var ar=fig.solido, vert=[];
+  if(ar){
+    for(i=0;i<8;i++){
+      var v=[(i&1?ar[0][0]:0)+(i&2?ar[1][0]:0)+(i&4?ar[2][0]:0),
+             (i&1?ar[0][1]:0)+(i&2?ar[1][1]:0)+(i&4?ar[2][1]:0),
+             (i&1?ar[0][2]:0)+(i&2?ar[1][2]:0)+(i&4?ar[2][2]:0)];
+      vert.push(v); pts.push(v);
+    }
+  }
+  if(fig.plano){
+    pts.push(fig.plano[0]); pts.push(fig.plano[1]); pts.push(figSum(fig.plano[0],fig.plano[1]));
+  }
+  if(fig.planos){
+    for(var ip=0;ip<fig.planos.length;ip++){
+      pts.push(fig.planos[ip][0]); pts.push(fig.planos[ip][1]);
+      pts.push(figSum(fig.planos[ip][0],fig.planos[ip][1]));
+    }
+  }
+  if(fig.esfera){
+    pts.push([1,0,0]); pts.push([-1,0,0]); pts.push([0,1,0]); pts.push([0,-1,0]); pts.push([0,0,1]); pts.push([0,0,-1]);
+  }
+  var discoPts=[];
+  if(fig.disco){
+    var bs=figPerp(fig.disco), rd=norma(fig.disco)*0.95;
+    for(i=0;i<=36;i++){
+      t=i/36*2*Math.PI;
+      var pd=figSum(figEsc(bs[0],Math.cos(t)*rd),figEsc(bs[1],Math.sin(t)*rd));
+      discoPts.push(pd); pts.push(pd);
+    }
+  }
+  if(fig.proyeccion){
+    var bb=fig.proyeccion.b, aa=fig.proyeccion.a, nb=norma(bb);
+    var ub=figEsc(bb,1/nb), pie=figEsc(ub,punto(aa,bb)/nb);
+    fig._pie=pie; fig._ub=ub; pts.push(pie);
+  }
+  var c=[0,0,0];
+  for(i=0;i<pts.length;i++){ c[0]+=pts[i][0]; c[1]+=pts[i][1]; c[2]+=pts[i][2]; }
+  c=[c[0]/pts.length,c[1]/pts.length,c[2]/pts.length];
+  var R=1;
+  for(i=0;i<pts.length;i++){
+    var dd=norma([pts[i][0]-c[0],pts[i][1]-c[1],pts[i][2]-c[2]]);
+    if(dd>R) R=dd;
+  }
+  if(fig.esfera&&1>R) R=1;
+  var esc=(Math.min(W,H)/2-pad)/R;
+  function P(p){
+    var q=figProy([p[0]-c[0],p[1]-c[1],p[2]-c[2]]);
+    return [W/2+q[0]*esc, H/2+q[1]*esc];
+  }
+  function xy(p){ var r=P(p); return r[0].toFixed(1)+','+r[1].toFixed(1); }
+  function poli(lista,relleno,borde,guion){
+    var d='', k;
+    for(k=0;k<lista.length;k++) d+=(k?' ':'')+xy(lista[k]);
+    return '<polygon points="'+d+'" fill="'+relleno+'" stroke="'+borde+'" stroke-width="1"'+(guion?' stroke-dasharray="4 4"':'')+'/>';
+  }
+  var out='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+escaparHTML(fig.nota||'Esquema del ejercicio')+'">';
+  out+='<defs>';
+  for(var clave in FIG_COL){
+    if(FIG_COL.hasOwnProperty(clave)){
+      out+='<marker id="figFlecha'+clave+'" markerWidth="7" markerHeight="7" refX="5.6" refY="3.5" orient="auto"><path d="M0,0.6 L6.4,3.5 L0,6.4 Z" fill="'+FIG_COL[clave]+'"/></marker>';
+    }
+  }
+  out+='</defs>';
+  out+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#fbfcff"/>';
+  /* retícula del plano z=0 */
+  var xmin=-2,xmax=2,ymin=-2,ymax=2;
+  for(i=0;i<pts.length;i++){
+    if(pts[i][0]<xmin) xmin=pts[i][0];
+    if(pts[i][0]>xmax) xmax=pts[i][0];
+    if(pts[i][1]<ymin) ymin=pts[i][1];
+    if(pts[i][1]>ymax) ymax=pts[i][1];
+  }
+  xmin=Math.max(-12,Math.floor(xmin)); xmax=Math.min(12,Math.ceil(xmax));
+  ymin=Math.max(-12,Math.floor(ymin)); ymax=Math.min(12,Math.ceil(ymax));
+  var paso=Math.max(1,Math.ceil(Math.max(xmax-xmin,ymax-ymin)/6));
+  var rej='';
+  for(i=xmin;i<=xmax;i+=paso) rej+='<line x1="'+P([i,ymin,0])[0].toFixed(1)+'" y1="'+P([i,ymin,0])[1].toFixed(1)+'" x2="'+P([i,ymax,0])[0].toFixed(1)+'" y2="'+P([i,ymax,0])[1].toFixed(1)+'"/>';
+  for(j=ymin;j<=ymax;j+=paso) rej+='<line x1="'+P([xmin,j,0])[0].toFixed(1)+'" y1="'+P([xmin,j,0])[1].toFixed(1)+'" x2="'+P([xmax,j,0])[0].toFixed(1)+'" y2="'+P([xmax,j,0])[1].toFixed(1)+'"/>';
+  out+='<g stroke="#dbe2fd" stroke-width="0.8" opacity="0.85">'+rej+'</g>';
+  /* paralelepípedo */
+  if(ar){
+    var O=[0,0,0], A=ar[0], B=ar[1], C=ar[2];
+    out+=poli([O,A,figSum(A,B),B],'rgba(79,70,229,.07)','#c7d2fe',false);
+    out+=poli([O,B,figSum(B,C),C],'rgba(124,58,237,.07)','#c7d2fe',false);
+    out+=poli([O,C,figSum(C,A),A],'rgba(5,150,105,.06)','#c7d2fe',false);
+    var caras=[[A,figSum(A,B),figSum(figSum(A,B),C),figSum(A,C)],[B,figSum(B,C),figSum(figSum(A,B),C),figSum(A,B)],[C,figSum(A,C),figSum(figSum(A,B),C),figSum(B,C)]];
+    for(i=0;i<caras.length;i++) out+=poli(caras[i],'rgba(79,70,229,.04)','#a5b4fc',true);
+  }
+  /* planos generados por pares de vectores */
+  if(fig.planos){
+    for(var ip2=0;ip2<fig.planos.length;ip2++){
+      var par=fig.planos[ip2];
+      out+=poli([[0,0,0],par[0],figSum(par[0],par[1]),par[1]],(ip2===0?'rgba(79,70,229,.08)':'rgba(124,58,237,.08)'),(ip2===0?'#a5b4fc':'#c4b5fd'),true);
+    }
+  }
+  /* plano generado por dos vectores */
+  if(fig.plano){
+    out+=poli([[0,0,0],fig.plano[0],figSum(fig.plano[0],fig.plano[1]),fig.plano[1]],'rgba(124,58,237,.10)','#c4b5fd',true);
+  }
+  /* disco perpendicular */
+  if(discoPts.length) out+=poli(discoPts,'rgba(79,70,229,.09)','#a5b4fc',true);
+  /* esfera de radio 1 */
+  if(fig.esfera){
+    var o=P([0,0,0]);
+    out+='<circle cx="'+o[0].toFixed(1)+'" cy="'+o[1].toFixed(1)+'" r="'+esc.toFixed(1)+'" fill="rgba(5,150,105,.05)" stroke="#059669" stroke-width="1.1" stroke-dasharray="4 4"/>';
+    out+='<text x="'+(o[0]+esc*0.72).toFixed(1)+'" y="'+(o[1]-esc*0.72).toFixed(1)+'" font-size="10" font-weight="700" fill="#059669" stroke="#fbfcff" stroke-width="3" paint-order="stroke" text-anchor="middle">r = 1</text>';
+  }
+  /* arco del ángulo */
+  if(fig.arco){
+    var u=fig.arco.u, w=fig.arco.v, nu=norma(u), nw=norma(w);
+    var cs=Math.max(-1,Math.min(1,punto(u,w)/(nu*nw))), ang=Math.acos(cs);
+    if(ang>0.06){
+      var eje=cruz(u,w);
+      if(norma(eje)<1e-9) eje=figPerp(u)[0]; else eje=figUnit(eje);
+      var perp=figUnit(cruz(eje,u)), rr=0.34*Math.min(nu,nw), arco='', ptMedio=null;
+      for(i=0;i<=22;i++){
+        t=ang*i/22;
+        var pw=figSum(figEsc(figUnit(u),Math.cos(t)*rr),figEsc(perp,Math.sin(t)*rr));
+        arco+=(i?' ':'')+xy(pw);
+        if(i===11) ptMedio=P(pw);
+      }
+      out+='<polyline points="'+arco+'" fill="none" stroke="#b45309" stroke-width="1.6"/>';
+      if(ptMedio){
+        var om=P([0,0,0]), dx=ptMedio[0]-om[0], dy=ptMedio[1]-om[1], md=Math.sqrt(dx*dx+dy*dy)||1;
+        out+='<text x="'+(ptMedio[0]+dx/md*13).toFixed(1)+'" y="'+(ptMedio[1]+dy/md*13+3).toFixed(1)+'" font-size="11" font-weight="700" fill="#b45309" stroke="#fbfcff" stroke-width="3" paint-order="stroke" text-anchor="middle">'+escaparHTML(fig.arco.etiqueta||'θ')+'</text>';
+      }
+    }
+  }
+  /* proyección: caída perpendicular y escuadra */
+  if(fig.proyeccion){
+    var pie=fig._pie, ub=fig._ub, aa2=fig.proyeccion.a;
+    var pa=P(aa2), pp=P(pie);
+    out+='<line x1="'+pa[0].toFixed(1)+'" y1="'+pa[1].toFixed(1)+'" x2="'+pp[0].toFixed(1)+'" y2="'+pp[1].toFixed(1)+'" stroke="#b45309" stroke-width="1.3" stroke-dasharray="4 3"/>';
+    var perp2=[aa2[0]-pie[0],aa2[1]-pie[1],aa2[2]-pie[2]], np=norma(perp2);
+    if(np>1e-9){
+      var up=figEsc(perp2,1/np), sg=(punto(aa2,ub)>=0?1:-1), ss=0.13*Math.min(norma(aa2),norma(fig.proyeccion.b));
+      var q1=figSum(pie,figEsc(ub,-sg*ss)), q2=figSum(q1,figEsc(up,ss)), q3=figSum(pie,figEsc(up,ss));
+      out+='<polyline points="'+xy(q1)+' '+xy(q2)+' '+xy(q3)+'" fill="none" stroke="#b45309" stroke-width="1.2"/>';
+    }
+    out+='<circle cx="'+pp[0].toFixed(1)+'" cy="'+pp[1].toFixed(1)+'" r="2.6" fill="#b45309"/>';
+  }
+  /* vectores: los más largos primero para que ninguno quede oculto */
+  var o2=P([0,0,0]);
+  var orden=fig.vectores.slice(0).sort(function(p,q){ return norma(q.p)-norma(p.p); });
+  var etiquetasColocadas=[];
+  for(i=0;i<orden.length;i++){
+    var vv=orden[i], col=FIG_COL[vv.color]||FIG_COL.a, tip=P(vv.p);
+    out+='<line x1="'+o2[0].toFixed(1)+'" y1="'+o2[1].toFixed(1)+'" x2="'+tip[0].toFixed(1)+'" y2="'+tip[1].toFixed(1)+'" stroke="'+col+'" stroke-width="2.4" stroke-linecap="round" marker-end="url(#figFlecha'+(vv.color||'a')+')"/>';
+    var ddx=tip[0]-o2[0], ddy=tip[1]-o2[1], md2=Math.sqrt(ddx*ddx+ddy*ddy)||1;
+    var lx=tip[0]+ddx/md2*14, ly=tip[1]+ddy/md2*14;
+    for(j=0;j<etiquetasColocadas.length;j++){
+      var ea=etiquetasColocadas[j], ddx2=lx-ea[0], ddy2=ly-ea[1], dd2=Math.sqrt(ddx2*ddx2+ddy2*ddy2);
+      if(dd2<17){
+        var px=-ddy/md2, py=ddx/md2, lado=(i%2===0?1:-1);
+        lx+=px*17*lado+(dd2<1?ddx/md2*10:0); ly+=py*17*lado+(dd2<1?ddy/md2*10:0);
+      }
+    }
+    etiquetasColocadas.push([lx,ly]);
+    lx=Math.max(11,Math.min(W-11,lx)); ly=Math.max(13,Math.min(H-6,ly));
+    out+='<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" font-family="Georgia,\'Times New Roman\',serif" font-style="italic" font-size="13" font-weight="700" fill="'+col+'" stroke="#fbfcff" stroke-width="3.2" paint-order="stroke" text-anchor="middle">'+escaparHTML(vv.etiqueta)+'</text>';
+  }
+  out+='<circle cx="'+o2[0].toFixed(1)+'" cy="'+o2[1].toFixed(1)+'" r="2.8" fill="#111827" opacity=".65"/>';
+  out+='</svg>';
+  return out;
+}
+
+function figuraHTML(){
+  if(!figuraActual) return '';
+  var girable=(figuraActual.tipo==='espacio');
+  var pistas={matriz:'vista de la matriz del sistema',balanza:'la igualdad se mantiene',mosaico:'modelo de área del trinomio',plano:'trazo cualitativo, sin escala'};
+  var hint=girable
+    ? '<span class="girar"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>arrastra para girar</span>'
+    : '<span class="girar">'+(pistas[figuraActual.tipo]||'esquema del planteamiento')+'</span>';
+  var titulo=girable?'Esquema interactivo: arrastra o usa las flechas para girar':'Esquema del planteamiento del ejercicio';
+  return '<figure class="en-figura">'+
+    '<div class="fig-lienzo'+(girable?' girable':'')+'" id="figLienzo"'+(girable?' tabindex="0"':'')+' role="img" aria-label="'+escaparHTML(titulo)+'">'+figuraSVG(figuraActual)+'</div>'+
+    '<figcaption><b>'+escaparHTML(figuraActual.nota||'')+'</b>'+hint+'</figcaption></figure>';
+}
+
+function repintarFigura(){
+  var lienzo=document.getElementById('figLienzo');
+  if(lienzo&&figuraActual) lienzo.innerHTML=figuraSVG(figuraActual);
+}
+function girarFigura(dx,dy){
+  figYaw+=dx*0.012;
+  figPitch=Math.max(0.16,Math.min(1.32,figPitch+dy*0.008));
+  if(!figPendiente){
+    figPendiente=true;
+    window.requestAnimationFrame(function(){ figPendiente=false; repintarFigura(); });
+  }
+}
+
+/* =========================================================
+   ESQUEMAS 2D: PLANO, MATRIZ, BALANZA Y MOSAICO DE ÁREA
+   ========================================================= */
+function figuraSVG(fig){
+  if(!fig) return '';
+  if(fig.tipo==='plano') return figuraPlano2D(fig);
+  if(fig.tipo==='matriz') return figuraMatrizSVG(fig);
+  if(fig.tipo==='balanza') return figuraBalanzaSVG(fig);
+  if(fig.tipo==='mosaico') return figuraMosaicoSVG(fig);
+  return figura3D(fig);
+}
+function figTexto(x,y,txt,tam,color,ancla,italica){
+  return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" font-size="'+tam+'" font-weight="700" fill="'+color+'" stroke="#fbfcff" stroke-width="3" paint-order="stroke" text-anchor="'+(ancla||'middle')+'"'+(italica?' font-family="Georgia,\'Times New Roman\',serif" font-style="italic"':'')+'>'+escaparHTML(txt)+'</text>';
+}
+function figDefsFlechas(){
+  var out='<defs>', clave;
+  for(clave in FIG_COL){
+    if(FIG_COL.hasOwnProperty(clave)){
+      out+='<marker id="figFlecha'+clave+'" markerWidth="7" markerHeight="7" refX="5.6" refY="3.5" orient="auto"><path d="M0,0.6 L6.4,3.5 L0,6.4 Z" fill="'+FIG_COL[clave]+'"/></marker>';
+    }
+  }
+  out+='<marker id="figEje" markerWidth="7" markerHeight="7" refX="5.6" refY="3.5" orient="auto"><path d="M0,0.8 L6.2,3.5 L0,6.2 Z" fill="#9aa2b1"/></marker>';
+  out+='<clipPath id="figRecorte"><rect x="10" y="8" width="246" height="186" rx="10"/></clipPath>';
+  return out+'</defs>';
+}
+function figuraPlano2D(fig){
+  var W=266,H=202,pad=26,i,t;
+  var out='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+escaparHTML(fig.nota||'Esquema del planteamiento')+'">'+figDefsFlechas();
+  out+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#fbfcff"/>';
+  if(fig.rectangulo){
+    var rw=142,rh=96,rx=(W-rw)/2,ry=(H-rh)/2-6;
+    out+='<rect x="'+rx+'" y="'+ry+'" width="'+rw+'" height="'+rh+'" rx="6" fill="rgba(79,70,229,.09)" stroke="#4f46e5" stroke-width="2"/>';
+    out+='<rect x="'+(rx+10)+'" y="'+(ry+10)+'" width="'+(rw-20)+'" height="'+(rh-20)+'" rx="4" fill="none" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="4 4"/>';
+    out+=figTexto(rx+rw/2,ry+rh+18,fig.rectangulo.ancho,13,'#4f46e5','middle',true);
+    out+=figTexto(rx-14,ry+rh/2+4,fig.rectangulo.alto,13,'#7c3aed','middle',true);
+    out+=figTexto(rx+rw/2,ry+rh/2+5,'área = '+fig.rectangulo.area,13,'#b45309','middle',false);
+    out+=figTexto(W-12,H-9,'esquema sin escala',8.5,'#9aa2b1','end',false);
+    return out+'</svg>';
+  }
+  /* ventana de dibujo */
+  var xmin=-5,xmax=5,ymin=-5,ymax=5;
+  if(fig.parabola){
+    var pa=fig.parabola.a,pb=fig.parabola.b,pc=fig.parabola.c;
+    var h=-pb/(2*pa), k=pc-pb*pb/(4*pa);
+    var span=Math.max(2.4,2.1*Math.sqrt(Math.abs(k/pa))+1.2);
+    xmin=h-span; xmax=h+span;
+    var f1=pa*xmin*xmin+pb*xmin+pc, f2=pa*xmax*xmax+pb*xmax+pc;
+    ymin=Math.min(k,f1,f2,0); ymax=Math.max(k,f1,f2,0);
+    var margen=(ymax-ymin)*0.12+0.5; ymin-=margen; ymax+=margen;
+  }else if(fig.lineas&&fig.lineas.length){
+    var cx=0,cy=0;
+    if(fig.lineas.length===2){
+      var L1=fig.lineas[0],L2=fig.lineas[1], det=L1.a*L2.b-L2.a*L1.b;
+      if(det!==0){ cx=(L1.c*L2.b-L2.c*L1.b)/det; cy=(L1.a*L2.c-L2.a*L1.c)/det; }
+    }
+    var radio=Math.max(4,Math.min(12,Math.max(Math.abs(cx),Math.abs(cy))+3));
+    xmin=cx-radio; xmax=cx+radio; ymin=cy-radio*0.78; ymax=cy+radio*0.78;
+  }
+  function X(x){ return pad+(x-xmin)/(xmax-xmin)*(W-2*pad); }
+  function Y(y){ return H-pad-(y-ymin)/(ymax-ymin)*(H-2*pad); }
+  var ejeX=(ymin<0&&ymax>0), ejeY=(xmin<0&&xmax>0);
+  out+='<g clip-path="url(#figRecorte)">';
+  if(!fig.cualitativo){
+    var paso=Math.max(1,Math.ceil((xmax-xmin)/8)), gx, gy, rej='';
+    for(gx=Math.ceil(xmin);gx<=xmax;gx+=paso) rej+='<line x1="'+X(gx).toFixed(1)+'" y1="8" x2="'+X(gx).toFixed(1)+'" y2="194"/>';
+    for(gy=Math.ceil(ymin);gy<=ymax;gy+=paso) rej+='<line x1="10" y1="'+Y(gy).toFixed(1)+'" x2="256" y2="'+Y(gy).toFixed(1)+'"/>';
+    out+='<g stroke="#e3e8fb" stroke-width="0.9">'+rej+'</g>';
+  }
+  if(ejeX) out+='<line x1="12" y1="'+Y(0).toFixed(1)+'" x2="252" y2="'+Y(0).toFixed(1)+'" stroke="#9aa2b1" stroke-width="1.3" marker-end="url(#figEje)"/>';
+  if(ejeY) out+='<line x1="'+X(0).toFixed(1)+'" y1="192" x2="'+X(0).toFixed(1)+'" y2="12" stroke="#9aa2b1" stroke-width="1.3" marker-end="url(#figEje)"/>';
+  if(fig.lineas){
+    for(i=0;i<fig.lineas.length;i++){
+      var L=fig.lineas[i], col=FIG_COL[L.color]||FIG_COL.a, x1,x2,y1,y2;
+      if(Math.abs(L.b)>1e-9){
+        x1=xmin; x2=xmax; y1=(L.c-L.a*x1)/L.b; y2=(L.c-L.a*x2)/L.b;
+      }else{
+        x1=x2=L.c/L.a; y1=ymin; y2=ymax;
+      }
+      out+='<line x1="'+X(x1).toFixed(1)+'" y1="'+Y(y1).toFixed(1)+'" x2="'+X(x2).toFixed(1)+'" y2="'+Y(y2).toFixed(1)+'" stroke="'+col+'" stroke-width="2.4" stroke-linecap="round"/>';
+      var etx=X(x2)-16, ety=Y(y2)+(y2>y1?14:-8);
+      ety=Math.max(16,Math.min(H-8,ety));
+      out+=figTexto(etx,ety,L.etiqueta||('r'+(i+1)),12,col,'middle',true);
+    }
+  }
+  if(fig.parabola){
+    var pts='', N=90;
+    for(i=0;i<=N;i++){
+      t=xmin+(xmax-xmin)*i/N;
+      var fy=pa*t*t+pb*t+pc;
+      pts+=(i?' ':'')+X(t).toFixed(1)+','+Y(fy).toFixed(1);
+    }
+    out+='<polyline points="'+pts+'" fill="none" stroke="'+(FIG_COL[fig.parabola.color]||FIG_COL.a)+'" stroke-width="2.6" stroke-linecap="round"/>';
+    out+=figTexto(X(xmax)-20,Y(pa*xmax*xmax+pb*xmax+pc)+(pa>0?-10:16),'f(x)',12,FIG_COL.a,'middle',true);
+  }
+  out+='</g>';
+  if(ejeX&&ejeY) out+='<circle cx="'+X(0).toFixed(1)+'" cy="'+Y(0).toFixed(1)+'" r="2.4" fill="#6b7280"/>';
+  out+=figTexto(W-14,20,'x',10,'#9aa2b1','middle',true);
+  out+=figTexto(20,16,'y',10,'#9aa2b1','middle',true);
+  if(fig.cualitativo) out+=figTexto(W-12,H-9,'trazo sin escala',8.5,'#9aa2b1','end',false);
+  return out+'</svg>';
+}
+function figuraMatrizSVG(fig){
+  var W=266,H=202,M=fig.matriz,nf=M.length,nc=M[0].length,i,j;
+  var cw=Math.min(38,Math.floor((W-52)/nc)), ch=Math.min(32,Math.floor((H-58)/nf));
+  var ancho=cw*nc, alto=ch*nf, x0=(W-ancho)/2, y0=(H-alto)/2-8;
+  var out='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+escaparHTML(fig.nota||'Matriz del sistema')+'">';
+  out+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#fbfcff"/>';
+  if(fig.resalta&&fig.resalta.length===2){
+    out+='<rect x="'+(x0+fig.resalta[1]*cw+1)+'" y="'+(y0+fig.resalta[0]*ch+1)+'" width="'+(cw-2)+'" height="'+(ch-2)+'" rx="6" fill="rgba(180,83,9,.14)" stroke="#b45309" stroke-width="1.6"/>';
+  }else if(fig.resalta&&fig.resalta.length===1){
+    out+='<rect x="'+x0+'" y="'+(y0+fig.resalta[0]*ch+1)+'" width="'+ancho+'" height="'+(ch-2)+'" rx="6" fill="rgba(79,70,229,.10)"/>';
+  }
+  out+='<path d="M'+(x0-8)+','+(y0-4)+' h-7 v'+(alto+8)+' h7" fill="none" stroke="#4f46e5" stroke-width="2.2" stroke-linecap="round"/>';
+  out+='<path d="M'+(x0+ancho+8)+','+(y0-4)+' h7 v'+(alto+8)+' h-7" fill="none" stroke="#4f46e5" stroke-width="2.2" stroke-linecap="round"/>';
+  if(fig.sep!==undefined&&fig.sep>0&&fig.sep<nc){
+    out+='<line x1="'+(x0+fig.sep*cw)+'" y1="'+(y0-2)+'" x2="'+(x0+fig.sep*cw)+'" y2="'+(y0+alto+2)+'" stroke="#7c3aed" stroke-width="1.4" stroke-dasharray="4 3"/>';
+  }
+  for(i=0;i<nf;i++){
+    for(j=0;j<nc;j++){
+      var celda=M[i][j], txt=String(celda), color=(typeof celda==='number'&&celda<0)?'#111827':'#111827';
+      if(typeof celda!=='number') color='#4f46e5';
+      if(fig.sep!==undefined&&j>=fig.sep) color='#059669';
+      out+='<text x="'+(x0+j*cw+cw/2)+'" y="'+(y0+i*ch+ch/2+5)+'" font-size="'+(nc>4?12:13.5)+'" font-weight="650" fill="'+color+'" text-anchor="middle" style="font-variant-numeric:tabular-nums">'+escaparHTML(txt)+'</text>';
+    }
+  }
+  if(fig.operacion){
+    var tam=fig.operacion.length>26?9.5:11;
+    out+='<text x="'+(W/2)+'" y="'+(y0+alto+26)+'" font-size="'+tam+'" font-weight="700" fill="#b45309" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace">'+escaparHTML(fig.operacion)+'</text>';
+  }
+  return out+'</svg>';
+}
+function figuraBalanzaSVG(fig){
+  var W=266,H=202;
+  var out='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+escaparHTML(fig.nota||'Ecuación como balanza')+'">';
+  out+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#fbfcff"/>';
+  out+='<path d="M133,74 L118,150 L148,150 Z" fill="rgba(17,24,39,.10)" stroke="#6b7280" stroke-width="1.6"/>';
+  out+='<line x1="96" y1="152" x2="170" y2="152" stroke="#6b7280" stroke-width="3" stroke-linecap="round"/>';
+  out+='<g class="balanza-viga">';
+  out+='<line x1="42" y1="74" x2="224" y2="74" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>';
+  out+='<circle cx="133" cy="74" r="5" fill="#4f46e5"/>';
+  out+='<line x1="56" y1="74" x2="56" y2="104" stroke="#a5b4fc" stroke-width="1.6"/>';
+  out+='<line x1="210" y1="74" x2="210" y2="104" stroke="#c4b5fd" stroke-width="1.6"/>';
+  out+='<rect x="10" y="104" width="92" height="40" rx="10" fill="rgba(79,70,229,.10)" stroke="#4f46e5" stroke-width="1.8"/>';
+  out+='<rect x="164" y="104" width="92" height="40" rx="10" fill="rgba(124,58,237,.10)" stroke="#7c3aed" stroke-width="1.8"/>';
+  var ti=String(fig.izq), td=String(fig.der);
+  var fi=ti.length>15?9:(ti.length>11?10.5:13), fd=td.length>15?9:(td.length>11?10.5:13);
+  out+='<text x="56" y="129" font-size="'+fi+'" font-weight="700" fill="#3730a3" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace">'+escaparHTML(ti)+'</text>';
+  out+='<text x="210" y="129" font-size="'+fd+'" font-weight="700" fill="#5b21b6" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace">'+escaparHTML(td)+'</text>';
+  out+='</g>';
+  out+='<text x="133" y="46" font-size="22" font-weight="800" fill="#059669" text-anchor="middle">=</text>';
+  out+='<text x="133" y="176" font-size="9.5" font-weight="700" fill="#6b7280" text-anchor="middle">lo que hagas de un lado, hazlo del otro</text>';
+  return out+'</svg>';
+}
+function figuraMosaicoSVG(fig){
+  var W=266,H=202,b=fig.b,c=fig.c,i;
+  var out='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+escaparHTML(fig.nota||'Modelo de área')+'">';
+  out+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#fbfcff"/>';
+  var lado=76, x0=16, y0=22, unidad=16;
+  out+='<rect x="'+x0+'" y="'+y0+'" width="'+lado+'" height="'+lado+'" rx="4" fill="rgba(79,70,229,.16)" stroke="#4f46e5" stroke-width="1.8"/>';
+  out+='<text x="'+(x0+lado/2)+'" y="'+(y0+lado/2+6)+'" font-size="17" font-weight="800" fill="#3730a3" text-anchor="middle" font-family="Georgia,serif" font-style="italic">x&#178;</text>';
+  for(i=0;i<b&&i<9;i++){
+    var bx=x0+lado+4+i*(unidad+2);
+    out+='<rect x="'+bx+'" y="'+y0+'" width="'+unidad+'" height="'+lado+'" rx="3" fill="rgba(124,58,237,.16)" stroke="#7c3aed" stroke-width="1.4"/>';
+    out+='<text x="'+(bx+unidad/2)+'" y="'+(y0+lado/2+4)+'" font-size="10" font-weight="700" fill="#5b21b6" text-anchor="middle" font-family="Georgia,serif" font-style="italic">x</text>';
+  }
+  for(i=0;i<c&&i<18;i++){
+    var cx2=x0+(i%9)*(unidad+2), cy2=y0+lado+8+Math.floor(i/9)*(unidad+2);
+    out+='<rect x="'+cx2+'" y="'+cy2+'" width="'+unidad+'" height="'+unidad+'" rx="3" fill="rgba(180,83,9,.16)" stroke="#b45309" stroke-width="1.3"/>';
+    out+='<text x="'+(cx2+unidad/2)+'" y="'+(cy2+unidad/2+3.5)+'" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">1</text>';
+  }
+  out+='<text x="'+(W/2)+'" y="'+(H-12)+'" font-size="10" font-weight="700" fill="#6b7280" text-anchor="middle">1 pieza x&#178; · '+b+' piezas x · '+c+' unidades</text>';
+  return out+'</svg>';
+}
+
+/* =========================================================
+   UI
+   ========================================================= */
+var enunciado=document.getElementById('enunciado');
+var entrada=document.getElementById('respuesta');
+var feedback=document.getElementById('feedback');
+var pistaBox=document.getElementById('pistaBox');
+var explicacionBox=document.getElementById('explicacionBox');
+var btnNuevo=document.getElementById('btnNuevo');
+var btnMismo=document.getElementById('btnMismo');
+var btnVerificar=document.getElementById('btnVerificar');
+var btnPista=document.getElementById('btnPista');
+var btnExplicacion=document.getElementById('btnExplicacion');
+var btnReset=document.getElementById('btnReset');
+var mArc=document.getElementById('mArc');
+var mInt=document.getElementById('mInt');
+var mRacha=document.getElementById('mRacha');
+var mPrec=document.getElementById('mPrec');
+var arco=document.getElementById('arco');
+var historialBox=document.getElementById('historial');
+var dominioBox=document.getElementById('dominio');
+var botonesNivel=document.querySelectorAll('.nivel-btn');
+
+var actual=null, resuelto=false, numEjercicio=0;
+var aciertos=0, intentos=0, racha=0, historial=[];
+var FAMILIAS=['Lineales','Sistemas','Gauss-Jordan','Cuadráticas'];
+var FAM_COL={'Lineales':'#4f46e5','Sistemas':'#7c3aed','Gauss-Jordan':'#059669','Cuadráticas':'#b45309'};
+var dominio={};
+var CLAVE='genEcuacionesAlgebra.v2';
+
+var MENSAJES_ERROR=[
+  'Revisa tu procedimiento o pide una pista.',
+  'Vuelve a revisar los signos al pasar términos de un lado a otro.',
+  'Comprueba la fórmula que estás usando; la pista puede orientarte.',
+  'Revisa la aritmética paso a paso, vas por buen camino.',
+  'Sustituye tu resultado en la ecuación original y compara.'
 ];
 
-function nuevoEjercicio() {
-  var indice = Math.floor(Math.random() * generadores.length);
-  ejercicioActual = generadores[indice]();
-  
-  document.getElementById('enunciado').innerHTML = ejercicioActual.problema;
-  document.getElementById('respuesta').value = '';
-  
-  var feedback = document.getElementById('feedback');
-  feedback.className = 'feedback';
-  feedback.innerHTML = '';
-  
-  var pistaBox = document.getElementById('pistaBox');
-  pistaBox.className = 'panel pista';
-  pistaBox.innerHTML = '<strong>Pista:</strong> ' + ejercicioActual.pista;
-  
-  var explicacionBox = document.getElementById('explicacionBox');
-  explicacionBox.className = 'panel explicacion';
-  explicacionBox.innerHTML = '<strong>Explicación:</strong> ' + ejercicioActual.explicacion;
-  
-  tiposet(document.getElementById('enunciado'));
-  tiposet(pistaBox);
-  tiposet(explicacionBox);
-  
-  document.getElementById('respuesta').focus();
+function consejo(){
+  var e=etiquetaActual.toLowerCase(), f=familiaActual;
+  if(e.indexOf('factorización')>=0) return 'Escribe los dos binomios con paréntesis, por ejemplo (x+2)(x+3).';
+  if(e.indexOf('complejas')>=0) return 'Escribe las dos raíces conjugadas con el formato a+bi, separadas por coma.';
+  if(e.indexOf('irracionales')>=0) return 'Deja el radical exacto: usa sqrt( ) y no redondees.';
+  if(e.indexOf('fórmula general')>=0||e.indexOf('incompleta')>=0) return 'Se piden las DOS raíces: escríbelas separadas por coma.';
+  if(e.indexOf('vértice')>=0) return 'El vértice es un punto: escribe (h, k) con fracciones si hace falta.';
+  if(e.indexOf('gauss-jordan')>=0||e.indexOf('renglones')>=0) return 'Cuida el orden de las variables y los signos de cada renglón.';
+  if(e.indexOf('rango')>=0||e.indexOf('clasificación')>=0) return 'Responde con una sola palabra: determinado, indeterminado o incompatible.';
+  if(e.indexOf('recta solución')>=0) return 'La respuesta es un vector: escribe sus tres componentes (a, b, c).';
+  if(e.indexOf('recta ·')>=0) return 'Si el resultado no es entero, escríbelo como fracción.';
+  if(f==='Sistemas') return 'Escribe la pareja o la terna en orden, con el formato (x, y) o (x, y, z).';
+  return 'Revisa el signo y, si el resultado no es entero, escríbelo como fracción.';
 }
 
-function verificar() {
-  if (!ejercicioActual) return;
-  
-  var inputVal = document.getElementById('respuesta').value;
-  if (!inputVal.trim()) return;
-  
-  intentos++;
-  document.getElementById('mInt').textContent = intentos;
-  
-  var esCorrecto = false;
-  
-  if (ejercicioActual.tipo === 'numerica') {
-    var numUser = aNumero(inputVal);
-    if (numUser !== null && Math.abs(numUser - ejercicioActual.respuesta) <= ejercicioActual.tolerancia) {
-      esCorrecto = true;
-    } else if (coincideTexto(inputVal, ejercicioActual.acepta)) {
-      esCorrecto = true;
+function pasosHTML(texto){
+  var lineas=String(texto).split('\n'), out='', i, m, cuerpo='';
+  for(i=0;i<lineas.length;i++){
+    if(lineas[i]==='') continue;
+    m=lineas[i].match(/^Paso\s+(\d+)\.\s*([\s\S]*)$/);
+    if(m){ cuerpo+='<li><span class="paso-n">Paso '+m[1]+'.</span><span class="paso-t">'+m[2]+'</span></li>'; }
+    else { out+='<p style="margin:6px 0">'+lineas[i]+'</p>'; }
+  }
+  if(cuerpo) out+='<ol class="pasos">'+cuerpo+'</ol>';
+  return out;
+}
+
+function guardar(){
+  try{
+    window.localStorage.setItem(CLAVE,JSON.stringify({a:aciertos,i:intentos,r:racha,h:historial,n:nivel,d:dominio}));
+  }catch(e){}
+}
+function cargar(){
+  var i;
+  for(i=0;i<FAMILIAS.length;i++) dominio[FAMILIAS[i]]={a:0,i:0};
+  try{
+    var raw=window.localStorage.getItem(CLAVE);
+    if(!raw) return;
+    var d=JSON.parse(raw);
+    if(d&&typeof d.a==='number'&&typeof d.i==='number'){
+      aciertos=d.a; intentos=d.i; racha=d.r||0;
+      historial=(d.h&&d.h.length)?d.h.slice(-16):[];
+      if(d.n===1||d.n===2||d.n===3) nivel=d.n;
+      if(d.d){ for(i=0;i<FAMILIAS.length;i++){ if(d.d[FAMILIAS[i]]) dominio[FAMILIAS[i]]=d.d[FAMILIAS[i]]; } }
     }
-  } else {
-    if (coincideTexto(inputVal, ejercicioActual.acepta)) {
-      esCorrecto = true;
+  }catch(e){}
+}
+
+function pintarDominio(){
+  var out='<div class="dominio-tit">Dominio por bloque</div><div class="dominio-lista">', i, f, d, pct;
+  for(i=0;i<FAMILIAS.length;i++){
+    f=FAMILIAS[i]; d=dominio[f]||{a:0,i:0};
+    pct=d.i>0?Math.round(100*d.a/d.i):0;
+    out+='<div class="dominio-fila">'+
+      '<span class="dominio-nom">'+f+'</span>'+
+      '<span class="dominio-barra"><i style="width:'+pct+'%;background:'+FAM_COL[f]+'"></i></span>'+
+      '<span class="dominio-num" style="color:'+FAM_COL[f]+'">'+(d.i>0?(d.a+'/'+d.i+' · '+pct+'%'):'sin intentos')+'</span>'+
+    '</div>';
+  }
+  dominioBox.innerHTML=out+'</div>';
+}
+
+function pintarMarcador(pop){
+  mArc.innerHTML=String(aciertos);
+  mInt.innerHTML=String(intentos);
+  mRacha.innerHTML=String(racha);
+  var pct=intentos>0?Math.round(100*aciertos/intentos):0;
+  mPrec.innerHTML=intentos>0?(pct+'%'):'—';
+  arco.setAttribute('stroke-dashoffset',String(113.1*(1-pct/100)));
+  var h='', i;
+  if(historial.length===0){ h='<span class="vacio">Tu historial de intentos aparecerá aquí.</span>'; }
+  else{
+    for(i=0;i<historial.length;i++){
+      h+='<span class="punto '+(historial[i]?'ok':'err')+'" title="'+(historial[i]?'Acierto':'Intento fallido')+'"></span>';
     }
   }
-  
-  var feedback = document.getElementById('feedback');
-  if (esCorrecto) {
-    aciertos++;
-    document.getElementById('mArc').textContent = aciertos;
-    feedback.className = 'feedback ok visible';
-    feedback.innerHTML = '<div style="font-weight:600;">✓ ¡Correcto!</div>' +
-                         '<div>Escribiste: <code>' + escaparHTML(inputVal) + '</code></div>' +
-                         '<div>En notación matemática: $' + ejercicioActual.respuestaLaTeX + '$</div>';
-  } else {
-    feedback.className = 'feedback err visible';
-    feedback.innerHTML = '✗ Todavía no. Revisa tu procedimiento o pide una pista.';
+  historialBox.innerHTML=h;
+  pintarDominio();
+  if(pop){
+    var nodo=pop==='ok'?mArc:mInt;
+    nodo.className=nodo.className.replace(' pop','');
+    void nodo.offsetWidth;
+    nodo.className+=' pop';
   }
-  
+}
+
+function pintarNivel(){
+  for(var i=0;i<botonesNivel.length;i++){
+    var activo=String(nivel)===botonesNivel[i].getAttribute('data-nivel');
+    botonesNivel[i].className='nivel-btn'+(activo?' activo':'');
+    botonesNivel[i].setAttribute('aria-pressed',activo?'true':'false');
+  }
+}
+
+function nuevoEjercicio(mismoTipo){
+  actual=genEcuacionesSistemas(mismoTipo===true);
+  if(figuraActual&&figuraActual.tipo==='espacio') figEncuadre(figuraActual);
+  resuelto=false;
+  numEjercicio++;
+  var tipoTxt=actual.tipo==='numerica'?'Respuesta numérica':'Respuesta simbólica';
+  var claseTipo=actual.tipo==='numerica'?'chip chip-tipo':'chip chip-tipo sim';
+  var nivelTxt=['','Base','Reto','Élite'][nivel];
+  enunciado.innerHTML='<div class="en-head">'+
+      '<span class="chip chip-num">Ejercicio '+numEjercicio+'</span>'+
+      '<span class="chip chip-tema">'+escaparHTML(etiquetaActual)+'</span>'+
+      '<span class="'+claseTipo+'">'+tipoTxt+'</span>'+
+      '<span class="chip chip-nivel">'+nivelTxt+'</span>'+
+    '</div><div class="en-cuerpo"><div class="en-texto">'+actual.problema+'</div>'+figuraHTML()+'</div>';
+  feedback.className='feedback';
+  feedback.innerHTML='';
+  pistaBox.className='panel pista';
+  pistaBox.innerHTML='<h3>Pista</h3><div>'+actual.pista+'</div>';
+  explicacionBox.className='panel explicacion';
+  explicacionBox.innerHTML='<h3>Explicación paso a paso</h3>'+pasosHTML(actual.explicacion)+
+    '<div class="resp-final"><span class="et">Respuesta</span>'+actual.solucion+'</div>';
+  btnPista.setAttribute('aria-pressed','false');
+  btnExplicacion.setAttribute('aria-pressed','false');
+  entrada.value='';
+  entrada.className='';
+  btnNuevo.className='btn-ghost';
+  tiposet(enunciado); tiposet(pistaBox); tiposet(explicacionBox);
+  entrada.focus();
+}
+
+function alternarPanel(panel,boton){
+  var abierto=panel.className.indexOf('visible')>=0;
+  if(abierto){
+    panel.className=panel.className.replace(' visible','');
+    boton.setAttribute('aria-pressed','false');
+  }else{
+    panel.className+=' visible';
+    boton.setAttribute('aria-pressed','true');
+    tiposet(panel);
+  }
+}
+
+function mostrarCorrecto(texto){
+  feedback.className='feedback ok';
+  feedback.innerHTML='<div class="fb-titulo">✓ ¡Correcto!</div>'+
+    '<div class="fb-linea">Escribiste: <code>'+escaparHTML(texto)+'</code></div>'+
+    '<div class="fb-linea">En notación matemática: $'+actual.respuestaLaTeX+'$</div>';
   tiposet(feedback);
 }
 
-document.getElementById('btnNuevo').addEventListener('click', function() {
-  nuevoEjercicio();
-});
+function mostrarError(texto,vacio){
+  var msg=vacio?'Escribe una respuesta antes de verificar.':azar(MENSAJES_ERROR);
+  feedback.className='feedback err';
+  feedback.innerHTML='<div class="fb-titulo">✗ Todavía no</div>'+
+    '<div class="fb-linea">'+msg+(vacio?'':' '+consejo())+'</div>'+
+    (texto?'<div class="fb-linea">Escribiste: <code>'+escaparHTML(texto)+'</code></div>':'');
+  tiposet(feedback);
+}
 
-document.getElementById('btnVerificar').addEventListener('click', function() {
-  verificar();
-});
-
-document.getElementById('btnPista').addEventListener('click', function() {
-  var box = document.getElementById('pistaBox');
-  box.classList.toggle('visible');
-  tiposet(box);
-});
-
-document.getElementById('btnExplicacion').addEventListener('click', function() {
-  var box = document.getElementById('explicacionBox');
-  box.classList.toggle('visible');
-  tiposet(box);
-});
-
-document.getElementById('respuesta').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    verificar();
+function verificar(){
+  if(!actual) return;
+  var texto=entrada.value.replace(/^\s+|\s+$/g,'');
+  if(resuelto){
+    mostrarCorrecto(texto);
+    entrada.className='bien';
+    return;
   }
-});
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'n' || e.key === 'N') {
-    if (document.activeElement !== document.getElementById('respuesta')) {
-      nuevoEjercicio();
+  var vacio=(texto==='');
+  var correcto=false;
+  if(!vacio){
+    if(actual.tipo==='numerica'){
+      var num=aNumero(texto);
+      if(!isNaN(num)&&Math.abs(num-actual.respuesta)<=actual.tolerancia) correcto=true;
+      if(!correcto) correcto=coincideTexto(texto,actual.acepta,actual.modo);
+    }else{
+      correcto=coincideTexto(texto,actual.acepta,actual.modo);
     }
   }
+  intentos++;
+  if(!dominio[familiaActual]) dominio[familiaActual]={a:0,i:0};
+  dominio[familiaActual].i++;
+  if(correcto){
+    aciertos++; racha++; resuelto=true;
+    dominio[familiaActual].a++;
+    historial.push(1);
+    if(historial.length>16) historial=historial.slice(-16);
+    mostrarCorrecto(texto);
+    entrada.className='bien';
+    btnNuevo.className='btn-ghost pulso-nuevo';
+    pintarMarcador('ok');
+  }else{
+    racha=0;
+    historial.push(0);
+    if(historial.length>16) historial=historial.slice(-16);
+    mostrarError(texto,vacio);
+    entrada.className='mal';
+    pintarMarcador('err');
+    setTimeout(function(){ if(entrada.className==='mal') entrada.className=''; },600);
+  }
+  guardar();
+}
+
+/* eventos */
+btnNuevo.onclick=function(){ nuevoEjercicio(false); };
+btnMismo.onclick=function(){ nuevoEjercicio(true); };
+btnVerificar.onclick=function(){ verificar(); };
+btnPista.onclick=function(){ alternarPanel(pistaBox,btnPista); };
+btnExplicacion.onclick=function(){ alternarPanel(explicacionBox,btnExplicacion); };
+btnReset.onclick=function(){
+  aciertos=0; intentos=0; racha=0; historial=[];
+  for(var i=0;i<FAMILIAS.length;i++) dominio[FAMILIAS[i]]={a:0,i:0};
+  guardar(); pintarMarcador();
+};
+for(var bi=0;bi<botonesNivel.length;bi++){
+  botonesNivel[bi].onclick=function(){
+    nivel=parseInt(this.getAttribute('data-nivel'),10);
+    pintarNivel(); guardar(); nuevoEjercicio(false);
+  };
+}
+entrada.addEventListener('keydown',function(e){
+  if(e.key==='Enter'||e.keyCode===13){ e.preventDefault(); verificar(); }
+});
+entrada.addEventListener('input',function(){
+  if(entrada.className==='mal') entrada.className='';
+});
+document.addEventListener('keydown',function(e){
+  var t=e.target||e.srcElement;
+  var tag=(t&&t.tagName)?t.tagName.toLowerCase():'';
+  if(tag==='input'||tag==='textarea'||(t&&t.isContentEditable)) return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.key==='n'||e.key==='N'||e.keyCode===78){ e.preventDefault(); nuevoEjercicio(false); }
 });
 
-window.onload = function() {
-  nuevoEjercicio();
-};
-</script>
+/* giro del esquema 3D: puntero, teclado y doble clic */
+function lienzoDesde(e){
+  var lz=e.target;
+  while(lz&&lz!==enunciado&&!(lz.className&&String(lz.className).indexOf('fig-lienzo')>=0)) lz=lz.parentNode;
+  return (lz&&lz!==enunciado)?lz:null;
+}
+enunciado.addEventListener('pointerdown',function(e){
+  if(!figuraActual||figuraActual.tipo!=='espacio') return;
+  var lz=lienzoDesde(e);
+  if(!lz) return;
+  figArrastre={x:e.clientX,y:e.clientY};
+  if(lz.setPointerCapture&&e.pointerId!==undefined){ try{ lz.setPointerCapture(e.pointerId); }catch(er){} }
+  e.preventDefault();
+});
+enunciado.addEventListener('pointermove',function(e){
+  if(!figArrastre) return;
+  girarFigura(e.clientX-figArrastre.x,e.clientY-figArrastre.y);
+  figArrastre={x:e.clientX,y:e.clientY};
+});
+enunciado.addEventListener('pointerup',function(){ figArrastre=null; });
+enunciado.addEventListener('pointercancel',function(){ figArrastre=null; });
+enunciado.addEventListener('keydown',function(e){
+  if(!figuraActual||figuraActual.tipo!=='espacio') return;
+  var lz=lienzoDesde(e);
+  if(!lz) return;
+  if(e.key==='ArrowLeft'){ girarFigura(-9,0); e.preventDefault(); }
+  else if(e.key==='ArrowRight'){ girarFigura(9,0); e.preventDefault(); }
+  else if(e.key==='ArrowUp'){ girarFigura(0,-9); e.preventDefault(); }
+  else if(e.key==='ArrowDown'){ girarFigura(0,9); e.preventDefault(); }
+});
+enunciado.addEventListener('dblclick',function(e){
+  if(!figuraActual||figuraActual.tipo!=='espacio') return;
+  if(!lienzoDesde(e)) return;
+  figYaw=figYaw0; figPitch=figPitch0; repintarFigura();
+});
 
+/* arranque */
+cargar();
+pintarNivel();
+pintarMarcador();
+nuevoEjercicio();
+</script>
 </body>
 </html>
