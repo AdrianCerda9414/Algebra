@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios · Álgebra · Números reales</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+/* VARIABLES Y BASE */
+:root {
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+}
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height:1.55; padding:24px 16px 60px; }
+.wrap { max-width:900px; margin:0 auto; }
+.card { background:var(--card); border-radius:16px; box-shadow:0 10px 30px rgba(17,24,39,0.08); overflow:hidden; }
+.card-head { background:linear-gradient(135deg, var(--brand), var(--brand2)); color:#fff; padding:22px 28px; }
+.card-head h1 { margin:0 0 4px; font-size:1.6rem; font-weight:700; }
+.card-head .sub { font-size:0.95rem; opacity:0.95; }
+.card-body { padding:22px 28px 26px; }
+.topbar { display:flex; justify-content:flex-end; margin-bottom:14px; }
+.btn-primary, .btn-ghost, .btn-soft {
+  font-family:inherit; font-size:0.95rem; border-radius:10px; padding:10px 16px;
+  cursor:pointer; border:1px solid transparent;
+  transition:background 0.15s, border-color 0.15s, color 0.15s; }
+.btn-primary { background:var(--brand); color:#fff; border-color:var(--brand); }
+.btn-primary:hover { background:#4338ca; }
+.btn-ghost { background:transparent; color:var(--brand); border-color:var(--line); }
+.btn-ghost:hover { background:#f9fafb; }
+.btn-soft { background:#eef2ff; color:var(--brand); }
+.btn-soft:hover { background:#e0e7ff; }
+.row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+#respuesta { flex:1; min-width:220px; padding:11px 14px; font-size:1rem; border:1px solid var(--line); border-radius:10px; font-family:inherit; }
+#respuesta:focus { outline:none; border-color:var(--brand); box-shadow:0 0 0 3px rgba(79,70,229,0.15); }
+#enunciado { background:#f9fafb; border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px; font-size:1.02rem; }
+.feedback { margin-top:14px; padding:12px 14px; border-radius:10px; font-size:0.95rem; display:none; }
+.feedback.visible { display:block; }
+.feedback.ok { background:var(--okbg); border:1px solid #a7f3d0; color:var(--ok); }
+.feedback.err { background:var(--errbg); border:1px solid #fecaca; color:var(--err); }
+.feedback code { background:rgba(255,255,255,0.7); padding:1px 6px; border-radius:4px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+.panel { margin-top:14px; padding:14px 16px; border-radius:10px; font-size:0.95rem; display:none; }
+.panel.visible { display:block; }
+.panel.pista { background:var(--warnbg); border:1px solid #fde68a; color:var(--warn); }
+.panel.explicacion { background:#f5f3ff; border:1px solid #ddd6fe; color:#5b21b6; }
+.marcador { margin-top:20px; padding-top:16px; border-top:1px solid var(--line); display:flex; gap:22px; flex-wrap:wrap; align-items:center; color:var(--muted); font-size:0.9rem; }
+.marcador b { color:var(--ink); font-weight:600; }
+.kbd { display:inline-block; padding:1px 7px; background:#fff; border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; font-size:0.8rem; color:var(--ink); font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+footer { text-align:center; color:var(--muted); font-size:0.85rem; margin-top:22px; }
+@media (max-width:560px) {
+  .card-head { padding:18px 18px; }
+  .card-body { padding:16px 16px 20px; }
+  .card-head h1 { font-size:1.3rem; }
+  #respuesta { min-width:100%; }
+  .btn-primary, .btn-ghost, .btn-soft { flex:1; }
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-head">
+        <h1>Generador infinito de ejercicios</h1>
+        <div class="sub">Materia: ÁLGEBRA · Tema: Subconjuntos notables de los reales, propiedades de campo, orden y completitud, irracionalidad de raíces de primos</div>
+      </div>
+      <div class="card-body">
+        <div class="topbar"><button class="btn-ghost" id="btnNuevo">Nuevo ejercicio</button></div>
+        <div id="enunciado"></div>
+        <div class="row">
+          <input id="respuesta" type="text" placeholder="Usa ^ para potencias y / para fracciones…" autocomplete="off">
+          <button class="btn-primary" id="btnVerificar">Verificar</button>
+          <button class="btn-soft" id="btnPista">Pista</button>
+          <button class="btn-soft" id="btnExplicacion">Explicación</button>
+        </div>
+        <div id="feedback" class="feedback"></div>
+        <div id="pistaBox" class="panel pista"></div>
+        <div id="explicacionBox" class="panel explicacion"></div>
+        <div class="marcador">
+          Aciertos: <b id="mArc">0</b> · Intentos: <b id="mInt">0</b>
+          <span class="legend"><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</span>
+        </div>
+      </div>
+    </div>
+    <footer>Generador aleatorio educativo · ÁLGEBRA · Números reales: subconjuntos, campo, orden, completitud, irracionalidad</footer>
+  </div>
+
+<script>
+// ============ ESTADO ============
+var aciertos = 0, intentos = 0;
+var ejercicio = null;
+
+// ============ UTILIDADES ============
+function escaparHTML(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function normalizar(v) {
+    v = String(v).toLowerCase().trim();
+    // quita acentos y ñ (compatible ES5)
+    v = v.replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/ú/g,'u').replace(/ñ/g,'n');
+    v = v.replace(/\$/g,'').replace(/\{/g,'').replace(/\}/g,'');
+    v = v.replace(/·/g,'*');
+    v = v.replace(/\*/g, '');
+    v = v.replace(/°/g,'').replace(/grados/g,'').replace(/deg/g,'');
+    v = v.replace(/²/g,'^2').replace(/³/g,'^3');
+    v = v.replace(/\s/g,'');
+    return v;
+}
+function aNumero(s) {
+    s = String(s).trim().replace(/\s/g,'');
+    var m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+    if (m) { var num=parseFloat(m[1]), den=parseFloat(m[2]); if (den===0) return NaN; return num/den; }
+    if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+    return NaN;
+}
+function coincideTexto(entrada, acepta) {
+    var e = normalizar(entrada);
+    for (var i=0;i<acepta.length;i++) if (normalizar(acepta[i])===e) return true;
+    return false;
+}
+function tiposet(nodo, intento) {
+    intento = intento || 0;
+    if (window.MathJax && window.MathJax.typesetPromise) { window.MathJax.typesetPromise([nodo]); return; }
+    if (intento < 40) setTimeout(function(){ tiposet(nodo, intento+1); }, 200);
+}
+
+// ============ GENERADOR ============
+// V1: Clasificación de un número en N, Z, Q, R\Q
+var POOL_CLASIF = [
+    {num:'5',   latex:'5',                  tipo:'natural',    sim:'\\mathbb{N}',              razon:'es entero positivo'},
+    {num:'12',  latex:'12',                 tipo:'natural',    sim:'\\mathbb{N}',              razon:'es entero positivo'},
+    {num:'100', latex:'100',                tipo:'natural',    sim:'\\mathbb{N}',              razon:'es entero positivo'},
+    {num:'7',   latex:'7',                  tipo:'natural',    sim:'\\mathbb{N}',              razon:'es entero positivo'},
+    {num:'-3',  latex:'-3',                 tipo:'entero',     sim:'\\mathbb{Z}',              razon:'es entero negativo, no natural'},
+    {num:'-1',  latex:'-1',                 tipo:'entero',     sim:'\\mathbb{Z}',              razon:'es entero negativo, no natural'},
+    {num:'-10', latex:'-10',                tipo:'entero',     sim:'\\mathbb{Z}',              razon:'es entero negativo, no natural'},
+    {num:'1/2', latex:'\\dfrac{1}{2}',      tipo:'racional',   sim:'\\mathbb{Q}',              razon:'es cociente de enteros con denominador no nulo'},
+    {num:'3/4', latex:'\\dfrac{3}{4}',      tipo:'racional',   sim:'\\mathbb{Q}',              razon:'es cociente de enteros con denominador no nulo'},
+    {num:'7/2', latex:'\\dfrac{7}{2}',      tipo:'racional',   sim:'\\mathbb{Q}',              razon:'es cociente de enteros con denominador no nulo'},
+    {num:'0.5', latex:'0.5',                tipo:'racional',   sim:'\\mathbb{Q}',              razon:'es decimal finito, equivalente a 1/2'},
+    {num:'1.25',latex:'1.25',               tipo:'racional',   sim:'\\mathbb{Q}',              razon:'es decimal finito, equivalente a 5/4'},
+    {num:'\\sqrt{2}', latex:'\\sqrt{2}',    tipo:'irracional', sim:'\\mathbb{R}\\setminus\\mathbb{Q}', razon:'no es racional (demostrable por contradicción)'},
+    {num:'\\sqrt{3}', latex:'\\sqrt{3}',    tipo:'irracional', sim:'\\mathbb{R}\\setminus\\mathbb{Q}', razon:'no es racional (p primo ⇒ √p irracional)'},
+    {num:'\\sqrt{5}', latex:'\\sqrt{5}',    tipo:'irracional', sim:'\\mathbb{R}\\setminus\\mathbb{Q}', razon:'no es racional (p primo ⇒ √p irracional)'},
+    {num:'\\pi', latex:'\\pi',              tipo:'irracional', sim:'\\mathbb{R}\\setminus\\mathbb{Q}', razon:'π es clásicamente irracional'}
+];
+// V2: Identificar la propiedad de campo
+var POOL_PROPIEDAD = [
+    {latex:'3+5=5+3',                       prop:'conmutativa',   razon:'se intercambia el orden de los sumandos'},
+    {latex:'7\\cdot 4=4\\cdot 7',           prop:'conmutativa',   razon:'se intercambia el orden de los factores'},
+    {latex:'(2+3)+4=2+(3+4)',               prop:'asociativa',    razon:'se reagrupan los sumandos'},
+    {latex:'(2\\cdot 3)\\cdot 4=2\\cdot(3\\cdot 4)', prop:'asociativa', razon:'se reagrupan los factores'},
+    {latex:'3\\cdot(2+4)=3\\cdot 2+3\\cdot 4', prop:'distributiva', razon:'el producto se reparte sobre la suma'},
+    {latex:'5+0=5',                         prop:'identidad',     razon:'0 es el neutro aditivo'},
+    {latex:'5\\cdot 1=5',                   prop:'identidad',     razon:'1 es el neutro multiplicativo'},
+    {latex:'5+(-5)=0',                      prop:'inverso',       razon:'-5 es el opuesto aditivo de 5'},
+    {latex:'5\\cdot \\dfrac{1}{5}=1',       prop:'inverso',       razon:'1/5 es el inverso multiplicativo de 5'}
+];
+// V3: Decimal a fracción irreducible
+var POOL_FRAC = [
+    {dec:'0.5',   n1:5,   d1:10,  g:5,   n2:1, d2:2, latex:'\\dfrac{1}{2}',   val:0.5},
+    {dec:'0.25',  n1:25,  d1:100, g:25,  n2:1, d2:4, latex:'\\dfrac{1}{4}',   val:0.25},
+    {dec:'0.75',  n1:75,  d1:100, g:25,  n2:3, d2:4, latex:'\\dfrac{3}{4}',   val:0.75},
+    {dec:'1.5',   n1:15,  d1:10,  g:5,   n2:3, d2:2, latex:'\\dfrac{3}{2}',   val:1.5},
+    {dec:'0.2',   n1:2,   d1:10,  g:2,   n2:1, d2:5, latex:'\\dfrac{1}{5}',   val:0.2},
+    {dec:'0.125', n1:125, d1:1000,g:125, n2:1, d2:8, latex:'\\dfrac{1}{8}',   val:0.125},
+    {dec:'0.4',   n1:4,   d1:10,  g:2,   n2:2, d2:5, latex:'\\dfrac{2}{5}',   val:0.4},
+    {dec:'0.6',   n1:6,   d1:10,  g:2,   n2:3, d2:5, latex:'\\dfrac{3}{5}',   val:0.6},
+    {dec:'0.8',   n1:8,   d1:10,  g:2,   n2:4, d2:5, latex:'\\dfrac{4}{5}',   val:0.8},
+    {dec:'2.5',   n1:25,  d1:10,  g:5,   n2:5, d2:2, latex:'\\dfrac{5}{2}',   val:2.5}
+];
+// V4: Supremo / ínfimo de un conjunto
+var POOL_COTA = [
+    {setLatex:'\\{1,2,3,4,5\\}',                       op:'supremo', val:5,  razon:'el máximo elemento es 5 y pertenece al conjunto'},
+    {setLatex:'\\{1,2,3,4,5\\}',                       op:'ínfimo',  val:1,  razon:'el mínimo elemento es 1 y pertenece al conjunto'},
+    {setLatex:'\\{-3,-2,-1,0,1\\}',                    op:'supremo', val:1,  razon:'el máximo elemento es 1 y pertenece al conjunto'},
+    {setLatex:'\\{-3,-2,-1,0,1\\}',                    op:'ínfimo',  val:-3, razon:'el mínimo elemento es -3 y pertenece al conjunto'},
+    {setLatex:'\\left\\{\\dfrac{1}{n}:n\\in\\mathbb{N}\\right\\}', op:'supremo', val:1, razon:'el mayor valor se alcanza en n=1'},
+    {setLatex:'\\left\\{\\dfrac{1}{n}:n\\in\\mathbb{N}\\right\\}', op:'ínfimo',  val:0, razon:'la sucesión tiende a 0 pero nunca lo alcanza; 0 es cota ínfima por completitud de \\(\\mathbb{R}\\)'},
+    {setLatex:'(0,5)',                                 op:'supremo', val:5,  razon:'5 es cota superior y cualquier valor menor falla; no pertenece al conjunto abierto'},
+    {setLatex:'(0,5)',                                 op:'ínfimo',  val:0,  razon:'0 es cota inferior y cualquier valor mayor falla; no pertenece al conjunto abierto'},
+    {setLatex:'[2,7]',                                 op:'supremo', val:7,  razon:'7 es máximo y pertenece al conjunto cerrado'},
+    {setLatex:'[2,7]',                                 op:'ínfimo',  val:2,  razon:'2 es mínimo y pertenece al conjunto cerrado'}
+];
+// V5: ¿√p es racional o irracional?
+var POOL_RAIZ = [
+    {p:2,  tipo:'irracional', raiz:'\\sqrt{2}',  razon:'p=2 es primo; por el argumento clásico, \\(\\sqrt{2}\\) no puede escribirse como \\(\\dfrac{a}{b}\\) en forma reducida'},
+    {p:3,  tipo:'irracional', raiz:'\\sqrt{3}',  razon:'p=3 es primo; \\(\\sqrt{p}\\) irracional por contradicción con \\(\\gcd(a,b)=1\\)'},
+    {p:5,  tipo:'irracional', raiz:'\\sqrt{5}',  razon:'p=5 es primo; \\(\\sqrt{p}\\) irracional'},
+    {p:7,  tipo:'irracional', raiz:'\\sqrt{7}',  razon:'p=7 es primo; \\(\\sqrt{p}\\) irracional'},
+    {p:11, tipo:'irracional', raiz:'\\sqrt{11}', razon:'p=11 es primo; \\(\\sqrt{p}\\) irracional'},
+    {p:13, tipo:'irracional', raiz:'\\sqrt{13}', razon:'p=13 es primo; \\(\\sqrt{p}\\) irracional'},
+    {p:4,  tipo:'racional',   raiz:'\\sqrt{4}=2',  razon:'4 es cuadrado perfecto; \\(\\sqrt{4}=2\\) es entero, luego racional'},
+    {p:9,  tipo:'racional',   raiz:'\\sqrt{9}=3',  razon:'9 es cuadrado perfecto; \\(\\sqrt{9}=3\\) es entero, luego racional'},
+    {p:16, tipo:'racional',   raiz:'\\sqrt{16}=4', razon:'16 es cuadrado perfecto; \\(\\sqrt{16}=4\\) es entero, luego racional'},
+    {p:25, tipo:'racional',   raiz:'\\sqrt{25}=5', razon:'25 es cuadrado perfecto; \\(\\sqrt{25}=5\\) es entero, luego racional'},
+    {p:6,  tipo:'irracional', raiz:'\\sqrt{6}',  razon:'6 no es cuadrado perfecto; \\(\\sqrt{6}\\) irracional (argumento similar al de los primos)'},
+    {p:8,  tipo:'irracional', raiz:'\\sqrt{8}',  razon:'8 no es cuadrado perfecto; \\(\\sqrt{8}=2\\sqrt{2}\\) hereda la irracionalidad de \\(\\sqrt{2}\\)'},
+    {p:10, tipo:'irracional', raiz:'\\sqrt{10}', razon:'10 no es cuadrado perfecto; \\(\\sqrt{10}\\) irracional'}
+];
+// V6: Pasos de la prueba de irracionalidad de √p
+var POOL_PRUEBA = [
+    {p:2,  q:'La demostración clásica supone \\(\\sqrt{2}=\\dfrac{a}{b}\\) con \\(\\gcd(a,b)=1\\). Tras elevar al cuadrado: \\(a^2=2b^2\\). Por el teorema fundamental de la aritmética, ¿a qué número divide obligatoriamente el 2?', a:'a', razon:'si un primo divide a un producto \\(a\\cdot a\\), divide a cada factor'},
+    {p:3,  q:'Para probar que \\(\\sqrt{3}\\) es irracional, suponemos \\(\\sqrt{3}=\\dfrac{a}{b}\\) con \\(\\gcd(a,b)=1\\). De \\(a^2=3b^2\\) se sigue \\(a=3k\\). Sustituyendo: \\(9k^2=3b^2\\), es decir \\(b^2=3k^2\\). ¿A qué divide ahora el 3?', a:'b', razon:'aplicando el mismo argumento, si 3 divide a \\(b^2\\) entonces 3 divide a \\(b\\)'},
+    {p:5,  q:'La prueba muestra que 5 divide tanto a \\(a\\) como a \\(b\\). Esto contradice la hipótesis inicial \\(\\gcd(a,b)=\\,?\\)', a:'1', razon:'la fracción \\(\\dfrac{a}{b}\\) se supuso irreducible, es decir, \\(\\gcd(a,b)=1\\)'},
+    {p:7,  q:'En la prueba de irracionalidad de \\(\\sqrt{7}\\), suponemos \\(\\sqrt{7}=\\dfrac{a}{b}\\) en forma irreducible. Tras \\(a^2=7b^2\\), se concluye que 7 divide a \\(a\\) y luego a \\(b\\). ¿Cuál era el valor supuesto de \\(\\gcd(a,b)\\)?', a:'1', razon:'la fracción se supuso en forma irreducible, \\(\\gcd(a,b)=1\\)'}
+];
+
+function genReales() {
+    var v = Math.floor(Math.random()*6);
+    var o = {};
+
+    if (v === 0) {
+        // VARIANTE 1: Clasificar un número
+        var t = POOL_CLASIF[Math.floor(Math.random()*POOL_CLASIF.length)];
+        o.tipo = 'simbolica';
+        o.problema = 'En un sistema de clasificación de señales diseñado por la ingeniera Catalina, aparece el valor \\('+t.latex+'\\). ¿A qué subconjunto notable de los números reales pertenece (natural, entero, racional o irracional)?';
+        o.solucion = t.tipo;
+        o.respuestaLaTeX = t.sim;
+        o.acepta = [t.tipo];
+        o.pista = 'Recuerda las inclusiones \\(\\mathbb{N}\\subset\\mathbb{Z}\\subset\\mathbb{Q}\\subset\\mathbb{R}\\). Los irracionales son \\(\\mathbb{R}\\setminus\\mathbb{Q}\\). Identifica el conjunto MÁS PEQUEÑO que lo contiene.';
+        o.explicacion = 'Paso 1. Recordamos las inclusiones \\(\\mathbb{N}\\subset\\mathbb{Z}\\subset\\mathbb{Q}\\subset\\mathbb{R}\\) y los irracionales \\(\\mathbb{R}\\setminus\\mathbb{Q}\\). Paso 2. Analizamos \\('+t.latex+'\\): '+t.razon+'. Paso 3. Por tanto pertenece a \\('+t.sim+'\\). Paso 4. Respuesta: '+t.tipo+'.';
+    }
+    else if (v === 1) {
+        // VARIANTE 2: Identificar propiedad de campo
+        var t = POOL_PROPIEDAD[Math.floor(Math.random()*POOL_PROPIEDAD.length)];
+        o.tipo = 'simbolica';
+        o.problema = 'En un algoritmo de optimización de cálculo de una comunidad otomí, se aplica la igualdad \\('+t.latex+'\\). ¿Qué propiedad de campo de los números reales justifica esta igualdad?';
+        o.solucion = t.prop;
+        o.respuestaLaTeX = '\\text{' + t.prop + '}';
+        o.acepta = [t.prop];
+        o.pista = 'Observa si se cambia el orden (conmutativa), se reagrupan términos (asociativa), se reparte un producto sobre una suma (distributiva), aparece un neutro (identidad) o un opuesto/inverso (inverso).';
+        o.explicacion = 'Paso 1. Examinamos la igualdad \\('+t.latex+'\\). Paso 2. '+t.razon+'. Paso 3. Esto corresponde a la propiedad '+t.prop+' de los números reales. Paso 4. Respuesta: '+t.prop+'.';
+    }
+    else if (v === 2) {
+        // VARIANTE 3: Decimal a fracción irreducible
+        var t = POOL_FRAC[Math.floor(Math.random()*POOL_FRAC.length)];
+        o.tipo = 'numerica';
+        o.problema = 'En un sensor de un sistema embebido que calibra la ingeniera Daniela, aparece la lectura decimal \\('+t.dec+'\\). Exprésala como fracción irreducible \\(\\dfrac{a}{b}\\).';
+        o.solucion = t.n2 + '/' + t.d2;
+        o.respuestaLaTeX = t.latex;
+        o.acepta = [t.n2 + '/' + t.d2, t.dec];
+        o.respuesta = t.val;
+        o.tolerancia = 0.001;
+        o.pista = 'Escribe el decimal como \\(\\dfrac{N}{10^k}\\) y simplifica dividiendo numerador y denominador por su máximo común divisor.';
+        o.explicacion = 'Paso 1. Expresamos \\('+t.dec+'=\\dfrac{'+t.n1+'}{'+t.d1+'}\\). Paso 2. Calculamos \\(\\gcd('+t.n1+','+t.d1+')='+t.g+'\\). Paso 3. Simplificamos dividiendo por '+t.g+': \\(\\dfrac{'+t.n1+'\\div '+t.g+'}{'+t.d1+'\\div '+t.g+'}=\\dfrac{'+t.n2+'}{'+t.d2+'}\\). Paso 4. Resultado: \\('+t.latex+'\\).';
+    }
+    else if (v === 3) {
+        // VARIANTE 4: Supremo / ínfimo
+        var t = POOL_COTA[Math.floor(Math.random()*POOL_COTA.length)];
+        o.tipo = 'numerica';
+        o.problema = 'En un análisis de cotas para un controlador que diseña la ingeniera Fabiola, se tiene el conjunto \\('+t.setLatex+'\\). Determina su '+t.op+'.';
+        o.solucion = String(t.val);
+        o.respuestaLaTeX = String(t.val);
+        o.acepta = [String(t.val)];
+        o.respuesta = t.val;
+        o.tolerancia = 0.001;
+        o.pista = 'El '+t.op+' es la cota superior (si supremo) o inferior (si ínfimo) MÁS ESTRECHA del conjunto. Por la completitud de \\(\\mathbb{R}\\), todo conjunto acotado lo tiene.';
+        o.explicacion = 'Paso 1. Examinamos el conjunto \\('+t.setLatex+'\\). Paso 2. Buscamos la cota más estrecha: '+t.razon+'. Paso 3. Verificamos que toda cota menor (o mayor, según el caso) falla. Paso 4. Por completitud de \\(\\mathbb{R}\\), el '+t.op+' es \\('+t.val+'\\).';
+    }
+    else if (v === 4) {
+        // VARIANTE 5: ¿√p racional o irracional?
+        var t = POOL_RAIZ[Math.floor(Math.random()*POOL_RAIZ.length)];
+        o.tipo = 'simbolica';
+        o.problema = 'En un módulo matemático del sistema de la ingeniera Julia, se requiere saber si \\('+t.raiz+'\\) es racional o irracional. Indica el tipo.';
+        o.solucion = t.tipo;
+        o.respuestaLaTeX = (t.tipo === 'irracional') ? '\\mathbb{R}\\setminus\\mathbb{Q}' : '\\mathbb{Q}';
+        o.acepta = [t.tipo];
+        o.pista = 'Un número real es racional si puede escribirse como \\(\\dfrac{a}{b}\\) con \\(a,b\\in\\mathbb{Z}, b\\ne 0\\). Para \\(\\sqrt{p}\\) con \\(p\\) primo, aplica la demostración por contradicción.';
+        o.explicacion = 'Paso 1. Verificamos si \\('+t.raiz+'\\) puede escribirse como \\(\\dfrac{a}{b}\\) con \\(a,b\\in\\mathbb{Z}, b\\ne 0\\). Paso 2. '+t.razon+'. Paso 3. Por tanto, \\('+t.raiz+'\\) pertenece a \\('+(t.tipo==='irracional'?'\\mathbb{R}\\setminus\\mathbb{Q}':'\\mathbb{Q}')+'\\). Paso 4. Respuesta: '+t.tipo+'.';
+    }
+    else {
+        // VARIANTE 6: Pasos de la prueba de irracionalidad de √p
+        var t = POOL_PRUEBA[Math.floor(Math.random()*POOL_PRUEBA.length)];
+        o.tipo = 'simbolica';
+        o.problema = t.q;
+        o.solucion = t.a;
+        o.respuestaLaTeX = t.a;
+        o.acepta = [t.a];
+        o.pista = 'Aplica el teorema fundamental de la aritmética: si un primo \\(p\\) divide a un producto, divide a alguno de sus factores. Recuerda que la hipótesis era \\(\\gcd(a,b)=1\\).';
+        o.explicacion = 'Paso 1. Hipótesis inicial: \\(\\sqrt{'+t.p+'}=\\dfrac{a}{b}\\) con \\(\\gcd(a,b)=1\\). Paso 2. Elevando al cuadrado: \\(a^2='+t.p+'\\,b^2\\). Paso 3. Por el teorema fundamental de la aritmética, '+t.razon+'. Paso 4. Respuesta: \\('+t.a+'\\).';
+    }
+
+    return o;
+}
+
+// ============ UI ============
+function nuevoEjercicio() {
+    ejercicio = genReales();
+    var enun = document.getElementById('enunciado');
+    enun.innerHTML = ejercicio.problema;
+    tiposet(enun);
+    var inp = document.getElementById('respuesta');
+    inp.value = ''; inp.focus();
+    var fb = document.getElementById('feedback');
+    fb.className = 'feedback'; fb.innerHTML = '';
+    var pb = document.getElementById('pistaBox');
+    pb.className = 'panel pista'; pb.innerHTML = '';
+    var eb = document.getElementById('explicacionBox');
+    eb.className = 'panel explicacion'; eb.innerHTML = '';
+}
+function verificar() {
+    if (!ejercicio) return;
+    var entradaRaw = document.getElementById('respuesta').value;
+    if (!entradaRaw.trim()) return;
+    var entrada = entradaRaw.trim()
+        .replace(/^\s*[a-zA-Z]\s*=\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*<=\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*>=\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*≤\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*≥\s*/,'')
+        .trim();
+    intentos++;
+    document.getElementById('mInt').textContent = intentos;
+    var ok = false;
+    if (ejercicio.tipo === 'numerica') {
+        var num = aNumero(entrada);
+        if (!isNaN(num) && Math.abs(num - ejercicio.respuesta) <= ejercicio.tolerancia) ok = true;
+        else if (coincideTexto(entrada, ejercicio.acepta)) ok = true;
+    } else {
+        ok = coincideTexto(entrada, ejercicio.acepta);
+    }
+    var fb = document.getElementById('feedback');
+    if (ok) {
+        aciertos++;
+        document.getElementById('mArc').textContent = aciertos;
+        fb.className = 'feedback ok visible';
+        fb.innerHTML = '<div style="font-weight:600;">✓ ¡Correcto!</div>'
+            + '<div>Escribiste: <code>' + escaparHTML(entradaRaw.trim()) + '</code></div>'
+            + '<div>En notación matemática: \\(' + ejercicio.respuestaLaTeX + '\\)</div>';
+        tiposet(fb);
+    } else {
+        fb.className = 'feedback err visible';
+        fb.innerHTML = '<div>✗ Todavía no. Revisa tu procedimiento o pide una pista.</div>';
+    }
+}
+function mostrarPista() {
+    if (!ejercicio) return;
+    var p = document.getElementById('pistaBox');
+    p.innerHTML = ejercicio.pista; p.classList.add('visible'); tiposet(p);
+}
+function mostrarExplicacion() {
+    if (!ejercicio) return;
+    var e = document.getElementById('explicacionBox');
+    e.innerHTML = ejercicio.explicacion; e.classList.add('visible'); tiposet(e);
+}
+
+// ============ EVENTOS ============
+document.getElementById('btnNuevo').addEventListener('click', nuevoEjercicio);
+document.getElementById('btnVerificar').addEventListener('click', verificar);
+document.getElementById('btnPista').addEventListener('click', mostrarPista);
+document.getElementById('btnExplicacion').addEventListener('click', mostrarExplicacion);
+document.getElementById('respuesta').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || (e.keyCode || e.which) === 13) verificar();
+});
+document.addEventListener('keydown', function (e) {
+    var tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+    if ((e.key === 'n' || e.key === 'N') && tag !== 'input' && tag !== 'textarea') nuevoEjercicio();
+});
+
+// ============ ARRANQUE ============
+nuevoEjercicio();
+</script>
+</body>
+</html>
