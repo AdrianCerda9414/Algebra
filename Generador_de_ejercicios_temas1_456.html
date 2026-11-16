@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios</title>
+<script>
+window.MathJax = {
+  tex: {inlineMath: [['$', '$'], ['\(', '\)']], displayMath: [['$$', '$$']]},
+  svg: {fontCache: 'global'},
+  options: {skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+:root {
+  --bg: #f4f6fb;
+  --card: #fff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --brand: #4f46e5;
+  --brand2: #7c3aed;
+  --line: #e5e7eb;
+  --ok: #059669;
+  --okbg: #ecfdf5;
+  --err: #dc2626;
+  --errbg: #fef2f2;
+  --warn: #b45309;
+  --warnbg: #fffbeb;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 16px;
+}
+.container {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+header {
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: #fff;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.subtitle {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+.content {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.top-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-ghost:hover {
+  background: var(--bg);
+  border-color: var(--muted);
+}
+#enunciado {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--bg);
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid var(--brand);
+}
+.input-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#respuesta {
+  flex: 1;
+  min-width: 220px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+#respuesta:focus {
+  border-color: var(--brand);
+}
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background: #4338ca;
+}
+.btn-soft {
+  background: #eef2ff;
+  color: var(--brand);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-soft:hover {
+  background: #e0e7ff;
+}
+.feedback {
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: none;
+  line-height: 1.5;
+}
+.feedback.ok {
+  background: var(--okbg);
+  color: var(--ok);
+  border: 1px solid #a7f3d0;
+}
+.feedback.err {
+  background: var(--errbg);
+  color: var(--err);
+  border: 1px solid #fecaca;
+}
+.feedback.visible {
+  display: block;
+}
+.panel {
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: none;
+  line-height: 1.5;
+}
+.panel.pista {
+  background: var(--warnbg);
+  color: var(--warn);
+  border: 1px solid #fde68a;
+}
+.panel.explicacion {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+.panel.visible {
+  display: block;
+}
+.footer-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.kbd {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-bottom-width: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: auto;
+}
+@media (max-width: 560px) {
+  .content {
+    padding: 20px;
+  }
+  .input-row {
+    flex-direction: column;
+  }
+  .btn-primary, .btn-soft {
+    width: 100%;
+  }
+  .top-row {
+    justify-content: stretch;
+  }
+  .btn-ghost {
+    width: 100%;
+    text-align: center;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Generador infinito de ejercicios</h1>
+    <div class="subtitle">Materia: ALGEBRA &middot; Tema: Ecuaciones lineales con una y con dos incognitas, solucion de sistemas de ecuaciones lineales de 2 y tres incognitas con el metodo de Gauss Jordan, y ecuaaciones cuadraticas, con formula general y factorizacion</div>
+  </header>
+  
+  <div class="content">
+    <div class="top-row">
+      <button class="btn-ghost" id="btnNuevo">Nuevo ejercicio</button>
+    </div>
+    
+    <div id="enunciado">Cargando enunciado...</div>
+    
+    <div class="input-row">
+      <input type="text" id="respuesta" placeholder="Usa ^ para potencias y / para fracciones..." autocomplete="off">
+      <button class="btn-primary" id="btnVerificar">Verificar</button>
+      <button class="btn-soft" id="btnPista">Pista</button>
+      <button class="btn-soft" id="btnExplicacion">Explicación</button>
+    </div>
+    
+    <div id="feedback" class="feedback"></div>
+    <div id="pistaBox" class="panel pista"></div>
+    <div id="explicacionBox" class="panel explicacion"></div>
+    
+    <div class="footer-stats">
+      <div>Aciertos: <span id="mArc">0</span> | Intentos: <span id="mInt">0</span></div>
+      <div><span class="kbd">Enter</span> = verificar &middot; <span class="kbd">N</span> = nuevo</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Generador aleatorio educativo &middot; ALGEBRA &middot; Ecuaciones lineales con una y con dos incognitas, solucion de sistemas de ecuaciones lineales de 2 y tres incognitas con el metodo de Gauss Jordan, y ecuaaciones cuadraticas, con formula general y factorizacion
+</footer>
+
+<script>
+var aciertos = 0;
+var intentos = 0;
+var ejercicioActual = null;
+
+function escaparHTML(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function normalizar(valor) {
+  if (typeof valor !== 'string') {
+    valor = String(valor);
+  }
+  var limpio = valor.toLowerCase().replace(/\s+/g, '').replace(/undefined/g, '');
+  var regexFrac = /^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/;
+  var match = limpio.match(regexFrac);
+  if (match) {
+    var num = parseFloat(match[1]);
+    var den = parseFloat(match[2]);
+    if (den !== 0) {
+      return String(num / den);
+    }
+  }
+  return limpio;
+}
+
+function aNumero(val) {
+  var norm = normalizar(val);
+  var num = parseFloat(norm);
+  return isNaN(num) ? null : num;
+}
+
+function coincideTexto(entrada, aceptadas) {
+  var normEntrada = normalizar(entrada);
+  for (var i = 0; i < aceptadas.length; i++) {
+    if (normEntrada === normalizar(aceptadas[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function tiposet(nodo, intento) {
+  if (typeof intento === 'undefined') {
+    intento = 0;
+  }
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    window.MathJax.typesetPromise([nodo]).catch(function (err) {
+      console.error(err);
+    });
+  } else if (intento < 40) {
+    setTimeout(function() {
+      tiposet(nodo, intento + 1);
+    }, 200);
+  }
+}
+
+function genEcuacionLinealUna() {
+  var a = Math.floor(Math.random() * 5) + 2;
+  var xSol = Math.floor(Math.random() * 8) + 1;
+  var b = Math.floor(Math.random() * 10) + 1;
+  var c = a * xSol + b;
+  
+  var enunciado = "En el diseño de un circuito de control para innovación mecatrónica, se plantea la ecuación lineal $";
+  enunciado += a + "x + " + b + " = " + c + "$. Determina el valor de la incógnita $x$.";
+  
+  var pista = "Despeja la incógnita $x$ pasando el término independiente al lado derecho y luego dividiendo entre el coeficiente de $x$.";
+  var explicacion = "Paso 1. Resta $b$ en ambos lados: $" + a + "x = " + c + " - " + b + " = " + (c - b) + "$. Paso 2. Divide entre " + a + ", obteniendo $x = " + (c - b) + " / " + a + " = " + xSol + "$.";
+  
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "El valor de $x$ es $" + xSol + "$",
+    respuestaLaTeX: String(xSol),
+    acepta: [String(xSol)],
+    respuesta: xSol,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genEcuacionLinealDos() {
+  var xVal = Math.floor(Math.random() * 5) + 1;
+  var yVal = Math.floor(Math.random() * 5) + 1;
+  
+  var a1 = 1, b1 = 1, c1 = xVal + yVal;
+  var a2 = 2, b2 = 1, c2 = 2 * xVal + yVal;
+  
+  var b1Str = "+ y";
+  var b2Str = "+ y";
+  
+  var enunciado = "Para calibrar un sistema de coordenadas en un brazo robótico, se resuelve el sistema lineal de dos variables:\\\\";
+  enunciado += "$$ \\begin{cases} x " + b1Str + " = " + c1 + " \\\\ " + a2 + "x " + b2Str + " = " + c2 + " \\end{cases} $$";
+  enunciado += "Determina el valor de la variable $x$.";
+  
+  var pista = "Puedes utilizar el método de sustitución o resta entre ecuaciones para despejar una de las variables.";
+  var explicacion = "Paso 1. Resta la primera ecuación de la segunda: $(" + a2 + "x + y) - (x + y) = " + c2 + " - " + c1 + "$. Paso 2. Simplifica para obtener $x = " + xVal + "$.";
+  
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "El valor de $x$ es $" + xVal + "$",
+    respuestaLaTeX: String(xVal),
+    acepta: [String(xVal)],
+    respuesta: xVal,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genGaussJordan2() {
+  var xSol = 2;
+  var ySol = 3;
+  
+  var enunciado = "Una ingeniera aplica el método de Gauss-Jordan para resolver el sistema matricial asociado a un circuito de sensores:\\\\";
+  enunciado += "$$ \\begin{cases} 1x + 2y = 8 \\\\ 3x + 1y = 9 \\end{cases} $$";
+  enunciado += "Determina el valor de la variable $y$.";
+  
+  var pista = "Convierte la matriz aumentada en su forma escalonada reducida aplicando operaciones elementales entre renglones.";
+  var explicacion = "Paso 1. Multiplica el primer renglón por $-3$ y súmalo al segundo para eliminar el coeficiente de $x$. Paso 2. Opera y normaliza para despejar el valor de $y$, obteniendo $y = " + ySol + "$.";
+  
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "El valor de $y$ es $" + ySol + "$",
+    respuestaLaTeX: String(ySol),
+    acepta: [String(ySol)],
+    respuesta: ySol,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genGaussJordan3() {
+  var zSol = 1;
+  
+  var enunciado = "En un sistema de tres nodos para una red de inteligencia artificial, el modelo matricial resuelto por Gauss-Jordan conduce a la ecuación escalonada reducida final equivalente a:\\\\";
+  enunciado += "$$ \\begin{pmatrix} 1 & 0 & 0 & | & 2 \\\\ 0 & 1 & 0 & | & 3 \\\\ 0 & 0 & 1 & | & " + zSol + " \\end{pmatrix} $$";
+  enunciado += "Indica el valor de la tercera variable $z$.";
+  
+  var pista = "La última fila de la matriz aumentada en forma escalonada reducida directa representa la solución directa para la variable $z$.";
+  var explicacion = "Paso 1. Identifica la última fila de la matriz aumentada. Paso 2. La ecuación correspondiente es $1z = " + zSol + "$, por lo que $z = " + zSol + "$.";
+  
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "El valor de $z$ es $" + zSol + "$",
+    respuestaLaTeX: String(zSol),
+    acepta: [String(zSol)],
+    respuesta: zSol,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genCuadraticaFormula() {
+  var r = 3;
+  var bTerm = -5;
+  var cTerm = 6;
+  
+  var enunciado = "Para optimizar la trayectoria de un vehículo autónomo, un algoritmo de inteligencia artificial analiza la ecuación cuadrática $x^2 - 5x + 6 = 0$. Determina la menor de sus dos soluciones reales.";
+  var pista = "Puedes aplicar la fórmula general cuadrática $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$ o factorizar directamente.";
+  var explicacion = "Paso 1. Identifica $a=1, b=-5, c=6$. Paso 2. Calcula el discriminante: $(-5)^2 - 4(1)(6) = 25 - 24 = 1$. Paso 3. Aplica la fórmula general para obtener las raíces $2$ y $3$. La menor es $2$.";
+  
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "La menor solución es $2$",
+    respuestaLaTeX: "2",
+    acepta: ["2"],
+    respuesta: 2,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genCuadraticaFactorizacion() {
+  var r1 = 2;
+  var r2 = 4;
+  
+  var enunciado = "En el diseño estructural de una pieza mecatrónica, se modela el esfuerzo mediante el polinomio $x^2 - 6x + 8 = 0$. Factoriza la ecuación para encontrar la mayor raíz real.";
+  var pista = "Busca dos números que multiplicados den $8$ y sumados den $-6$.";
+  var explicacion = "Paso 1. Factoriza el trinomio como $(x - 2)(x - 4) = 0$. Paso 2. Iguala cada factor a cero para hallar las raíces $x = 2$ y $x = 4$. Paso 3. La mayor raíz es $4$.";
+  
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "La mayor raíz es $4$",
+    respuestaLaTeX: "4",
+    acepta: ["4"],
+    respuesta: 4,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+var generadores = [
+  genEcuacionLinealUna,
+  genEcuacionLinealDos,
+  genGaussJordan2,
+  genGaussJordan3,
+  genCuadraticaFormula,
+  genCuadraticaFactorizacion
+];
+
+function nuevoEjercicio() {
+  var indice = Math.floor(Math.random() * generadores.length);
+  ejercicioActual = generadores[indice]();
+  
+  document.getElementById('enunciado').innerHTML = ejercicioActual.problema;
+  document.getElementById('respuesta').value = '';
+  
+  var feedback = document.getElementById('feedback');
+  feedback.className = 'feedback';
+  feedback.innerHTML = '';
+  
+  var pistaBox = document.getElementById('pistaBox');
+  pistaBox.className = 'panel pista';
+  pistaBox.innerHTML = '<strong>Pista:</strong> ' + ejercicioActual.pista;
+  
+  var explicacionBox = document.getElementById('explicacionBox');
+  explicacionBox.className = 'panel explicacion';
+  explicacionBox.innerHTML = '<strong>Explicación:</strong> ' + ejercicioActual.explicacion;
+  
+  tiposet(document.getElementById('enunciado'));
+  tiposet(pistaBox);
+  tiposet(explicacionBox);
+  
+  document.getElementById('respuesta').focus();
+}
+
+function verificar() {
+  if (!ejercicioActual) return;
+  
+  var inputVal = document.getElementById('respuesta').value;
+  if (!inputVal.trim()) return;
+  
+  intentos++;
+  document.getElementById('mInt').textContent = intentos;
+  
+  var esCorrecto = false;
+  
+  if (ejercicioActual.tipo === 'numerica') {
+    var numUser = aNumero(inputVal);
+    if (numUser !== null && Math.abs(numUser - ejercicioActual.respuesta) <= ejercicioActual.tolerancia) {
+      esCorrecto = true;
+    } else if (coincideTexto(inputVal, ejercicioActual.acepta)) {
+      esCorrecto = true;
+    }
+  } else {
+    if (coincideTexto(inputVal, ejercicioActual.acepta)) {
+      esCorrecto = true;
+    }
+  }
+  
+  var feedback = document.getElementById('feedback');
+  if (esCorrecto) {
+    aciertos++;
+    document.getElementById('mArc').textContent = aciertos;
+    feedback.className = 'feedback ok visible';
+    feedback.innerHTML = '<div style="font-weight:600;">✓ ¡Correcto!</div>' +
+                         '<div>Escribiste: <code>' + escaparHTML(inputVal) + '</code></div>' +
+                         '<div>En notación matemática: $' + ejercicioActual.respuestaLaTeX + '$</div>';
+  } else {
+    feedback.className = 'feedback err visible';
+    feedback.innerHTML = '✗ Todavía no. Revisa tu procedimiento o pide una pista.';
+  }
+  
+  tiposet(feedback);
+}
+
+document.getElementById('btnNuevo').addEventListener('click', function() {
+  nuevoEjercicio();
+});
+
+document.getElementById('btnVerificar').addEventListener('click', function() {
+  verificar();
+});
+
+document.getElementById('btnPista').addEventListener('click', function() {
+  var box = document.getElementById('pistaBox');
+  box.classList.toggle('visible');
+  tiposet(box);
+});
+
+document.getElementById('btnExplicacion').addEventListener('click', function() {
+  var box = document.getElementById('explicacionBox');
+  box.classList.toggle('visible');
+  tiposet(box);
+});
+
+document.getElementById('respuesta').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    verificar();
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'n' || e.key === 'N') {
+    if (document.activeElement !== document.getElementById('respuesta')) {
+      nuevoEjercicio();
+    }
+  }
+});
+
+window.onload = function() {
+  nuevoEjercicio();
+};
+</script>
+
+</body>
+</html>
