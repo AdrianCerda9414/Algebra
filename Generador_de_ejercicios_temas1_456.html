@@ -6,7 +6,6 @@
 <meta name="color-scheme" content="light">
 <title>Generador infinito de ejercicios · ALGEBRA · Ecuaciones y sistemas</title>
 <style>
-/* ====== SISTEMA VISUAL ====== */
 :root{
   --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
   --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
@@ -28,7 +27,6 @@ body{
   padding:34px 18px 26px;
   position:relative; overflow-x:hidden;
 }
-/* capas de fondo: aurora + retícula de ingeniería + grano */
 body::before{
   content:""; position:fixed; inset:-25%; z-index:-3; pointer-events:none;
   background:
@@ -59,7 +57,6 @@ body::after{
 }
 @keyframes rejilla{from{background-position:0 0,0 0}to{background-position:34px 34px,34px 34px}}
 
-/* scrollbar propio */
 *{scrollbar-width:thin; scrollbar-color:var(--brand) #e6e9f5}
 ::-webkit-scrollbar{width:11px;height:11px}
 ::-webkit-scrollbar-track{background:#e6e9f5;border-radius:99px}
@@ -67,7 +64,6 @@ body::after{
 ::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#4338ca,#6d28d9)}
 ::-webkit-scrollbar-corner{background:#e6e9f5}
 
-/* ====== ESTRUCTURA ====== */
 .wrap{max-width:900px;margin:0 auto}
 .card{
   background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
@@ -82,11 +78,10 @@ body::after{
 @keyframes cinta{from{background-position:0 0}to{background-position:300% 0}}
 @keyframes subir{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 
-/* cabecera */
 .hero{
   position:relative; overflow:hidden; color:#fff;
   background:linear-gradient(135deg, var(--brand), var(--brand2));
-  padding:30px 30px 28px; display:flex; gap:20px; align-items:center; justify-content:space-between;
+  padding:30px 30px 28px;
 }
 .hero::before{
   content:""; position:absolute; inset:0;
@@ -103,32 +98,17 @@ body::after{
   mask-image:linear-gradient(120deg,#000,transparent 65%);
 }
 .hero-copy{position:relative;z-index:2;min-width:0}
-.eyebrow{
-  margin:0 0 10px; font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
-  font-weight:700; color:rgba(255,255,255,.9);
-  display:inline-flex; align-items:center; gap:8px;
-  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28);
-  padding:5px 11px; border-radius:99px; backdrop-filter:blur(3px);
-}
-.eyebrow .pulso{width:7px;height:7px;border-radius:50%;background:#a7f3d0;box-shadow:0 0 0 0 rgba(167,243,208,.8);animation:latir 2.2s ease-out infinite}
-@keyframes latir{0%{box-shadow:0 0 0 0 rgba(167,243,208,.75)}70%{box-shadow:0 0 0 9px rgba(167,243,208,0)}100%{box-shadow:0 0 0 0 rgba(167,243,208,0)}}
 h1{
   margin:0; font-size:clamp(1.5rem,3.6vw,2.15rem); line-height:1.15;
   letter-spacing:-.025em; font-weight:800; text-wrap:balance;
   text-shadow:0 2px 18px rgba(17,24,39,.22);
 }
 .sub{margin:10px 0 0;font-size:.9rem;color:rgba(255,255,255,.92);max-width:52ch;line-height:1.5}
-.hero-art{position:relative;z-index:2;flex:0 0 236px;width:236px;height:172px;filter:drop-shadow(0 10px 18px rgba(17,24,39,.25))}
-.hero-art svg{width:100%;height:100%;display:block;animation:flotar 9s ease-in-out infinite}
-@keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.trazo{stroke-dasharray:5 6;animation:deslizar 3.4s linear infinite}
-@keyframes deslizar{to{stroke-dashoffset:-22}}
 
-/* cuerpo */
 .body{padding:24px 30px 26px}
 .toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;animation:subir .6s .05s cubic-bezier(.2,.7,.3,1) both}
+.toolbar-acc{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
 
-/* botones */
 .btn-primary,.btn-ghost,.btn-soft{
   font:inherit; font-weight:650; font-size:.92rem; cursor:pointer;
   border-radius:12px; padding:11px 17px; border:1px solid transparent;
@@ -149,7 +129,6 @@ h1{
 .pulso-nuevo{animation:pulsoNuevo 1.5s ease-out 2}
 @keyframes pulsoNuevo{0%{box-shadow:0 0 0 0 rgba(79,70,229,.45)}70%{box-shadow:0 0 0 12px rgba(79,70,229,0)}100%{box-shadow:0 0 0 0 rgba(79,70,229,0)}}
 
-/* enunciado */
 .enunciado{
   position:relative; background:linear-gradient(180deg,#fbfcff,#f6f7fd);
   border:1px solid var(--line); border-radius:16px; padding:18px 20px 18px 22px;
@@ -161,14 +140,12 @@ h1{
   font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   padding:4px 10px;border-radius:99px;background:#fff;border:1px solid var(--line);color:var(--muted);
 }
-.chip-num{background:var(--deep);border-color:var(--deep);color:#fff}
 .chip-tema{background:var(--brandbg);border-color:#dfe3fd;color:var(--brand)}
 .chip-tipo{background:var(--okbg);border-color:#bbf7d0;color:#047857}
 .chip-tipo.sim{background:var(--violetbg);border-color:#e4dcff;color:var(--brand2)}
 .en-texto{font-size:1.02rem;color:var(--ink);line-height:1.75}
 .en-texto .dato{color:var(--deep)}
 
-/* fila de respuesta */
 .answer-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:stretch;animation:subir .6s .15s cubic-bezier(.2,.7,.3,1) both}
 #respuesta{
   flex:1 1 250px; min-width:0; font:inherit; font-size:1rem; color:var(--ink);
@@ -181,18 +158,19 @@ h1{
 #respuesta.bien{border-color:var(--ok);box-shadow:0 0 0 4px rgba(5,150,105,.14)}
 @keyframes temblar{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-4px)}}
 
-/* esquema geométrico en vivo */
 .en-cuerpo{display:flex;gap:18px;align-items:flex-start}
 .en-texto{flex:1 1 auto;min-width:0}
 .en-figura{flex:0 0 266px;width:266px;margin:0;padding:0}
 .fig-lienzo{
   background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px;
-  box-shadow:0 6px 16px -12px rgba(17,24,39,.5); cursor:grab; touch-action:none;
-  user-select:none;-webkit-user-select:none;transition:box-shadow .25s,border-color .25s;
+  box-shadow:0 6px 16px -12px rgba(17,24,39,.5); cursor:default;
+  touch-action:none; user-select:none;-webkit-user-select:none;
+  transition:box-shadow .25s,border-color .25s;
   animation:figEntra .55s cubic-bezier(.2,.7,.3,1) both;
 }
+.fig-lienzo.girable{cursor:grab}
+.fig-lienzo.girable:active{cursor:grabbing}
 .fig-lienzo:hover{border-color:#c7d2fe;box-shadow:0 12px 24px -14px rgba(79,70,229,.75)}
-.fig-lienzo:active{cursor:grabbing}
 .fig-lienzo:focus-visible{outline:3px solid rgba(79,70,229,.35);outline-offset:2px}
 .fig-lienzo svg{display:block;width:100%;height:auto;border-radius:11px}
 @keyframes figEntra{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
@@ -206,7 +184,6 @@ h1{
   .en-figura{width:100%;max-width:290px;margin:14px auto 0}
 }
 
-/* feedback */
 .feedback{display:none;margin-top:14px;border-radius:14px;padding:13px 16px;font-size:.95rem;border:1px solid transparent}
 .feedback.ok{display:block;background:var(--okbg);border-color:#a7f3d0;color:#065f46;animation:aparecer .35s cubic-bezier(.2,.7,.3,1) both}
 .feedback.err{display:block;background:var(--errbg);border-color:#fecaca;color:#991b1b;animation:aparecer .35s cubic-bezier(.2,.7,.3,1) both}
@@ -221,7 +198,6 @@ h1{
   padding:2px 7px; border-radius:7px; color:var(--ink); word-break:break-all;
 }
 
-/* paneles */
 .panel{display:none;margin-top:14px;border-radius:14px;padding:14px 17px;font-size:.95rem;line-height:1.7}
 .panel.visible{display:block;animation:abrir .38s cubic-bezier(.2,.7,.3,1) both}
 @keyframes abrir{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
@@ -245,7 +221,6 @@ h1{
 }
 .resp-final .et{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brand2);display:block;font-weight:800;margin-bottom:2px}
 
-/* marcador */
 .marcador{margin-top:20px;padding-top:17px;border-top:1px solid var(--line);animation:subir .6s .2s cubic-bezier(.2,.7,.3,1) both}
 .marc-fila{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .stat{
@@ -283,14 +258,12 @@ h1{
 }
 .mini:hover{color:var(--err);border-color:#fecaca;background:var(--errbg)}
 
-/* footer */
 footer{
   max-width:900px;margin:20px auto 0;text-align:center;color:var(--muted);font-size:.8rem;line-height:1.6;
   padding:0 6px; animation:subir .7s .25s cubic-bezier(.2,.7,.3,1) both;
 }
 footer .sep{color:#c3c8d4;padding:0 4px}
 
-/* respaldo matemático sin conexión (si la CDN no carga) */
 .mfb{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;padding:0 1px}
 .mfb-frac{display:inline-flex;flex-direction:column;vertical-align:-0.55em;text-align:center;font-size:.86em;margin:0 2px}
 .mfb-frac span:first-child{padding:0 3px;line-height:1.15}
@@ -304,23 +277,10 @@ mjx-container[jax="SVG"]:not([display="true"]){display:inline-block;max-width:10
 mjx-container{max-width:100%}
 mjx-container[display="true"]{margin:.5em 0 !important}
 
-/* controles de nivel y variantes */
-.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.toolbar-acc{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
-.nivel{display:inline-flex;align-items:center;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:4px 5px}
-.nivel-et{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:0 7px}
-.nivel-btn{
-  font:inherit;font-size:.82rem;font-weight:650;cursor:pointer;border:1px solid transparent;background:transparent;
-  color:var(--ink2);padding:6px 12px;border-radius:9px;transition:transform .16s,background .2s,color .2s,box-shadow .2s;
-}
-.nivel-btn:hover{background:var(--brandbg);color:var(--brand)}
-.nivel-btn.activo{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;box-shadow:0 8px 16px -10px rgba(79,70,229,.9)}
-.nivel-btn:active{transform:scale(.97)}
-.nivel-btn:focus-visible{outline:3px solid rgba(79,70,229,.35);outline-offset:2px}
 .btn-mini{font-size:.82rem;padding:9px 13px}
+.chip-num{background:var(--deep);border-color:var(--deep);color:#fff}
 .chip-nivel{background:var(--warnbg);border-color:#fde68a;color:#92400e}
 
-/* sistemas de ecuaciones dentro del enunciado */
 .sistema{
   display:inline-grid;gap:3px;margin:10px 0;padding:8px 14px 8px 20px;position:relative;
   background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:0 4px 12px -10px rgba(17,24,39,.5);
@@ -331,7 +291,6 @@ mjx-container[display="true"]{margin:.5em 0 !important}
 }
 .sistema span{display:block;line-height:1.9}
 
-/* dominio por bloque */
 .dominio{margin-top:14px;padding-top:13px;border-top:1px dashed var(--line)}
 .dominio-tit{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:8px}
 .dominio-lista{display:grid;gap:7px}
@@ -341,14 +300,9 @@ mjx-container[display="true"]{margin:.5em 0 !important}
 .dominio-barra i{display:block;height:100%;border-radius:99px;transition:width .55s cubic-bezier(.2,.7,.3,1)}
 .dominio-num{font-size:.74rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 
-/* balanza animada */
 .balanza-viga{transform-origin:133px 74px;animation:balancear 7s ease-in-out infinite}
 @keyframes balancear{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
-.fig-lienzo{cursor:default}
-.fig-lienzo.girable{cursor:grab}
-.fig-lienzo.girable:active{cursor:grabbing}
 
-/* matrices y sistemas en el respaldo sin conexión */
 .mfb-mat{display:inline-grid;vertical-align:middle;border-left:2px solid currentColor;border-right:2px solid currentColor;border-radius:4px;padding:2px 7px;margin:0 3px}
 .mfb-fila{display:flex;gap:11px;justify-content:center}
 .mfb-fila span{min-width:1.7em;text-align:center}
@@ -357,8 +311,6 @@ mjx-container[display="true"]{margin:.5em 0 !important}
 
 @media (max-width:560px){
   .toolbar{gap:9px}
-  .nivel{width:100%;justify-content:space-between}
-  .nivel-btn{flex:1 1 auto;text-align:center;padding:7px 6px}
   .toolbar-acc{width:100%;margin-left:0}
   .toolbar-acc .btn-ghost{flex:1 1 auto;justify-content:center}
   .dominio-fila{grid-template-columns:88px 1fr 84px;gap:7px}
@@ -367,16 +319,13 @@ mjx-container[display="true"]{margin:.5em 0 !important}
   .sistema{padding:7px 11px 7px 18px}
 }
 
-/* matemática de bloque en el respaldo sin conexión */
 .mfb-bloque{display:block;margin:10px auto 6px;text-align:center}
 .paso-t mjx-container[display="true"]{margin:10px 0 2px !important}
 .enunciado mjx-container[display="true"]{margin:12px 0 6px !important}
 
-/* ====== RESPONSIVE ====== */
 @media (max-width:560px){
   body{padding:16px 12px 20px}
-  .hero{padding:22px 20px 20px;display:block}
-  .hero-art{position:absolute;right:-26px;top:-14px;width:180px;height:132px;opacity:.22;z-index:1;pointer-events:none}
+  .hero{padding:22px 20px 20px}
   .hero-copy{position:relative;z-index:2}
   h1{font-size:1.42rem}
   .sub{font-size:.83rem}
@@ -408,62 +357,13 @@ mjx-container[display="true"]{margin:.5em 0 !important}
   <main class="card">
     <header class="hero">
       <div class="hero-copy">
-        <p class="eyebrow"><span class="pulso"></span> Práctica infinita · verificación al instante</p>
         <h1>Generador infinito de ejercicios</h1>
         <p class="sub">Materia: ALGEBRA · Tema: Ecuaciones lineales con una y dos incógnitas, sistemas de 2 y 3 incógnitas por Gauss-Jordan y ecuaciones cuadráticas por fórmula general y factorización</p>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <svg viewBox="0 0 280 200" role="presentation">
-          <defs>
-            <marker id="heroFlecha" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-              <path d="M0,0.7 L7,4 L0,7.3 Z" fill="#ffffff"/>
-            </marker>
-            <linearGradient id="heroParabola" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0%" stop-color="#a7f3d0"/>
-              <stop offset="100%" stop-color="#ffffff"/>
-            </linearGradient>
-          </defs>
-          <g stroke="#ffffff" stroke-opacity=".15" stroke-width="1">
-            <path d="M28,30 H262 M28,60 H262 M28,90 H262 M28,120 H262 M28,150 H262 M28,180 H262"/>
-            <path d="M60,20 V190 M100,20 V190 M140,20 V190 M180,20 V190 M220,20 V190"/>
-          </g>
-          <g stroke="#ffffff" stroke-opacity=".7" stroke-width="1.6" fill="none">
-            <path d="M28,150 L256,150" marker-end="url(#heroFlecha)"/>
-            <path d="M60,190 L60,24" marker-end="url(#heroFlecha)"/>
-          </g>
-          <path class="trazo" d="M95,38 Q150,292 205,38" fill="none" stroke="url(#heroParabola)" stroke-width="3" stroke-linecap="round"/>
-          <g stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity=".9">
-            <path d="M34,58 L246,176"/>
-            <path d="M40,182 L242,54"/>
-          </g>
-          <circle cx="140" cy="117" r="4.6" fill="#a7f3d0"/>
-          <circle cx="140" cy="117" r="10" fill="none" stroke="#a7f3d0" stroke-opacity=".55" stroke-width="1.3"/>
-          <g stroke="#ffffff" stroke-width="1.7" fill="none" opacity=".85">
-            <path d="M24,26 h-6 v30 h6"/>
-            <path d="M54,26 h6 v30 h-6"/>
-          </g>
-          <g font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle" opacity=".9">
-            <text x="32" y="39">2</text><text x="47" y="39">1</text>
-            <text x="32" y="53">1</text><text x="47" y="53">3</text>
-          </g>
-          <g font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="13" font-weight="700" fill="#ffffff">
-            <text x="146" y="186">f(x)</text>
-            <text x="248" y="188">r&#8321;</text>
-            <text x="246" y="46" fill="#a7f3d0">r&#8322;</text>
-          </g>
-        </svg>
       </div>
     </header>
 
     <div class="body">
-      <!-- a) nuevo ejercicio y controles -->
       <div class="toolbar">
-        <div class="nivel" role="group" aria-label="Nivel de dificultad">
-          <span class="nivel-et">Nivel</span>
-          <button type="button" class="nivel-btn" data-nivel="1" aria-pressed="false">Base</button>
-          <button type="button" class="nivel-btn activo" data-nivel="2" aria-pressed="true">Reto</button>
-          <button type="button" class="nivel-btn" data-nivel="3" aria-pressed="false">Élite</button>
-        </div>
         <div class="toolbar-acc">
           <button type="button" id="btnMismo" class="btn-ghost btn-mini" title="Otro ejercicio del mismo tipo con datos nuevos">Otro del mismo tipo</button>
           <button type="button" id="btnNuevo" class="btn-ghost">
@@ -473,10 +373,8 @@ mjx-container[display="true"]{margin:.5em 0 !important}
         </div>
       </div>
 
-      <!-- b) enunciado -->
       <div id="enunciado" class="enunciado"></div>
 
-      <!-- c) respuesta y acciones -->
       <div class="answer-row">
         <input id="respuesta" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
                placeholder="Usa ^ para potencias y / para fracciones…" aria-label="Tu respuesta">
@@ -485,16 +383,10 @@ mjx-container[display="true"]{margin:.5em 0 !important}
         <button type="button" id="btnExplicacion" class="btn-soft" aria-pressed="false" aria-controls="explicacionBox">Explicación</button>
       </div>
 
-      <!-- d) feedback -->
       <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
-
-      <!-- e) pista -->
       <div id="pistaBox" class="panel pista"></div>
-
-      <!-- f) explicación -->
       <div id="explicacionBox" class="panel explicacion"></div>
 
-      <!-- g) marcador -->
       <div class="marcador">
         <div class="marc-fila">
           <div class="stat ok"><span class="et">Aciertos</span><span class="val" id="mArc">0</span></div>
@@ -575,7 +467,6 @@ function limpiarNumero(txt){
   return s;
 }
 
-/* evaluador aritmético seguro (sin eval): + - * / ^ ( ) sqrt pi */
 function aNumero(txt){
   var s=limpiarNumero(txt);
   if(s==='') return NaN;
@@ -634,7 +525,6 @@ function quitarConstante(s){
   return String(s).replace(/\+c$/,'').replace(/-c$/,'').replace(/\+k$/,'');
 }
 
-/* comparación tolerante a la constante de integración (temas de integrales) */
 function coincideAntiderivada(entrada,esperado){
   var a=quitarConstante(normalizar(entrada)), b=quitarConstante(normalizar(esperado));
   if(a===''||b==='') return false;
@@ -643,26 +533,22 @@ function coincideAntiderivada(entrada,esperado){
   return !isNaN(na)&&!isNaN(nb)&&Math.abs(na-nb)<=1e-6;
 }
 
-/* lectura de vectores escritos en texto plano: (a,b,c), <a,b,c>, ai+bj+ck, (a,b,c)/n */
 function parseVector(txt){
   var s=normalizar(txt);
   if(s==='') return null;
   s=s.replace(/\\vec|\\mathbf|\\hat|\\imath|\\jmath/g,'').replace(/[⟨⟩]/g,'').replace(/\*/g,'');
   var m, partes, vals, i, v;
-  /* factor externo: 1/3(2,2,1) */
   m=s.match(/^(-?\d+(?:\.\d+)?(?:\/-?\d+(?:\.\d+)?)?)\(([^()]*)\)$/);
   if(m){
     var f=aNumero(m[1]); v=parseVector('('+m[2]+')');
     if(v&&!isNaN(f)) return [v[0]*f,v[1]*f,v[2]*f];
     return null;
   }
- /* división de un vector entre un escalar: (2,2,1)/3 */
   m=s.match(/^(\([^()]*\)|<[^<>]*>|\[[^\[\]]*\]|[0-9.+\-ijk]+)\/(-?\d+(?:\.\d+)?)$/);
   if(m&&/[,(ijk]/.test(m[1])){
     var d=parseFloat(m[2]); v=parseVector(m[1]);
     if(v&&d!==0) return [v[0]/d,v[1]/d,v[2]/d];
   }
-  /* forma de componentes */
   var interno=s.replace(/^[(<\[]/,'').replace(/[)>\]]$/,'');
   if(/,/.test(interno)){
     partes=interno.split(',');
@@ -675,7 +561,6 @@ function parseVector(txt){
     }
     return vals;
   }
-  /* forma i, j, k */
   if(/^[0-9.+\-\/ijk]+$/.test(interno)&&/[ijk]/.test(interno)){
     var re=/([+-]?(?:\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)?)([ijk])/g, res=[0,0,0], usado='', mm;
     while((mm=re.exec(interno))!==null){
@@ -748,7 +633,6 @@ function coincideTexto(entrada,acepta,modo){
   return false;
 }
 
-/* tiposet: usa MathJax cuando esté listo; si tarda, reintenta; si no llega, respaldo local */
 function tiposet(nodo,intento){
   intento=intento||0;
   if(window.MathJax&&window.MathJax.typesetPromise){
@@ -759,7 +643,6 @@ function tiposet(nodo,intento){
   setTimeout(function(){ tiposet(nodo,intento+1); },200);
 }
 
-/* respaldo sin conexión: convierte el LaTeX inline a HTML legible */
 function latexAHtml(tex){
   var s=escaparHTML(tex), k;
   s=s.replace(/\\begin\{(array|pmatrix|bmatrix|vmatrix|matrix|cases)\}(\{[clr| ]*\})?([\s\S]*?)\\end\{\1\}/g,function(todo,ent,spec,cuerpo){
@@ -864,7 +747,6 @@ function cruz(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-
 function norma(v){ return Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]); }
 function vecTex(v){ return '\\left('+v[0]+',\\, '+v[1]+',\\, '+v[2]+'\\right)'; }
 
-/* aritmética exacta con fracciones para las operaciones de renglón */
 function fSuma(a,b){ return fraccion(a.n*b.d+b.n*a.d, a.d*b.d); }
 function fResta(a,b){ return fraccion(a.n*b.d-b.n*a.d, a.d*b.d); }
 function fMult(a,b){ return fraccion(a.n*b.n, a.d*b.d); }
@@ -900,7 +782,6 @@ function determinante3(m){
         -m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])
         +m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
 }
-/* Gauss-Jordan exacto: devuelve los pasos con sus matrices */
 function gaussJordanPasos(nums){
   var M=matrizF(nums), n=M.length, pasos=[], col, i, j, piv, ops, factor, fila;
   for(col=0;col<n;col++){
@@ -925,7 +806,6 @@ function gaussJordanPasos(nums){
   return {pasos:pasos,final:M};
 }
 
-/* ---------- escritura de expresiones ---------- */
 function signo(n){ return (n<0?'-':'+')+Math.abs(n); }
 function termTex(coef,variable,primero){
   if(coef===0) return '';
@@ -959,7 +839,6 @@ function sistemaTex(ecuaciones){
   return '$\\begin{cases}'+ecuaciones.join(' \\\\ ')+'\\end{cases}$';
 }
 
-/* ---------- lectura de respuestas estructuradas ---------- */
 function limpiarLista(txt){
   var s=normalizar(txt);
   s=s.replace(/[⟨⟩]/g,'').replace(/^[({\[]/,'').replace(/[)}\]]$/,'');
@@ -985,7 +864,6 @@ function listasIguales(a,b){
   for(var i=0;i<a.length;i++){ if(Math.abs(a[i]-b[i])>0.0025) return false; }
   return true;
 }
-/* polinomios en x: coeficientes [c0,c1,c2] ascendentes */
 function terminosDe(s){
   var terms=s.match(/[+-]?[^+-]+/g), out=[], i, t, coef, parte;
   if(!terms) return null;
@@ -1070,7 +948,6 @@ function coeficientesDe(txt){
   if(f) return f;
   return parsePolinomio(txt);
 }
-/* números complejos en texto plano: a+bi, bi+a, -i, 5 */
 function parseComplejo(txt){
   var s=normalizar(txt).replace(/\*/g,'').replace(/\s/g,'');
   if(!s||/[,;()]/.test(s)) return null;
@@ -1113,7 +990,6 @@ function listasComplejasIguales(a,b){
   return true;
 }
 
-/* ---------- variantes textuales aceptadas ---------- */
 function aceptaNumero(x){
   var f=fraccion(Math.round(x*10000),10000);
   var out=[decTxt(x)];
@@ -1159,7 +1035,6 @@ function figuraPlano(datos,nota){
   return datos;
 }
 
-/* L1 · Ecuación lineal con una incógnita */
 function vLinealUna(){
   var quien=azar(NOMBRES);
   var escena=azar(['la calibración de un sensor de corriente','el ajuste de un controlador de temperatura','la puesta a cero de una celda de carga','la compensación de un encoder óptico']);
@@ -1197,7 +1072,6 @@ function vLinealUna(){
   };
 }
 
-/* L2 · Lineal con paréntesis y denominadores */
 function vLinealFracciones(){
   var grupo=azar(COLECTIVOS);
   var escena=azar(['un brazo dosificador para una planta de café','un mecanismo de riego por goteo','una prensa artesanal automatizada']);
@@ -1245,20 +1119,17 @@ function vLinealFracciones(){
     acepta:aceptaNumero(valor(x0)).concat([fracTxt(x0)]),
     respuesta:valor(x0),
     tolerancia:0.001,
-    pista:conFracciones?'Multiplica TODA la ecuación por el mínimo común múltiplo de los denominadores, $\\mathrm{mcm}('+m+','+n+')='+L+'$, para eliminar las fracciones antes de agrupar.':'Aplica la propiedad distributiva en los dos paréntesis: el signo menos que precede al segundo cambia el signo de TODOS sus términos.'
-    ,
+    pista:conFracciones?'Multiplica TODA la ecuación por el mínimo común múltiplo de los denominadores, $\\mathrm{mcm}('+m+','+n+')='+L+'$, para eliminar las fracciones antes de agrupar.':'Aplica la propiedad distributiva en los dos paréntesis: el signo menos que precede al segundo cambia el signo de TODOS sus términos.',
     explicacion:exp
   };
 }
 
-/* L3 · Lineal con parámetro */
 function vLinealParametro(){
   var quien=azar(NOMBRES);
   var modo=azar(nivel===1?['solucion','solucion','sin']:['solucion','sin','infinitas']);
   var a=nz(2,6), c=nz(-5,6), b=nz(-8,8), d=nz(-8,8), x0=nz(-6,6), m=ri(2,4), k, enunciado, exp, sol, figIzq, figDer;
   while(c===a) c=nz(-5,6);
   if(nivel===3){
-    /* estructura con paréntesis: a(x + b) = k(x + c) + d */
     a=azar([2,3,4,5]); b=nz(-7,7); c=nz(-7,7);
     while(c===b) c=nz(-7,7);
     var ladoIzq=a+'\\left(x'+signo(b)+'\\right)', planoIzq=a+'(x'+signo(b)+')';
@@ -1348,7 +1219,6 @@ function vLinealParametro(){
   };
 }
 
-/* L4 · Recta en dos variables: pendiente e interceptos */
 function vRectaDosVariables(){
   var grupo=azar(COLECTIVOS);
   var lim=(nivel===3?8:(nivel===2?6:5)), limC=(nivel===3?15:9);
@@ -1388,7 +1258,6 @@ function vRectaDosVariables(){
   };
 }
 
-/* S1 · Sistema 2x2 con solución única */
 function sistema2Aleatorio(){
   var lim=porNivel(4,6,9), x0, y0, a1,b1,a2,b2,det, intentos=0;
   do{
@@ -1422,7 +1291,6 @@ function vSistema2(){
   };
 }
 
-/* S2 · Clasificación de un sistema 2x2 */
 function vSistema2Clasifica(){
   var grupo=azar(COLECTIVOS);
   var caso=azar(['determinado','incompatible','indeterminado']);
@@ -1477,7 +1345,6 @@ function vSistema2Clasifica(){
   };
 }
 
-/* S3 · Parámetro en un sistema 2x2 */
 function vSistema2Parametro(){
   var quien=azar(NOMBRES);
   var elite=(nivel===3);
@@ -1520,7 +1387,6 @@ function vSistema2Parametro(){
   };
 }
 
-/* S4 · Determinantes y regla de Cramer */
 function vCramer2(){
   var grupo=azar(COLECTIVOS);
   var modo=azar(nivel===3?['cramer','det3','det3']:['det2','cramer']);
@@ -1572,11 +1438,6 @@ function vCramer2(){
   };
 }
 
-/* =========================================================
-   GENERADOR · BLOQUE 2: GAUSS-JORDAN, RANGO Y SISTEMAS 3x3
-   ========================================================= */
-
-/* G1 · Gauss-Jordan 2x2 con matrices en cada paso */
 function vGaussJordan2(){
   var quien=azar(NOMBRES);
   var s=sistema2Aleatorio();
@@ -1599,7 +1460,6 @@ function vGaussJordan2(){
   };
 }
 
-/* G2 · Gauss-Jordan 3x3 */
 function sistema3Aleatorio(){
   var lim=porNivel(3,4,5), coef=porNivel(3,4,5), x,y,z,A,det,intentos=0,i,j,fila;
   do{
@@ -1640,7 +1500,6 @@ function vGaussJordan3(){
   };
 }
 
-/* G3 · Operación elemental entre renglones */
 function vGaussJordanPaso(){
   var quien=azar(NOMBRES);
   var filas=(nivel===1?2:azar([2,3])), cols=filas+1;
@@ -1688,7 +1547,6 @@ function vGaussJordanPaso(){
 }
 function nombresRenglones(i){ return (i+1); }
 
-/* G4 · Rango y compatibilidad de un sistema 3x3 */
 function vRangoSistema3(){
   var grupo=azar(COLECTIVOS);
   var e4=(nivel===3?7:(nivel===2?5:4)), b4=(nivel===3?14:8);
@@ -1763,7 +1621,6 @@ function vRangoSistema3(){
   };
 }
 
-/* G5 · Sistema de 3 incógnitas con 2 ecuaciones: recta solución */
 function vSistemaParametrico(){
   var quien=azar(NOMBRES);
   var e5=(nivel===3?6:(nivel===2?4:3)), tope=(nivel===3?42:18);
@@ -1822,7 +1679,6 @@ function parabolaFig(a,b,c,nota){
 function verticeDe(a,b,c){ return {h:fraccion(-b,2*a),k:fraccion(4*a*c-b*b,4*a)}; }
 function raicesTex(r1,r2){ return fracTex(r1)+'\\quad\\text{y}\\quad '+fracTex(r2); }
 
-/* Q1 · Fórmula general: las dos raíces */
 function vCuadraticaRaices(){
   var grupo=azar(COLECTIVOS);
   var a,r1,r2,b,c;
@@ -1857,7 +1713,6 @@ function vCuadraticaRaices(){
   };
 }
 
-/* Q2 · Factorización del trinomio */
 function vCuadraticaFactoriza(){
   var quien=azar(NOMBRES);
   var p,r,q,s,A,B,C;
@@ -1880,8 +1735,7 @@ function vCuadraticaFactoriza(){
     solucion:'$'+polyTex(A,B,C)+' = '+f1+f2+'$.',
     respuestaLaTeX:f1+f2,
     acepta:acept,
-    pista:A===1?'Busca dos números cuyo PRODUCTO sea $'+C+'$ y cuya SUMA sea $'+B+'$; con ellos se escriben los dos binomios.':'Usa el método $ac$: busca dos números con producto $'+ac+'$ y suma $'+B+'$, parte el término central y factoriza por agrupación.'
-    ,
+    pista:A===1?'Busca dos números cuyo PRODUCTO sea $'+C+'$ y cuya SUMA sea $'+B+'$; con ellos se escriben los dos binomios.':'Usa el método $ac$: busca dos números con producto $'+ac+'$ y suma $'+B+'$, parte el término central y factoriza por agrupación.',
     explicacion:'Paso 1. Identifica $a = '+A+'$, $b = '+B+'$, $c = '+C+'$; el producto clave es $ac = '+ac+'$.\n'+
       'Paso 2. Los números que multiplican $'+ac+'$ y suman $'+B+'$ son $'+(p*s)+'$ y $'+(q*r)+'$.\n'+
       'Paso 3. Reescribe el término central y agrupa: $'+termTex(A,'x^2',true)+termTex(p*s,'x',false)+termTex(q*r,'x',false)+numTex(C,false)+'$.\n'+
@@ -1890,7 +1744,6 @@ function vCuadraticaFactoriza(){
   };
 }
 
-/* Q3 · Discriminante */
 function vDiscriminante(){
   var grupo=azar(COLECTIVOS);
   var a=(nivel===3?azar([2,3,4,5]):azar([1,1,2,3])), tipo=azar(['positivo','nulo','negativo']);
@@ -1917,7 +1770,6 @@ function vDiscriminante(){
   };
 }
 
-/* Q4 · Raíces complejas conjugadas */
 function vCuadraticaComplejas(){
   var quien=azar(NOMBRES);
   var a=(nivel===3?azar([1,2]):1), p=nz(-5,5), q=ri(1,5);
@@ -1943,7 +1795,6 @@ function vCuadraticaComplejas(){
   };
 }
 
-/* Q5 · Vértice, eje de simetría y valor extremo */
 function vVertice(){
   var grupo=azar(COLECTIVOS);
   var a,b,c;
@@ -2002,7 +1853,6 @@ function vVertice(){
   };
 }
 
-/* Q6 · Cuadráticas incompletas */
 function vCuadraticaIncompleta(){
   var quien=azar(NOMBRES);
   var elite6=(nivel===3);
@@ -2046,13 +1896,11 @@ function vCuadraticaIncompleta(){
     solucion:sol,
     respuestaLaTeX:tex,
     acepta:acept,
-    pista:modo==='factor'?'Si falta el término independiente, saca factor común $x$: uno de los factores da la raíz $x = 0$.':'Si falta el término lineal, despeja $x^2$ y extrae la raíz con los dos signos; si el número es negativo, la respuesta es imaginaria.'
-    ,
+    pista:modo==='factor'?'Si falta el término independiente, saca factor común $x$: uno de los factores da la raíz $x = 0$.':'Si falta el término lineal, despeja $x^2$ y extrae la raíz con los dos signos; si el número es negativo, la respuesta es imaginaria.',
     explicacion:exp
   };
 }
 
-/* Q7 · Relaciones de Vieta */
 function vVieta(){
   var grupo=azar(COLECTIVOS);
   var modo=azar(nivel===1?['suma','producto']:['suma','producto','construir']);
@@ -2103,7 +1951,6 @@ function vVieta(){
   };
 }
 
-/* Q8 · Raíces irracionales exactas */
 function vCuadraticaIrracional(){
   var quien=azar(NOMBRES);
   var elite8=(nivel===3);
@@ -2146,7 +1993,6 @@ function vCuadraticaIrracional(){
   };
 }
 
-/* Q9 · Modelo cuadrático aplicado */
 function vCuadraticaAplicacion(){
   var grupo=azar(COLECTIVOS);
   var escena=azar(['panel','dron','consecutivos']);
@@ -2265,7 +2111,6 @@ function genEcuacionesSistemas(mismoTipo){
   return ej;
 }
 
-
 /* =========================================================
    ESQUEMA GEOMÉTRICO EN VIVO (SVG, proyección ortográfica)
    ========================================================= */
@@ -2280,7 +2125,6 @@ function figProyCon(p,yaw,pitch){
   return [x1, y1*sp-p[2]*cp];
 }
 function figProy(p){ return figProyCon(p,figYaw,figPitch); }
-/* elige la cámara que mejor muestra los vectores del ejercicio */
 function figEncuadre(fig){
   var vecs=[], i, j;
   for(i=0;i<fig.vectores.length;i++) vecs.push(fig.vectores[i].p);
@@ -2394,7 +2238,6 @@ function figura3D(fig){
   }
   out+='</defs>';
   out+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#fbfcff"/>';
-  /* retícula del plano z=0 */
   var xmin=-2,xmax=2,ymin=-2,ymax=2;
   for(i=0;i<pts.length;i++){
     if(pts[i][0]<xmin) xmin=pts[i][0];
@@ -2409,7 +2252,6 @@ function figura3D(fig){
   for(i=xmin;i<=xmax;i+=paso) rej+='<line x1="'+P([i,ymin,0])[0].toFixed(1)+'" y1="'+P([i,ymin,0])[1].toFixed(1)+'" x2="'+P([i,ymax,0])[0].toFixed(1)+'" y2="'+P([i,ymax,0])[1].toFixed(1)+'"/>';
   for(j=ymin;j<=ymax;j+=paso) rej+='<line x1="'+P([xmin,j,0])[0].toFixed(1)+'" y1="'+P([xmin,j,0])[1].toFixed(1)+'" x2="'+P([xmax,j,0])[0].toFixed(1)+'" y2="'+P([xmax,j,0])[1].toFixed(1)+'"/>';
   out+='<g stroke="#dbe2fd" stroke-width="0.8" opacity="0.85">'+rej+'</g>';
-  /* paralelepípedo */
   if(ar){
     var O=[0,0,0], A=ar[0], B=ar[1], C=ar[2];
     out+=poli([O,A,figSum(A,B),B],'rgba(79,70,229,.07)','#c7d2fe',false);
@@ -2418,26 +2260,21 @@ function figura3D(fig){
     var caras=[[A,figSum(A,B),figSum(figSum(A,B),C),figSum(A,C)],[B,figSum(B,C),figSum(figSum(A,B),C),figSum(A,B)],[C,figSum(A,C),figSum(figSum(A,B),C),figSum(B,C)]];
     for(i=0;i<caras.length;i++) out+=poli(caras[i],'rgba(79,70,229,.04)','#a5b4fc',true);
   }
-  /* planos generados por pares de vectores */
   if(fig.planos){
     for(var ip2=0;ip2<fig.planos.length;ip2++){
       var par=fig.planos[ip2];
       out+=poli([[0,0,0],par[0],figSum(par[0],par[1]),par[1]],(ip2===0?'rgba(79,70,229,.08)':'rgba(124,58,237,.08)'),(ip2===0?'#a5b4fc':'#c4b5fd'),true);
     }
   }
-  /* plano generado por dos vectores */
   if(fig.plano){
     out+=poli([[0,0,0],fig.plano[0],figSum(fig.plano[0],fig.plano[1]),fig.plano[1]],'rgba(124,58,237,.10)','#c4b5fd',true);
   }
-  /* disco perpendicular */
   if(discoPts.length) out+=poli(discoPts,'rgba(79,70,229,.09)','#a5b4fc',true);
-  /* esfera de radio 1 */
   if(fig.esfera){
     var o=P([0,0,0]);
     out+='<circle cx="'+o[0].toFixed(1)+'" cy="'+o[1].toFixed(1)+'" r="'+esc.toFixed(1)+'" fill="rgba(5,150,105,.05)" stroke="#059669" stroke-width="1.1" stroke-dasharray="4 4"/>';
     out+='<text x="'+(o[0]+esc*0.72).toFixed(1)+'" y="'+(o[1]-esc*0.72).toFixed(1)+'" font-size="10" font-weight="700" fill="#059669" stroke="#fbfcff" stroke-width="3" paint-order="stroke" text-anchor="middle">r = 1</text>';
   }
-  /* arco del ángulo */
   if(fig.arco){
     var u=fig.arco.u, w=fig.arco.v, nu=norma(u), nw=norma(w);
     var cs=Math.max(-1,Math.min(1,punto(u,w)/(nu*nw))), ang=Math.acos(cs);
@@ -2458,7 +2295,6 @@ function figura3D(fig){
       }
     }
   }
-  /* proyección: caída perpendicular y escuadra */
   if(fig.proyeccion){
     var pie=fig._pie, ub=fig._ub, aa2=fig.proyeccion.a;
     var pa=P(aa2), pp=P(pie);
@@ -2471,7 +2307,6 @@ function figura3D(fig){
     }
     out+='<circle cx="'+pp[0].toFixed(1)+'" cy="'+pp[1].toFixed(1)+'" r="2.6" fill="#b45309"/>';
   }
-  /* vectores: los más largos primero para que ninguno quede oculto */
   var o2=P([0,0,0]);
   var orden=fig.vectores.slice(0).sort(function(p,q){ return norma(q.p)-norma(p.p); });
   var etiquetasColocadas=[];
@@ -2522,9 +2357,6 @@ function girarFigura(dx,dy){
   }
 }
 
-/* =========================================================
-   ESQUEMAS 2D: PLANO, MATRIZ, BALANZA Y MOSAICO DE ÁREA
-   ========================================================= */
 function figuraSVG(fig){
   if(!fig) return '';
   if(fig.tipo==='plano') return figuraPlano2D(fig);
@@ -2561,7 +2393,6 @@ function figuraPlano2D(fig){
     out+=figTexto(W-12,H-9,'esquema sin escala',8.5,'#9aa2b1','end',false);
     return out+'</svg>';
   }
-  /* ventana de dibujo */
   var xmin=-5,xmax=5,ymin=-5,ymax=5;
   if(fig.parabola){
     var pa=fig.parabola.a,pb=fig.parabola.b,pc=fig.parabola.c;
@@ -2717,7 +2548,6 @@ var mPrec=document.getElementById('mPrec');
 var arco=document.getElementById('arco');
 var historialBox=document.getElementById('historial');
 var dominioBox=document.getElementById('dominio');
-var botonesNivel=document.querySelectorAll('.nivel-btn');
 
 var actual=null, resuelto=false, numEjercicio=0;
 var aciertos=0, intentos=0, racha=0, historial=[];
@@ -2820,27 +2650,13 @@ function pintarMarcador(pop){
   }
 }
 
-function pintarNivel(){
-  for(var i=0;i<botonesNivel.length;i++){
-    var activo=String(nivel)===botonesNivel[i].getAttribute('data-nivel');
-    botonesNivel[i].className='nivel-btn'+(activo?' activo':'');
-    botonesNivel[i].setAttribute('aria-pressed',activo?'true':'false');
-  }
-}
-
 function nuevoEjercicio(mismoTipo){
   actual=genEcuacionesSistemas(mismoTipo===true);
   if(figuraActual&&figuraActual.tipo==='espacio') figEncuadre(figuraActual);
   resuelto=false;
   numEjercicio++;
-  var tipoTxt=actual.tipo==='numerica'?'Respuesta numérica':'Respuesta simbólica';
-  var claseTipo=actual.tipo==='numerica'?'chip chip-tipo':'chip chip-tipo sim';
-  var nivelTxt=['','Base','Reto','Élite'][nivel];
   enunciado.innerHTML='<div class="en-head">'+
-      '<span class="chip chip-num">Ejercicio '+numEjercicio+'</span>'+
       '<span class="chip chip-tema">'+escaparHTML(etiquetaActual)+'</span>'+
-      '<span class="'+claseTipo+'">'+tipoTxt+'</span>'+
-      '<span class="chip chip-nivel">'+nivelTxt+'</span>'+
     '</div><div class="en-cuerpo"><div class="en-texto">'+actual.problema+'</div>'+figuraHTML()+'</div>';
   feedback.className='feedback';
   feedback.innerHTML='';
@@ -2930,7 +2746,6 @@ function verificar(){
   guardar();
 }
 
-/* eventos */
 btnNuevo.onclick=function(){ nuevoEjercicio(false); };
 btnMismo.onclick=function(){ nuevoEjercicio(true); };
 btnVerificar.onclick=function(){ verificar(); };
@@ -2941,12 +2756,6 @@ btnReset.onclick=function(){
   for(var i=0;i<FAMILIAS.length;i++) dominio[FAMILIAS[i]]={a:0,i:0};
   guardar(); pintarMarcador();
 };
-for(var bi=0;bi<botonesNivel.length;bi++){
-  botonesNivel[bi].onclick=function(){
-    nivel=parseInt(this.getAttribute('data-nivel'),10);
-    pintarNivel(); guardar(); nuevoEjercicio(false);
-  };
-}
 entrada.addEventListener('keydown',function(e){
   if(e.key==='Enter'||e.keyCode===13){ e.preventDefault(); verificar(); }
 });
@@ -2961,7 +2770,6 @@ document.addEventListener('keydown',function(e){
   if(e.key==='n'||e.key==='N'||e.keyCode===78){ e.preventDefault(); nuevoEjercicio(false); }
 });
 
-/* giro del esquema 3D: puntero, teclado y doble clic */
 function lienzoDesde(e){
   var lz=e.target;
   while(lz&&lz!==enunciado&&!(lz.className&&String(lz.className).indexOf('fig-lienzo')>=0)) lz=lz.parentNode;
@@ -2997,9 +2805,7 @@ enunciado.addEventListener('dblclick',function(e){
   figYaw=figYaw0; figPitch=figPitch0; repintarFigura();
 });
 
-/* arranque */
 cargar();
-pintarNivel();
 pintarMarcador();
 nuevoEjercicio();
 </script>
