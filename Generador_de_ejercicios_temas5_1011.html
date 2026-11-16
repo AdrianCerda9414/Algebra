@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+}
+*{box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); margin:0; padding:24px 16px;
+  min-height:100vh;
+}
+.wrap{max-width:900px; margin:0 auto;}
+.card{
+  background:var(--card); border-radius:16px;
+  box-shadow:0 10px 30px rgba(17,24,39,.08);
+  overflow:hidden; border:1px solid var(--line);
+}
+.head{
+  background:linear-gradient(135deg, var(--brand), var(--brand2));
+  color:#fff; padding:22px 26px;
+}
+.head h1{margin:0 0 6px; font-size:1.4rem;}
+.head p{margin:0; opacity:.92; font-size:.95rem;}
+.body{padding:22px 26px;}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+.row.end{justify-content:flex-end;}
+.btn-primary,.btn-ghost,.btn-soft{
+  border:1px solid transparent; border-radius:10px; padding:9px 14px;
+  font-size:.95rem; cursor:pointer; font-weight:600;
+  transition:transform .05s ease, background .15s ease;
+}
+.btn-primary{background:var(--brand); color:#fff;}
+.btn-primary:hover{background:var(--brand2);}
+.btn-ghost{background:transparent; color:var(--brand); border-color:var(--brand);}
+.btn-ghost:hover{background:#eef2ff;}
+.btn-soft{background:#eef2ff; color:var(--brand); border-color:#e0e7ff;}
+.btn-soft:hover{background:#e0e7ff;}
+.btn-primary:active,.btn-ghost:active,.btn-soft:active{transform:translateY(1px);}
+#enunciado{
+  background:#fafaff; border:1px dashed var(--line); border-radius:10px;
+  padding:14px 16px; font-size:1.02rem; line-height:1.55; margin-bottom:14px;
+}
+#respuesta{
+  flex:1; min-width:220px; padding:10px 12px; border-radius:10px;
+  border:1px solid var(--line); font-size:1rem; outline:none;
+}
+#respuesta:focus{border-color:var(--brand); box-shadow:0 0 0 3px #eef2ff;}
+.feedback{
+  display:none; border-radius:10px; padding:12px 14px; margin:14px 0;
+  font-size:.98rem; line-height:1.5;
+}
+.feedback.ok{display:block; background:var(--okbg); border:1px solid #a7f3d0; color:var(--ok);}
+.feedback.err{display:block; background:var(--errbg); border:1px solid #fecaca; color:var(--err);}
+.feedback code{background:#fff; padding:1px 6px; border-radius:6px; border:1px solid var(--line); color:var(--ink);}
+.panel{display:none; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:.96rem; line-height:1.55;}
+.panel.visible{display:block;}
+.panel.pista{background:var(--warnbg); border:1px solid #fde68a; color:var(--warn);}
+.panel.explicacion{background:#f5f3ff; border:1px solid #ddd6fe; color:#5b21b6;}
+.marcador{
+  display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+  margin-top:16px; padding-top:14px; border-top:1px solid var(--line);
+  font-size:.92rem; color:var(--muted);
+}
+.marcador b{color:var(--ink);}
+.kbd{
+  display:inline-block; padding:2px 8px; border-radius:6px;
+  background:#f3f4f6; border:1px solid var(--line);
+  font-family:ui-monospace,monospace; font-size:.82rem; color:var(--ink);
+}
+footer{text-align:center; color:var(--muted); font-size:.85rem; padding:20px 0;}
+@media (max-width:560px){
+  .body,.head{padding-left:16px; padding-right:16px;}
+  .head h1{font-size:1.15rem;}
+  .row{flex-direction:column; align-items:stretch;}
+  #respuesta{min-width:0;}
+  .btn-primary,.btn-ghost,.btn-soft{width:100%;}
+  .row.end{justify-content:stretch;}
+}
+</style>
+<script>
+window.MathJax = {
+  tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="head">
+      <h1>Generador infinito de ejercicios</h1>
+      <p>Materia: Álgebra · Tema: Ecuación de una recta en tres dimensiones, ecuación de un plano en tres dimensiones</p>
+    </div>
+    <div class="body">
+      <div class="row end">
+        <button class="btn-ghost" onclick="nuevoEjercicio()">Nuevo ejercicio</button>
+      </div>
+      <div id="enunciado"></div>
+      <div class="row">
+        <input id="respuesta" type="text" placeholder="Usa ^ para potencias y / para fracciones…" autocomplete="off">
+        <button class="btn-primary" onclick="verificar()">Verificar</button>
+        <button class="btn-soft" onclick="mostrarPista()">Pista</button>
+        <button class="btn-soft" onclick="mostrarExplicacion()">Explicación</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="pistaBox" class="panel pista"></div>
+      <div id="explicacionBox" class="panel explicacion"></div>
+      <div class="marcador">
+        <span>Aciertos: <b id="mArc">0</b></span>
+        <span>Intentos: <b id="mInt">0</b></span>
+        <span><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</span>
+      </div>
+    </div>
+  </div>
+  <footer>Generador aleatorio educativo · Álgebra · Ecuación de una recta en tres dimensiones, ecuación de un plano en tres dimensiones</footer>
+</div>
+<script>
+// ===== UTILIDADES =====
+function escaparHTML(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function normalizar(valor){
+  if(valor === null || valor === undefined) return '';
+  var s = String(valor).toLowerCase().trim();
+  s = s.replace(/\$/g,'').replace(/[{}]/g,'').replace(/\s+/g,'');
+  return s;
+}
+function aNumero(v){
+  if(v === null || v === undefined) return null;
+  var s = String(v).trim();
+  if(!s) return null;
+  var m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(m){
+    var a = parseFloat(m[1]), b = parseFloat(m[2]);
+    if(b === 0) return null;
+    return a/b;
+  }
+  var n = parseFloat(s.replace(/,/g,'.'));
+  return isNaN(n) ? null : n;
+}
+function coincideTexto(entrada, acepta){
+  var n = normalizar(entrada);
+  if(!n) return false;
+  for(var i=0;i<acepta.length;i++){
+    if(n === normalizar(acepta[i])) return true;
+  }
+  return false;
+}
+function tiposet(nodo, intento){
+  intento = intento || 0;
+  if(!nodo) return;
+  if(window.MathJax && window.MathJax.typesetPromise){
+    try{ window.MathJax.typesetPromise([nodo]); }catch(e){}
+    return;
+  }
+  if(intento >= 40) return;
+  setTimeout(function(){ tiposet(nodo, intento+1); }, 200);
+}
+function rnd(min, max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+function rndNZ(min, max){
+  var v = 0;
+  while(v === 0) v = rnd(min, max);
+  return v;
+}
+
+// ===== GENERADOR =====
+function gen(){
+  var variantes = [vRectaComp, vRectaParam, vRectaDir, vPlanoD, vPlanoK, vPlanoDist];
+  var idx = Math.floor(Math.random()*variantes.length);
+  return variantes[idx]();
+}
+
+// V1: Recta - componente del vector director (numérica)
+function vRectaComp(){
+  var ax = rnd(-4,4), ay = rnd(-4,4), az = rnd(-4,4);
+  var dx = rndNZ(-5,5), dy = rndNZ(-5,5), dz = rndNZ(-5,5);
+  var bx = ax+dx, by = ay+dy, bz = az+dz;
+  var comps = ['x','y','z'];
+  var vals = [dx,dy,dz];
+  var idx = rnd(0,2);
+  var comp = comps[idx], ans = vals[idx];
+  var protas = ['la ingeniera mecatrónica Valeria','la diseñadora Ana','la doctora en IA Camila','la estudiante de robótica Lucía'];
+  var prota = protas[rnd(0,protas.length-1)];
+  var problema = 'En el laboratorio de '+prota+', dos sensores del brazo robótico se ubican en $A=('+ax+','+ay+','+az+')$ y $B=('+bx+','+by+','+bz+')$. El vector director de la recta $AB$ es $\\vec{v}=\\overrightarrow{AB}=B-A$. ¿Cuál es la componente $'+comp+'$ de $\\vec{v}$?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'La componente $'+comp+'$ de $\\vec{v}$ es $'+ans+'$.',
+    respuestaLaTeX: String(ans),
+    acepta: [String(ans)],
+    respuesta: ans,
+    tolerancia: 0.001,
+    pista: 'El vector director se obtiene restando coordenada a coordenada: $\\vec{v}=B-A=('+bx+'-('+ax+'),\\,'+by+'-('+ay+'),\\,'+bz+'-('+az+'))$.',
+    explicacion: 'Paso 1. Restar coordenada a coordenada: $\\vec{v}=('+(bx-ax)+','+(by-ay)+','+(bz-az)+')$.\nPaso 2. Identificar la componente $'+comp+'$: es $'+ans+'$.\nPaso 3. Verificar el signo según el orden $B-A$.'
+  };
+}
+
+// V2: Recta paramétrica - parámetro t (numérica)
+function vRectaParam(){
+  var px = rnd(-4,4), py = rnd(-4,4), pz = rnd(-4,4);
+  var vx = rndNZ(-4,4), vy = rndNZ(-4,4), vz = rndNZ(-4,4);
+  var tAns = rndNZ(-3,3);
+  var comps = ['x','y','z'];
+  var idx = rnd(0,2);
+  var comp = comps[idx];
+  var p = [px,py,pz], v = [vx,vy,vz];
+  var k = p[idx] + v[idx]*tAns;
+  var protas = ['la ingeniera Sofía','la diseñadora Mariana','la investigadora Renata','la estudiante Ximena'];
+  var prota = protas[rnd(0,protas.length-1)];
+  var problema = prota+' programa la trayectoria de un dron mediante $r(t)=('+px+','+py+','+pz+')+t\\,('+vx+','+vy+','+vz+')$. ¿Para qué valor de $t$ la coordenada $'+comp+'$ del dron es igual a $'+k+'$?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'Igualando $'+comp+'(t)='+k+'$ se obtiene $t='+tAns+'$.',
+    respuestaLaTeX: String(tAns),
+    acepta: [String(tAns)],
+    respuesta: tAns,
+    tolerancia: 0.001,
+    pista: 'La coordenada $'+comp+'$ de la recta es $'+comp+'(t)='+p[idx]+' + '+v[idx]+'t$. Iguala esa expresión a $'+k+'$ y despeja $t$.',
+    explicacion: 'Paso 1. Escribir la coordenada: $'+comp+'(t)='+p[idx]+' + '+v[idx]+'t$.\nPaso 2. Igualar a $'+k+'$: $'+p[idx]+' + '+v[idx]+'t = '+k+'$.\nPaso 3. Despejar: $'+v[idx]+'t = '+(k-p[idx])+'$, luego $t='+tAns+'$.\nPaso 4. Verificar sustituyendo el valor de $t$ en la ecuación.'
+  };
+}
+
+// V3: Recta - vector director completo (simbólica)
+function vRectaDir(){
+  var ax = rnd(-3,3), ay = rnd(-3,3), az = rnd(-3,3);
+  var dx = rndNZ(-5,5), dy = rndNZ(-5,5), dz = rndNZ(-5,5);
+  var bx = ax+dx, by = ay+dy, bz = az+dz;
+  var protas = ['la maestra artesana Yolanda','la ingeniera bilingüe Nayeli','la diseñadora Elena','la investigadora tsotsil Petra'];
+  var prota = protas[rnd(0,protas.length-1)];
+  var problema = 'En un taller intercultural coordinado por '+prota+' se modelan dos puntos de una estructura: $A=('+ax+','+ay+','+az+')$ y $B=('+bx+','+by+','+bz+')$. Escribe el vector director $\\vec{v}=B-A$ de la recta que une ambos puntos en el formato $(v_1,v_2,v_3)$ o $v_1,v_2,v_3$.';
+  var rl = '('+dx+','+dy+','+dz+')';
+  return {
+    tipo:'simbolica',
+    problema: problema,
+    solucion: 'El vector director es $\\vec{v}='+rl+'$.',
+    respuestaLaTeX: rl,
+    acepta: [
+      '('+dx+','+dy+','+dz+')',
+      ''+dx+','+dy+','+dz,
+      '['+dx+','+dy+','+dz+']',
+      '{'+dx+','+dy+','+dz+'}',
+      dx+', '+dy+', '+dz
+    ],
+    pista: 'El vector director se obtiene restando $B-A$ coordenada a coordenada: $\\vec{v}=('+bx+'-('+ax+'),\\,'+by+'-('+ay+'),\\,'+bz+'-('+az+'))$.',
+    explicacion: 'Paso 1. Identificar $A$ y $B$.\nPaso 2. Restar coordenada a coordenada: $v_1='+bx+'-('+ax+')='+dx+'$, $v_2='+by+'-('+ay+')='+dy+'$, $v_3='+bz+'-('+az+')='+dz+'$.\nPaso 3. Escribir el vector: $\\vec{v}='+rl+'$.'
+  };
+}
+
+// V4: Plano - término d (numérica)
+function vPlanoD(){
+  var a = rndNZ(-4,4), b = rndNZ(-4,4), c = rndNZ(-4,4);
+  var px = rnd(-3,3), py = rnd(-3,3), pz = rnd(-3,3);
+  var d = a*px + b*py + c*pz;
+  var protas = ['la ingeniera Ariadna','la diseñadora Paola','la investigadora Valeria','la estudiante Frida'];
+  var prota = protas[rnd(0,protas.length-1)];
+  var problema = prota+' modela una placa metálica en el espacio. El plano de la placa tiene vector normal $\\vec{n}=('+a+','+b+','+c+')$ y pasa por el punto $P=('+px+','+py+','+pz+')$. Si escribimos la ecuación en la forma $'+a+'x+'+b+'y+'+c+'z=d$, ¿cuánto vale $d$?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'Sustituyendo $P$ en la ecuación: $d='+a+'\\cdot('+px+')+'+b+'\\cdot('+py+')+'+c+'\\cdot('+pz+')='+d+'$.',
+    respuestaLaTeX: String(d),
+    acepta: [String(d)],
+    respuesta: d,
+    tolerancia: 0.001,
+    pista: 'El punto $P$ satisface la ecuación del plano. Sustituye sus coordenadas en $'+a+'x+'+b+'y+'+c+'z=d$ para despejar $d$.',
+    explicacion: 'Paso 1. La ecuación del plano es $\\vec{n}\\cdot(x,y,z)=d$.\nPaso 2. Sustituir $P$: $'+a+'\\cdot('+px+')+'+b+'\\cdot('+py+')+'+c+'\\cdot('+pz+')=d$.\nPaso 3. Calcular: $d='+d+'$.\nPaso 4. Verificar los signos de los productos.'
+  };
+}
+
+// V5: Plano - valor k para pertenencia (numérica)
+function vPlanoK(){
+  var a = rndNZ(-4,4), b = rndNZ(-4,4), c = rndNZ(-4,4);
+  var px = rnd(-3,3), py = rnd(-3,3), pz = rnd(-3,3);
+  var k = a*px + b*py + c*pz;
+  var protas = ['la ingeniera Mía','la diseñadora Camila','la investigadora Itzel','la estudiante Abril'];
+  var prota = protas[rnd(0,protas.length-1)];
+  var problema = 'En el proyecto de innovación de '+prota+' se describe un plano mediante $'+a+'x+'+b+'y+'+c+'z=k$. Determina el valor de $k$ para que el punto $P=('+px+','+py+','+pz+')$ pertenezca a dicho plano.';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'Sustituyendo $P$: $k='+a+'\\cdot('+px+')+'+b+'\\cdot('+py+')+'+c+'\\cdot('+pz+')='+k+'$.',
+    respuestaLaTeX: String(k),
+    acepta: [String(k)],
+    respuesta: k,
+    tolerancia: 0.001,
+    pista: 'Si $P$ pertenece al plano, sus coordenadas satisfacen la ecuación. Evalúa $'+a+'x+'+b+'y+'+c+'z$ con $x='+px+'$, $y='+py+'$, $z='+pz+'$ para obtener $k$.',
+    explicacion: 'Paso 1. Sustituir el punto en la ecuación: $'+a+'('+px+')+'+b+'('+py+')+'+c+'('+pz+')=k$.\nPaso 2. Multiplicar cada término.\nPaso 3. Sumar: $k='+k+'$.\nPaso 4. Comprobar los signos de los productos.'
+  };
+}
+
+// V6: Plano - distancia punto a plano (numérica)
+function vPlanoDist(){
+  var normales = [[1,2,2],[2,3,6],[3,4,12],[2,6,9]];
+  var n = normales[rnd(0,normales.length-1)];
+  var a = n[0], b = n[1], c = n[2];
+  var norm = Math.round(Math.sqrt(a*a+b*b+c*c));
+  var px = rnd(-3,3), py = rnd(-3,3), pz = rnd(-3,3);
+  var mult = rndNZ(-3,3);
+  var base = a*px + b*py + c*pz;
+  var d = base - mult*norm;
+  var num = Math.abs(mult)*norm;
+  var dist = Math.abs(mult);
+  var protas = ['la ingeniera Daniela','la diseñadora Renata','la investigadora Ximena','la estudiante Alejandra'];
+  var prota = protas[rnd(0,protas.length-1)];
+  var problema = 'En el diseño de un sensor para un brazo mecatrónico, '+prota+' necesita medir la distancia del punto $P=('+px+','+py+','+pz+')$ al plano $'+a+'x+'+b+'y+'+c+'z='+d+'$. Calcula esa distancia.';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'La distancia es $\\dfrac{|'+a+'\\cdot('+px+')+'+b+'\\cdot('+py+')+'+c+'\\cdot('+pz+')-('+d+')|}{\\sqrt{'+a+'^2+'+b+'^2+'+c+'^2}}=\\dfrac{'+num+'}{'+norm+'}= '+dist+'$.',
+    respuestaLaTeX: String(dist),
+    acepta: [String(dist)],
+    respuesta: dist,
+    tolerancia: 0.001,
+    pista: 'La distancia de un punto al plano $ax+by+cz=d$ es $\\dfrac{|ax_0+by_0+cz_0-d|}{\\sqrt{a^2+b^2+c^2}}$.',
+    explicacion: 'Paso 1. Identificar $a='+a+'$, $b='+b+'$, $c='+c+'$, $d='+d+'$.\nPaso 2. Evaluar el numerador: $|'+a+'('+px+')+'+b+'('+py+')+'+c+'('+pz+')-('+d+')| = '+num+'$.\nPaso 3. Calcular la norma: $\\sqrt{'+a+'^2+'+b+'^2+'+c+'^2} = '+norm+'$.\nPaso 4. Dividir: $'+num+'/'+norm+' = '+dist+'$.'
+  };
+}
+
+// ===== UI =====
+var ejercicioActual = null;
+var aciertos = 0, intentos = 0;
+
+function nuevoEjercicio(){
+  ejercicioActual = gen();
+  var enun = document.getElementById('enunciado');
+  enun.innerHTML = ejercicioActual.problema;
+  tiposet(enun);
+  document.getElementById('respuesta').value = '';
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+  var pistaBox = document.getElementById('pistaBox');
+  pistaBox.className = 'panel pista';
+  pistaBox.innerHTML = '';
+  var expBox = document.getElementById('explicacionBox');
+  expBox.className = 'panel explicacion';
+  expBox.innerHTML = '';
+  document.getElementById('respuesta').focus();
+}
+
+function verificar(){
+  if(!ejercicioActual) return;
+  var entrada = document.getElementById('respuesta').value;
+  var fb = document.getElementById('feedback');
+  var correcto = false;
+
+  if(ejercicioActual.tipo === 'numerica'){
+    var num = aNumero(entrada);
+    if(num !== null && Math.abs(num - ejercicioActual.respuesta) <= ejercicioActual.tolerancia){
+      correcto = true;
+    }
+    if(!correcto && coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  } else {
+    if(coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  }
+
+  intentos++;
+  document.getElementById('mInt').textContent = intentos;
+
+  if(correcto){
+    aciertos++;
+    document.getElementById('mArc').textContent = aciertos;
+    fb.className = 'feedback ok';
+    fb.innerHTML = '✓ ¡Correcto!<br>Escribiste: <code>'+escaparHTML(entrada)+'</code><br>En notación matemática: $'+ejercicioActual.respuestaLaTeX+'$';
+    tiposet(fb);
+  } else {
+    fb.className = 'feedback err';
+    fb.innerHTML = '✗ Todavía no. Revisa tu procedimiento o pide una pista.';
+  }
+}
+
+function mostrarPista(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('pistaBox');
+  box.innerHTML = ejercicioActual.pista;
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+function mostrarExplicacion(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('explicacionBox');
+  box.innerHTML = ejercicioActual.explicacion.replace(/\n/g,'<br>');
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+// ===== EVENTOS =====
+document.getElementById('respuesta').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); verificar(); }
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'n' || e.key === 'N'){
+    var activo = document.activeElement;
+    if(activo && activo.id === 'respuesta') return;
+    nuevoEjercicio();
+  }
+});
+
+// ===== ARRANQUE =====
+nuevoEjercicio();
+</script>
+</body>
+</html>
