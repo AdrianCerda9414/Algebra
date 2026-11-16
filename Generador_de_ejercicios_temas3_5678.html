@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios</title>
+<script>
+window.MathJax = {
+  tex: {inlineMath: [['$', '$'], ['\(', '\)']], displayMath: [['$$', '$$']]},
+  svg: {fontCache: 'global'},
+  options: {skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+:root {
+  --bg: #f4f6fb;
+  --card: #fff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --brand: #4f46e5;
+  --brand2: #7c3aed;
+  --line: #e5e7eb;
+  --ok: #059669;
+  --okbg: #ecfdf5;
+  --err: #dc2626;
+  --errbg: #fef2f2;
+  --warn: #b45309;
+  --warnbg: #fffbeb;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 16px;
+}
+.container {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+header {
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: #fff;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.subtitle {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+.content {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.top-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-ghost:hover {
+  background: var(--bg);
+  border-color: var(--muted);
+}
+#enunciado {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--bg);
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid var(--brand);
+}
+.input-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#respuesta {
+  flex: 1;
+  min-width: 220px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+#respuesta:focus {
+  border-color: var(--brand);
+}
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background: #4338ca;
+}
+.btn-soft {
+  background: #eef2ff;
+  color: var(--brand);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-soft:hover {
+  background: #e0e7ff;
+}
+.feedback {
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: none;
+  line-height: 1.5;
+}
+.feedback.ok {
+  background: var(--okbg);
+  color: var(--ok);
+  border: 1px solid #a7f3d0;
+}
+.feedback.err {
+  background: var(--errbg);
+  color: var(--err);
+  border: 1px solid #fecaca;
+}
+.feedback.visible {
+  display: block;
+}
+.panel {
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: none;
+  line-height: 1.5;
+}
+.panel.pista {
+  background: var(--warnbg);
+  color: var(--warn);
+  border: 1px solid #fde68a;
+}
+.panel.explicacion {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+.panel.visible {
+  display: block;
+}
+.footer-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.kbd {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-bottom-width: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: auto;
+}
+@media (max-width: 560px) {
+  .content {
+    padding: 20px;
+  }
+  .input-row {
+    flex-direction: column;
+  }
+  .btn-primary, .btn-soft {
+    width: 100%;
+  }
+  .top-row {
+    justify-content: stretch;
+  }
+  .btn-ghost {
+    width: 100%;
+    text-align: center;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Generador infinito de ejercicios</h1>
+    <div class="subtitle">Materia: ALGEBRA &middot; Tema: Teorema del residuo, raices de polinomios, teorema del factor, teorema fundamental del algebra, raices racionales de un polinomio de grado n, raices que no son racionales, irracionalidad de algunos numeros, polinomios irreducibles</div>
+  </header>
+  
+  <div class="content">
+    <div class="top-row">
+      <button class="btn-ghost" id="btnNuevo">Nuevo ejercicio</button>
+    </div>
+    
+    <div id="enunciado">Cargando enunciado...</div>
+    
+    <div class="input-row">
+      <input type="text" id="respuesta" placeholder="Usa ^ para potencias y / para fracciones..." autocomplete="off">
+      <button class="btn-primary" id="btnVerificar">Verificar</button>
+      <button class="btn-soft" id="btnPista">Pista</button>
+      <button class="btn-soft" id="btnExplicacion">Explicación</button>
+    </div>
+    
+    <div id="feedback" class="feedback"></div>
+    <div id="pistaBox" class="panel pista"></div>
+    <div id="explicacionBox" class="panel explicacion"></div>
+    
+    <div class="footer-stats">
+      <div>Aciertos: <span id="mArc">0</span> | Intentos: <span id="mInt">0</span></div>
+      <div><span class="kbd">Enter</span> = verificar &middot; <span class="kbd">N</span> = nuevo</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Generador aleatorio educativo &middot; ALGEBRA &middot; Teorema del residuo, raices de polinomios, teorema del factor, teorema fundamental del algebra, raices racionales de un polinomio de grado n, raices que no son racionales, irracionalidad de algunos numeros, polinomios irreducibles
+</footer>
+
+<script>
+var aciertos = 0;
+var intentos = 0;
+var ejercicioActual = null;
+
+function escaparHTML(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function normalizar(valor) {
+  if (typeof valor !== 'string') {
+    valor = String(valor);
+  }
+  var limpio = valor.toLowerCase().replace(/\s+/g, '').replace(/undefined/g, '');
+  var regexFrac = /^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/;
+  var match = limpio.match(regexFrac);
+  if (match) {
+    var num = parseFloat(match[1]);
+    var den = parseFloat(match[2]);
+    if (den !== 0) {
+      return String(num / den);
+    }
+  }
+  return limpio;
+}
+
+function aNumero(val) {
+  var norm = normalizar(val);
+  var num = parseFloat(norm);
+  return isNaN(num) ? null : num;
+}
+
+function coincideTexto(entrada, aceptadas) {
+  var normEntrada = normalizar(entrada);
+  for (var i = 0; i < aceptadas.length; i++) {
+    if (normEntrada === normalizar(aceptadas[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function tiposet(nodo, intento) {
+  if (typeof intento === 'undefined') {
+    intento = 0;
+  }
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    window.MathJax.typesetPromise([nodo]).catch(function (err) {
+      console.error(err);
+    });
+  } else if (intento < 40) {
+    setTimeout(function() {
+      tiposet(nodo, intento + 1);
+    }, 200);
+  }
+}
+
+function genTeoremaResiduo() {
+  var a = Math.floor(Math.random() * 5) + 1;
+  var b = Math.floor(Math.random() * 5) + 1;
+  var c = Math.floor(Math.random() * 10) - 5;
+  var valX = Math.floor(Math.random() * 3) + 1;
+  
+  var res = a * Math.pow(valX, 2) + b * valX + c;
+  
+  var enunciado = "En el diseño de una celda de manufactura flexible para innovación digital, el comportamiento de carga de un actuador se modela mediante el polinomio $P(x) = " + a + "x^2 + " + b + "x + " + c + "$. Utilizando el Teorema del Residuo, calcula el residuo al dividir $P(x)$ entre $(x - " + valX + ")$.";
+  var pista = "El Teorema del Residuo establece que al dividir un polinomio $P(x)$ entre $(x - c)$, el residuo es igual a evaluar el polinomio en $c$, es decir, $P(c)$.";
+  var explicacion = "Paso 1. Identifica el valor de $c$ a partir del divisor $(x - c)$, que en este caso es $c = " + valX + "$. Paso 2. Sustituye $x = " + valX + "$ en el polinomio $P(x) = " + a + "(" + valX + ")^2 + " + b + "(" + valX + ") + " + c + "$. Paso 3. Realiza las operaciones aritméticas: $P(" + valX + ") = " + (a * valX * valX) + " + " + (b * valX) + " + " + c + " = " + res + "$.";
+  
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "El residuo es $" + res + "$",
+    respuestaLaTeX: String(res),
+    acepta: [String(res)],
+    respuesta: res,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genRaicesPolinomios() {
+  var r1 = Math.floor(Math.random() * 4) + 1;
+  var r2 = -(Math.floor(Math.random() * 4) + 1);
+  
+  var b = -(r1 + r2);
+  var c = r1 * r2;
+  
+  var bStr = b >= 0 ? "+ " + b + "x" : "- " + Math.abs(b) + "x";
+  var cStr = c >= 0 ? "+ " + c : "- " + Math.abs(c);
+  
+  var enunciado = "Para calibrar el sistema de visión artificial de un brazo robótico destinado a innovación en manufactura, se analiza la ecuación característica $x^2 " + bStr + " " + cStr + " = 0$. Determina la raíz real mayor de este polinomio.";
+  var pista = "Factoriza la ecuación cuadrática de la forma $(x - r_1)(x - r_2) = 0$ o utiliza la fórmula general para hallar las raíces.";
+  var explicacion = "Paso 1. Factoriza el trinomio buscando dos números que multiplicados den " + c + " y sumados den " + b + ". Los números son -" + r1 + " y " + (-r2) + " (o bien raíces " + r1 + " y " + r2 + "). Paso 2. Expresa la ecuación factorizada como $(x - " + r1 + ")(x - " + Math.abs(r2) + ") = 0$ si aplica, o identifica directamente las raíces. Paso 3. La raíz mayor entre " + r1 + " y " + r2 + " es claramente $" + Math.max(r1, r2) + "$.";
+  
+  var maxR = Math.max(r1, r2);
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "La raíz mayor es $" + maxR + "$",
+    respuestaLaTeX: String(maxR),
+    acepta: [String(maxR)],
+    respuesta: maxR,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genTeoremaFactor() {
+  var raiz = Math.floor(Math.random() * 4) + 1;
+  var coefB = -raiz;
+  var coefBStr = coefB >= 0 ? "+ " + coefB : "- " + Math.abs(coefB);
+  
+  var enunciado = "Ingenieras especialistas en inteligencia artificial evalúan la estabilidad de una red neuronal cuyo polinomio de estado es $P(x) = x^2 " + coefBStr + "x$. Utiliza el Teorema del Factor para verificar si $x = " + raiz + "$ es una raíz, e indica el valor numérico de $P(" + raiz + ")$ que lo confirma.";
+  var pista = "El Teorema del Factor establece que $(x - c)$ es un factor de $P(x)$ si y solo si $P(c) = 0$. Evalúa el polinomio en la raíz propuesta.";
+  var explicacion = "Paso 1. Sustituye el valor de la raíz propuesta en el polinomio: $P(" + raiz + ") = (" + raiz + ")^2 " + coefBStr + "(" + raiz + ")$. Paso 2. Calcula cada término: $P(" + raiz + ") = " + (raiz * raiz) + " - " + (raiz * raiz) + "$. Paso 3. Obtén el resultado final, que al ser cero confirma que es una raíz exacta.";
+  
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "El valor de evaluación es $0$",
+    respuestaLaTeX: "0",
+    acepta: ["0"],
+    respuesta: 0,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genTeoremaFundamentalAlgebra() {
+  var grado = Math.floor(Math.random() * 3) + 3;
+  var enunciado = "Un sistema experto desarrollado por investigadoras en inteligencia artificial analiza la cantidad máxima de soluciones complejas que puede tener un modelo de control avanzado modelado mediante un polinomio de grado " + grado + " con coeficientes reales. Según el Teorema Fundamental del Álgebra, ¿cuántas raíces complejas (contando multiplicidades) posee dicho polinomio?";
+  var pista = "Recuerda que el Teorema Fundamental del Álgebra garantiza que todo polinomio de grado $n$ con coeficientes reales o complejos tiene exactamente $n$ raíces en el campo complejo, contando sus multiplicidades.";
+  var explicacion = "Paso 1. Identifica el grado del polinomio, que es $n = " + grado + "$. Paso 2. Aplica el Teorema Fundamental del Álgebra, el cual establece que el número total de raíces complejas es igual al grado del polinomio. Paso 3. Por lo tanto, el número de raíces es $" + grado + "$.";
+  
+  return {
+    tipo: 'numerica',
+    problema: enunciado,
+    solucion: "El número de raíces es $" + grado + "$",
+    respuestaLaTeX: String(grado),
+    acepta: [String(grado)],
+    respuesta: grado,
+    tolerancia: 0.001,
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genRaicesRacionales() {
+  var p = Math.floor(Math.random() * 3) + 1;
+  var q = Math.floor(Math.random() * 2) + 1;
+  
+  var enunciado = "En el diseño cinemático de un mecanismo mecatrónico, se analiza la posible raíz racional positiva de la forma $p/q$ para el polinomio auxiliar. Si los divisores del término independiente incluyen a $" + p + "$ y los divisores del coeficiente principal incluyen a $" + q + "$, ¿cuál es el valor de la mayor fracción candidata positiva irreducible generada por estos valores?";
+  var pista = "El Teorema de las Raíces Racionales postula que cualquier raíz racional irreducible $p/q$ debe cumplir que $p$ es divisor del término independiente y $q$ es divisor del coeficiente principal.";
+  var explicacion = "Paso 1. Identifica los divisores candidatos para el numerador $p$ y denominador $q$. Paso 2. Selecciona los valores máximos proporcionales para maximizar la fracción candidata positiva. Paso 3. Calcula la división exacta obteniendo $" + (p / q) + "$ (o en fracción simplificada).";
+  
+  var val = p / q;
+  var fracStr = p + "/" + q;
+  if (q === 1) {
+    fracStr = String(p);
+  }
+  
+  return {
+    tipo: 'simbolica',
+    problema: enunciado,
+    solucion: "La fracción candidata es $" + fracStr + "$",
+    respuestaLaTeX: fracStr,
+    acepta: [fracStr, String(val)],
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genRaicesNoRacionales() {
+  var n = Math.floor(Math.random() * 6) + 2;
+  var enunciado = "Una diseñadora industrial calcula las dimensiones críticas de un componente mecánico tridimensional cuya ecuación característica se reduce a $x^2 - " + n + " = 0$. Determina la raíz positiva expresada en forma exacta.";
+  var pista = "Despeja $x^2$ de la ecuación y aplica la raíz cuadrada a ambos lados considerando la solución positiva.";
+  var explicacion = "Paso 1. Despeja $x^2 = " + n + "$. Paso 2. Aplica la raíz cuadrada obteniendo $x = \\pm \\sqrt{" + n + "}$. Paso 3. Selecciona la raíz positiva solicitada, la cual es $\\sqrt{" + n + "}$.";
+  
+  var respText = "\\sqrt{" + n + "}";
+  return {
+    tipo: 'simbolica',
+    problema: enunciado,
+    solucion: "La raíz es $" + respText + "$",
+    respuestaLaTeX: respText,
+    acepta: [respText, "sqrt(" + n + ")", "sqrt(" + n + ")"],
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genIrracionalidadNumeros() {
+  var base = Math.floor(Math.random() * 5) + 2;
+  var enunciado = "Durante el análisis de estabilidad en un sistema mecatrónico con realimentación no lineal, se requiere identificar la naturaleza del número $\\sqrt{" + (base * base) + "}$. Indica si este número es racional o irracional escribiendo literalmente 'racional' o 'irracional'.";
+  var pista = "Simplifica la raíz cuadrada calculando si el número bajo el radical es un cuadrado perfecto.";
+  var explicacion = "Paso 1. Analiza el radicando, que es $" + (base * base) + "$. Paso 2. Calcula su raíz cuadrada exacta, obteniendo el número entero $" + base + "$. Paso 3. Como puede expresarse como el cociente de enteros ($" + base + "/1$), se clasifica como racional.";
+  
+  return {
+    tipo: 'simbolica',
+    problema: enunciado,
+    solucion: "El número es racional",
+    respuestaLaTeX: "\\text{racional}",
+    acepta: ["racional", "es racional"],
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+function genPolinomiosIrreducibles() {
+  var k = Math.floor(Math.random() * 5) + 1;
+  var enunciado = "En un proyecto de innovación en inteligencia artificial aplicada a criptografía, se estudia el polinomio cuadrático $P(x) = x^2 + " + k + "$ sobre el cuerpo de los números reales. Determina si este polinomio es irreducible sobre los números reales escribiendo 'si' o 'no'.";
+  var pista = "Un polinomio de segundo grado con coeficientes reales es irreducible sobre los reales si su discriminante es estrictamente negativo, lo que implica que no tiene raíces reales.";
+  var explicacion = "Paso 1. Calcula el discriminante del polinomio $b^2 - 4ac$, donde $a=1, b=0, c=" + k + "$. Paso 2. El discriminante resulta ser $0^2 - 4(1)(" + k + ") = " + (-4 * k) + "$. Paso 3. Al ser estrictamente negativo, el polinomio no se puede factorizar en factores lineales reales, por lo que es irreducible.";
+  
+  return {
+    tipo: 'simbolica',
+    problema: enunciado,
+    solucion: "El polinomio es irreducible, por lo tanto la respuesta es sí",
+    respuestaLaTeX: "\\text{si}",
+    acepta: ["si", "sí", "es irreducible", "si"],
+    pista: pista,
+    explicacion: explicacion
+  };
+}
+
+var generadores = [
+  genTeoremaResiduo,
+  genRaicesPolinomios,
+  genTeoremaFactor,
+  genTeoremaFundamentalAlgebra,
+  genRaicesRacionales,
+  genRaicesNoRacionales,
+  genIrracionalidadNumeros,
+  genPolinomiosIrreducibles
+];
+
+function nuevoEjercicio() {
+  var indice = Math.floor(Math.random() * generadores.length);
+  ejercicioActual = generadores[indice]();
+  
+  document.getElementById('enunciado').innerHTML = ejercicioActual.problema;
+  document.getElementById('respuesta').value = '';
+  
+  var feedback = document.getElementById('feedback');
+  feedback.className = 'feedback';
+  feedback.innerHTML = '';
+  
+  var pistaBox = document.getElementById('pistaBox');
+  pistaBox.className = 'panel pista';
+  pistaBox.innerHTML = '<strong>Pista:</strong> ' + ejercicioActual.pista;
+  
+  var explicacionBox = document.getElementById('explicacionBox');
+  explicacionBox.className = 'panel explicacion';
+  explicacionBox.innerHTML = '<strong>Explicación:</strong> ' + ejercicioActual.explicacion;
+  
+  tiposet(document.getElementById('enunciado'));
+  tiposet(pistaBox);
+  tiposet(explicacionBox);
+  
+  document.getElementById('respuesta').focus();
+}
+
+function verificar() {
+  if (!ejercicioActual) return;
+  
+  var inputVal = document.getElementById('respuesta').value;
+  if (!inputVal.trim()) return;
+  
+  intentos++;
+  document.getElementById('mInt').textContent = intentos;
+  
+  var esCorrecto = false;
+  
+  if (ejercicioActual.tipo === 'numerica') {
+    var numUser = aNumero(inputVal);
+    if (numUser !== null && Math.abs(numUser - ejercicioActual.respuesta) <= ejercicioActual.tolerancia) {
+      esCorrecto = true;
+    } else if (coincideTexto(inputVal, ejercicioActual.acepta)) {
+      esCorrecto = true;
+    }
+  } else {
+    if (coincideTexto(inputVal, ejercicioActual.acepta)) {
+      esCorrecto = true;
+    }
+  }
+  
+  var feedback = document.getElementById('feedback');
+  if (esCorrecto) {
+    aciertos++;
+    document.getElementById('mArc').textContent = aciertos;
+    feedback.className = 'feedback ok visible';
+    feedback.innerHTML = '<div style="font-weight:600;">✓ ¡Correcto!</div>' +
+                         '<div>Escribiste: <code>' + escaparHTML(inputVal) + '</code></div>' +
+                         '<div>En notación matemática: $' + ejercicioActual.respuestaLaTeX + '$</div>';
+  } else {
+    feedback.className = 'feedback err visible';
+    feedback.innerHTML = '✗ Todavía no. Revisa tu procedimiento o pide una pista.';
+  }
+  
+  tiposet(feedback);
+}
+
+document.getElementById('btnNuevo').addEventListener('click', function() {
+  nuevoEjercicio();
+});
+
+document.getElementById('btnVerificar').addEventListener('click', function() {
+  verificar();
+});
+
+document.getElementById('btnPista').addEventListener('click', function() {
+  var box = document.getElementById('pistaBox');
+  box.classList.toggle('visible');
+  tiposet(box);
+});
+
+document.getElementById('btnExplicacion').addEventListener('click', function() {
+  var box = document.getElementById('explicacionBox');
+  box.classList.toggle('visible');
+  tiposet(box);
+});
+
+document.getElementById('respuesta').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    verificar();
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'n' || e.key === 'N') {
+    if (document.activeElement !== document.getElementById('respuesta')) {
+      nuevoEjercicio();
+    }
+  }
+});
+
+window.onload = function() {
+  nuevoEjercicio();
+};
+</script>
+
+</body>
+</html>
