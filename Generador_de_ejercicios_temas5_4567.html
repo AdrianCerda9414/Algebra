@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios · Álgebra · Vectores</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+/* VARIABLES Y BASE */
+:root {
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.55;
+  padding: 24px 16px 60px;
+}
+.wrap { max-width: 900px; margin: 0 auto; }
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(17,24,39,0.08);
+  overflow: hidden;
+}
+.card-head {
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: #fff;
+  padding: 22px 28px;
+}
+.card-head h1 { margin: 0 0 4px; font-size: 1.6rem; font-weight: 700; }
+.card-head .sub { font-size: 0.95rem; opacity: 0.95; }
+.card-body { padding: 22px 28px 26px; }
+.topbar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+/* BOTONES */
+.btn-primary, .btn-ghost, .btn-soft {
+  font-family: inherit; font-size: 0.95rem; border-radius: 10px;
+  padding: 10px 16px; cursor: pointer; border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn-primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+.btn-primary:hover { background: #4338ca; }
+.btn-ghost { background: transparent; color: var(--brand); border-color: var(--line); }
+.btn-ghost:hover { background: #f9fafb; }
+.btn-soft { background: #eef2ff; color: var(--brand); }
+.btn-soft:hover { background: #e0e7ff; }
+/* ENTRADA Y FILA */
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+#respuesta {
+  flex: 1; min-width: 220px; padding: 11px 14px; font-size: 1rem;
+  border: 1px solid var(--line); border-radius: 10px; font-family: inherit;
+}
+#respuesta:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+#enunciado {
+  background: #f9fafb; border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px 18px; margin-bottom: 16px; font-size: 1.02rem;
+}
+/* FEEDBACK */
+.feedback { margin-top: 14px; padding: 12px 14px; border-radius: 10px; font-size: 0.95rem; display: none; }
+.feedback.visible { display: block; }
+.feedback.ok { background: var(--okbg); border: 1px solid #a7f3d0; color: var(--ok); }
+.feedback.err { background: var(--errbg); border: 1px solid #fecaca; color: var(--err); }
+.feedback code {
+  background: rgba(255,255,255,0.7); padding: 1px 6px; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+/* PANELES */
+.panel { margin-top: 14px; padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; display: none; }
+.panel.visible { display: block; }
+.panel.pista { background: var(--warnbg); border: 1px solid #fde68a; color: var(--warn); }
+.panel.explicacion { background: #f5f3ff; border: 1px solid #ddd6fe; color: #5b21b6; }
+/* MARCADOR */
+.marcador {
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line);
+  display: flex; gap: 22px; flex-wrap: wrap; align-items: center;
+  color: var(--muted); font-size: 0.9rem;
+}
+.marcador b { color: var(--ink); font-weight: 600; }
+.kbd {
+  display: inline-block; padding: 1px 7px; background: #fff;
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px;
+  font-size: 0.8rem; color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+footer { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 22px; }
+/* RESPONSIVE */
+@media (max-width: 560px) {
+  .card-head { padding: 18px 18px; }
+  .card-body { padding: 16px 16px 20px; }
+  .card-head h1 { font-size: 1.3rem; }
+  #respuesta { min-width: 100%; }
+  .btn-primary, .btn-ghost, .btn-soft { flex: 1; }
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-head">
+        <h1>Generador infinito de ejercicios</h1>
+        <div class="sub">Materia: ÁLGEBRA · Tema: Operaciones con vectores, desigualdades triangular y de Cauchy-Schwarz, ángulo entre vectores, producto punto, norma</div>
+      </div>
+      <div class="card-body">
+        <div class="topbar">
+          <button class="btn-ghost" id="btnNuevo">Nuevo ejercicio</button>
+        </div>
+        <div id="enunciado"></div>
+        <div class="row">
+          <input id="respuesta" type="text" placeholder="Usa ^ para potencias y / para fracciones…" autocomplete="off">
+          <button class="btn-primary" id="btnVerificar">Verificar</button>
+          <button class="btn-soft" id="btnPista">Pista</button>
+          <button class="btn-soft" id="btnExplicacion">Explicación</button>
+        </div>
+        <div id="feedback" class="feedback"></div>
+        <div id="pistaBox" class="panel pista"></div>
+        <div id="explicacionBox" class="panel explicacion"></div>
+        <div class="marcador">
+          Aciertos: <b id="mArc">0</b> · Intentos: <b id="mInt">0</b>
+          <span class="legend"><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</span>
+        </div>
+      </div>
+    </div>
+    <footer>Generador aleatorio educativo · ÁLGEBRA · Vectores: operaciones, desigualdades, ángulo, producto punto, norma</footer>
+  </div>
+
+<script>
+// ============ ESTADO ============
+var aciertos = 0, intentos = 0;
+var ejercicio = null;
+
+// ============ UTILIDADES ============
+function escaparHTML(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function normalizar(v) {
+    v = String(v).toLowerCase().trim();
+    v = v.replace(/\$/g,'').replace(/\{/g,'').replace(/\}/g,'');
+    v = v.replace(/·/g,'*');            // middot a asterisco
+    v = v.replace(/°/g,'').replace(/grados/g,'').replace(/deg/g,''); // grados
+    v = v.replace(/²/g,'^2').replace(/³/g,'^3'); // superíndices
+    v = v.replace(/\s/g,'');
+    return v;
+}
+function aNumero(s) {
+    s = String(s).trim().replace(/\s/g,'');
+    var m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+    if (m) { var num=parseFloat(m[1]), den=parseFloat(m[2]); if (den===0) return NaN; return num/den; }
+    if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+    return NaN;
+}
+function coincideTexto(entrada, acepta) {
+    var e = normalizar(entrada);
+    for (var i=0;i<acepta.length;i++) if (normalizar(acepta[i])===e) return true;
+    return false;
+}
+function tiposet(nodo, intento) {
+    intento = intento || 0;
+    if (window.MathJax && window.MathJax.typesetPromise) { window.MathJax.typesetPromise([nodo]); return; }
+    if (intento < 40) setTimeout(function(){ tiposet(nodo, intento+1); }, 200);
+}
+// Formatea la norma de (x,y): entero si es cuadrado perfecto, si no \sqrt{N}
+function fmtNorm(x, y) {
+    var s = x*x + y*y;
+    var r = Math.round(Math.sqrt(s));
+    if (r*r === s) return String(r);
+    return '\\sqrt{' + s + '}';
+}
+
+// ============ GENERADOR ============
+function genVectores() {
+    var v = Math.floor(Math.random()*6);
+    var o = {};
+
+    if (v === 0) {
+        // VARIANTE 1: Producto punto (numérica)
+        var a = 1 + Math.floor(Math.random()*5);  // 1..5
+        var b = 1 + Math.floor(Math.random()*5);
+        var c = 1 + Math.floor(Math.random()*5);
+        var d = 1 + Math.floor(Math.random()*5);
+        var r = a*c + b*d;
+        o.tipo = 'numerica';
+        o.problema = 'En un sistema de visión artificial, un robot detecta un desplazamiento \\(\\vec{u}=('+a+','+b+')\\) y una fuerza de corrección \\(\\vec{v}=('+c+','+d+')\\) en newtons. Calcula el producto punto \\(\\vec{u}\\cdot\\vec{v}\\).';
+        o.solucion = String(r);
+        o.respuestaLaTeX = String(r);
+        o.acepta = [String(r)];
+        o.respuesta = r;
+        o.tolerancia = 0.001;
+        o.pista = 'Aplica \\(\\vec{u}\\cdot\\vec{v}=u_x v_x + u_y v_y\\). Multiplica las componentes homólogas y suma.';
+        o.explicacion = 'Paso 1. Fórmula del producto punto: \\(\\vec{u}\\cdot\\vec{v}=u_x v_x + u_y v_y\\). Paso 2. Sustituimos \\(u_x='+a+', u_y='+b+', v_x='+c+', v_y='+d+'\\). Paso 3. Productos: \\('+a+'\\cdot'+c+'='+a*c+'\\) y \\('+b+'\\cdot'+d+'='+b*d+'\\). Paso 4. Suma: \\('+a*c+'+'+b*d+'='+r+'\\).';
+    }
+    else if (v === 1) {
+        // VARIANTE 2: Norma con terna pitagórica (numérica)
+        var triples = [[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[7,24,25]];
+        var t = triples[Math.floor(Math.random()*triples.length)];
+        var a = t[0], b = t[1], h = t[2];
+        o.tipo = 'numerica';
+        o.problema = 'En un brazo robótico, el vector de posición de una articulación respecto a la base es \\(\\vec{v}=('+a+','+b+')\\) cm. Calcula la norma \\(\\|\\vec{v}\\|\\).';
+        o.solucion = String(h);
+        o.respuestaLaTeX = String(h);
+        o.acepta = [String(h)];
+        o.respuesta = h;
+        o.tolerancia = 0.001;
+        o.pista = 'Aplica \\(\\|\\vec{v}\\|=\\sqrt{v_x^2+v_y^2}\\). Calcula \\('+a+'^2+'+b+'^2\\) y toma la raíz cuadrada.';
+        o.explicacion = 'Paso 1. Fórmula de la norma: \\(\\|\\vec{v}\\|=\\sqrt{v_x^2+v_y^2}\\). Paso 2. Sustituimos \\(v_x='+a+', v_y='+b+'\\). Paso 3. Suma de cuadrados: \\('+a+'^2+'+b+'^2='+(a*a+b*b)+'\\). Paso 4. Raíz: \\(\\sqrt{'+(a*a+b*b)+'}='+h+'\\) cm.';
+    }
+    else if (v === 2) {
+        // VARIANTE 3: Ángulo entre vectores (numérica, ángulos notables)
+        var casos = [
+            {u:[1,0], v:[2,0],  a:0},   // paralelos
+            {u:[3,0], v:[0,4],  a:90},  // perpendiculares
+            {u:[1,0], v:[1,1],  a:45},  // 45°
+            {u:[2,0], v:[-1,1], a:135}, // 135°
+            {u:[3,0], v:[-2,0], a:180}, // antiparalelos
+            {u:[1,2], v:[-2,1], a:90}   // perpendiculares
+        ];
+        var c = casos[Math.floor(Math.random()*casos.length)];
+        var ux=c.u[0], uy=c.u[1], vx=c.v[0], vy=c.v[1], ang=c.a;
+        var dot = ux*vx + uy*vy;
+        var nU = fmtNorm(ux, uy);
+        var nV = fmtNorm(vx, vy);
+        o.tipo = 'numerica';
+        o.problema = 'En una red neuronal, los pesos sinápticos de dos neuronas están representados por los vectores \\(\\vec{u}=('+ux+','+uy+')\\) y \\(\\vec{v}=('+vx+','+vy+')\\). Determina el ángulo \\(\\theta\\) en grados entre \\(\\vec{u}\\) y \\(\\vec{v}\\).';
+        o.solucion = ang + '°';
+        o.respuestaLaTeX = ang + '^{\\circ}';
+        o.acepta = [String(ang)];
+        o.respuesta = ang;
+        o.tolerancia = 0.001;
+        o.pista = 'Usa \\(\\cos\\theta=\\dfrac{\\vec{u}\\cdot\\vec{v}}{\\|\\vec{u}\\|\\,\\|\\vec{v}\\|}\\). Calcula el coseno y reconoce el ángulo notable (0°, 45°, 90°, 135° o 180°).';
+        o.explicacion = 'Paso 1. Producto punto: \\(\\vec{u}\\cdot\\vec{v}='+dot+'\\). Paso 2. Normas: \\(\\|\\vec{u}\\|='+nU+'\\), \\(\\|\\vec{v}\\|='+nV+'\\). Paso 3. Coseno: \\(\\cos\\theta=\\dfrac{'+dot+'}{'+nU+'\\cdot'+nV+'}\\). Paso 4. Simplificando se obtiene un valor notable, luego \\(\\theta='+ang+'^{\\circ}\\).';
+    }
+    else if (v === 3) {
+        // VARIANTE 4: Desigualdad de Cauchy-Schwarz — cota superior (numérica)
+        var triples = [[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15]];
+        var t1 = triples[Math.floor(Math.random()*triples.length)];
+        var t2 = triples[Math.floor(Math.random()*triples.length)];
+        var ux=t1[0], uy=t1[1], nu=t1[2];
+        var vx=t2[0], vy=t2[1], nv=t2[2];
+        var bound = nu * nv;
+        o.tipo = 'numerica';
+        o.problema = 'En un análisis de innovación de diseño liderado por la ingeniera Beatriz, dos vectores criterio son \\(\\vec{u}=('+ux+','+uy+')\\) y \\(\\vec{v}=('+vx+','+vy+')\\). Por la desigualdad de Cauchy-Schwarz, \\(|\\vec{u}\\cdot\\vec{v}|\\le\\|\\vec{u}\\|\\,\\|\\vec{v}\\|\\). Calcula la cota superior \\(\\|\\vec{u}\\|\\,\\|\\vec{v}\\|\\).';
+        o.solucion = String(bound);
+        o.respuestaLaTeX = String(bound);
+        o.acepta = [String(bound)];
+        o.respuesta = bound;
+        o.tolerancia = 0.001;
+        o.pista = 'Calcula \\(\\|\\vec{u}\\|\\) y \\(\\|\\vec{v}\\|\\) por separado y multiplícalas. Ambas componentes forman ternas pitagóricas, así que las normas son enteras.';
+        o.explicacion = 'Paso 1. Norma de \\(\\vec{u}\\): \\(\\|\\vec{u}\\|=\\sqrt{'+ux+'^2+'+uy+'^2}=\\sqrt{'+(ux*ux+uy*uy)+'}='+nu+'\\). Paso 2. Norma de \\(\\vec{v}\\): \\(\\|\\vec{v}\\|='+nv+'\\). Paso 3. Cota superior: \\(\\|\\vec{u}\\|\\,\\|\\vec{v}\\|='+nu+'\\cdot'+nv+'='+bound+'\\). Paso 4. La desigualdad garantiza \\(|\\vec{u}\\cdot\\vec{v}|\\le'+bound+'\\).';
+    }
+    else if (v === 4) {
+        // VARIANTE 5: Desigualdad triangular — ||u+v|| (numérica)
+        var triples = [[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15]];
+        var t = triples[Math.floor(Math.random()*triples.length)];
+        var a = t[0], b = t[1], h = t[2];
+        o.tipo = 'numerica';
+        o.problema = 'En un sistema de navegación de un dron, dos desplazamientos perpendiculares son \\(\\vec{u}=('+a+',0)\\) y \\(\\vec{v}=(0,'+b+')\\). Por la desigualdad triangular \\(\\|\\vec{u}+\\vec{v}\\|\\le\\|\\vec{u}\\|+\\|\\vec{v}\\|\\). Calcula \\(\\|\\vec{u}+\\vec{v}\\|\\).';
+        o.solucion = String(h);
+        o.respuestaLaTeX = String(h);
+        o.acepta = [String(h)];
+        o.respuesta = h;
+        o.tolerancia = 0.001;
+        o.pista = 'Suma los vectores componente a componente y luego aplica \\(\\|\\vec{w}\\|=\\sqrt{w_x^2+w_y^2}\\).';
+        o.explicacion = 'Paso 1. Suma vectorial: \\(\\vec{u}+\\vec{v}=('+a+',0)+(0,'+b+')=('+a+','+b+')\\). Paso 2. Norma: \\(\\|\\vec{u}+\\vec{v}\\|=\\sqrt{'+a+'^2+'+b+'^2}\\). Paso 3. Suma de cuadrados: \\('+a+'^2+'+b+'^2='+(a*a+b*b)+'\\). Paso 4. Resultado: \\(\\sqrt{'+(a*a+b*b)+'}='+h+'\\). Como \\(\\|\\vec{u}\\|+\\|\\vec{v}\\|='+a+'+'+b+'='+(a+b)+'\\ge'+h+'\\), se verifica la desigualdad triangular.';
+    }
+    else {
+        // VARIANTE 6: Propiedad simbólica — expansión de ||u+v||^2
+        o.tipo = 'simbolica';
+        o.problema = 'En el análisis de fuerzas de un robot, se necesita la identidad que relaciona \\(\\|\\vec{u}+\\vec{v}\\|^2\\) con \\(\\|\\vec{u}\\|^2\\), \\(\\|\\vec{v}\\|^2\\) y el producto punto \\(\\vec{u}\\cdot\\vec{v}\\). Escribe la fórmula de \\(\\|\\vec{u}+\\vec{v}\\|^2\\).';
+        o.solucion = '||u||^2 + 2u*v + ||v||^2';
+        o.respuestaLaTeX = '\\|\\vec{u}+\\vec{v}\\|^2 = \\|\\vec{u}\\|^2 + 2\\,\\vec{u}\\cdot\\vec{v} + \\|\\vec{v}\\|^2';
+        o.acepta = [
+            '||u||^2+2u*v+||v||^2',
+            '|u|^2+2u*v+|v|^2',
+            'u*u+2u*v+v*v',
+            'u^2+2u*v+v^2',
+            '||u||^2+2(u*v)+||v||^2'
+        ];
+        o.pista = 'Desarrolla \\((\\vec{u}+\\vec{v})\\cdot(\\vec{u}+\\vec{v})\\) aplicando la propiedad distributiva del producto punto y su conmutatividad.';
+        o.explicacion = 'Paso 1. Por definición \\(\\|\\vec{u}+\\vec{v}\\|^2=(\\vec{u}+\\vec{v})\\cdot(\\vec{u}+\\vec{v})\\). Paso 2. Distributividad: \\(\\vec{u}\\cdot\\vec{u}+\\vec{u}\\cdot\\vec{v}+\\vec{v}\\cdot\\vec{u}+\\vec{v}\\cdot\\vec{v}\\). Paso 3. Conmutatividad \\(\\vec{v}\\cdot\\vec{u}=\\vec{u}\\cdot\\vec{v}\\): \\(\\|\\vec{u}\\|^2+2\\,\\vec{u}\\cdot\\vec{v}+\\|\\vec{v}\\|^2\\). Paso 4. Fórmula final: \\(\\|\\vec{u}+\\vec{v}\\|^2=\\|\\vec{u}\\|^2+2\\,\\vec{u}\\cdot\\vec{v}+\\|\\vec{v}\\|^2\\).';
+    }
+
+    return o;
+}
+
+// ============ UI ============
+function nuevoEjercicio() {
+    ejercicio = genVectores();
+    var enun = document.getElementById('enunciado');
+    enun.innerHTML = ejercicio.problema;
+    tiposet(enun);
+    var inp = document.getElementById('respuesta');
+    inp.value = ''; inp.focus();
+    var fb = document.getElementById('feedback');
+    fb.className = 'feedback'; fb.innerHTML = '';
+    var pb = document.getElementById('pistaBox');
+    pb.className = 'panel pista'; pb.innerHTML = '';
+    var eb = document.getElementById('explicacionBox');
+    eb.className = 'panel explicacion'; eb.innerHTML = '';
+}
+function verificar() {
+    if (!ejercicio) return;
+    var entradaRaw = document.getElementById('respuesta').value;
+    if (!entradaRaw.trim()) return;
+    // Tolerancia de entrada: aceptar prefijos como "u=", "v=", "x=", "<=", etc.
+    var entrada = entradaRaw.trim()
+        .replace(/^\s*[a-zA-Z]\s*=\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*<=\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*>=\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*≤\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*≥\s*/,'')
+        .trim();
+    intentos++;
+    document.getElementById('mInt').textContent = intentos;
+    var ok = false;
+    if (ejercicio.tipo === 'numerica') {
+        var num = aNumero(entrada);
+        if (!isNaN(num) && Math.abs(num - ejercicio.respuesta) <= ejercicio.tolerancia) ok = true;
+        else if (coincideTexto(entrada, ejercicio.acepta)) ok = true;
+    } else {
+        ok = coincideTexto(entrada, ejercicio.acepta);
+    }
+    var fb = document.getElementById('feedback');
+    if (ok) {
+        aciertos++;
+        document.getElementById('mArc').textContent = aciertos;
+        fb.className = 'feedback ok visible';
+        fb.innerHTML = '<div style="font-weight:600;">✓ ¡Correcto!</div>'
+            + '<div>Escribiste: <code>' + escaparHTML(entradaRaw.trim()) + '</code></div>'
+            + '<div>En notación matemática: \\(' + ejercicio.respuestaLaTeX + '\\)</div>';
+        tiposet(fb);
+    } else {
+        fb.className = 'feedback err visible';
+        fb.innerHTML = '<div>✗ Todavía no. Revisa tu procedimiento o pide una pista.</div>';
+    }
+}
+function mostrarPista() {
+    if (!ejercicio) return;
+    var p = document.getElementById('pistaBox');
+    p.innerHTML = ejercicio.pista; p.classList.add('visible'); tiposet(p);
+}
+function mostrarExplicacion() {
+    if (!ejercicio) return;
+    var e = document.getElementById('explicacionBox');
+    e.innerHTML = ejercicio.explicacion; e.classList.add('visible'); tiposet(e);
+}
+
+// ============ EVENTOS ============
+document.getElementById('btnNuevo').addEventListener('click', nuevoEjercicio);
+document.getElementById('btnVerificar').addEventListener('click', verificar);
+document.getElementById('btnPista').addEventListener('click', mostrarPista);
+document.getElementById('btnExplicacion').addEventListener('click', mostrarExplicacion);
+document.getElementById('respuesta').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || (e.keyCode || e.which) === 13) verificar();
+});
+document.addEventListener('keydown', function (e) {
+    var tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+    if ((e.key === 'n' || e.key === 'N') && tag !== 'input' && tag !== 'textarea') nuevoEjercicio();
+});
+
+// ============ ARRANQUE ============
+nuevoEjercicio();
+</script>
+</body>
+</html>
