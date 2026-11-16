@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios · Álgebra · Números complejos</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+/* VARIABLES Y BASE */
+:root {
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+}
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height:1.55; padding:24px 16px 60px; }
+.wrap { max-width:900px; margin:0 auto; }
+.card { background:var(--card); border-radius:16px; box-shadow:0 10px 30px rgba(17,24,39,0.08); overflow:hidden; }
+.card-head { background:linear-gradient(135deg, var(--brand), var(--brand2)); color:#fff; padding:22px 28px; }
+.card-head h1 { margin:0 0 4px; font-size:1.6rem; font-weight:700; }
+.card-head .sub { font-size:0.95rem; opacity:0.95; }
+.card-body { padding:22px 28px 26px; }
+.topbar { display:flex; justify-content:flex-end; margin-bottom:14px; }
+.btn-primary, .btn-ghost, .btn-soft {
+  font-family:inherit; font-size:0.95rem; border-radius:10px; padding:10px 16px;
+  cursor:pointer; border:1px solid transparent;
+  transition:background 0.15s, border-color 0.15s, color 0.15s; }
+.btn-primary { background:var(--brand); color:#fff; border-color:var(--brand); }
+.btn-primary:hover { background:#4338ca; }
+.btn-ghost { background:transparent; color:var(--brand); border-color:var(--line); }
+.btn-ghost:hover { background:#f9fafb; }
+.btn-soft { background:#eef2ff; color:var(--brand); }
+.btn-soft:hover { background:#e0e7ff; }
+.row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+#respuesta { flex:1; min-width:220px; padding:11px 14px; font-size:1rem; border:1px solid var(--line); border-radius:10px; font-family:inherit; }
+#respuesta:focus { outline:none; border-color:var(--brand); box-shadow:0 0 0 3px rgba(79,70,229,0.15); }
+#enunciado { background:#f9fafb; border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px; font-size:1.02rem; }
+.feedback { margin-top:14px; padding:12px 14px; border-radius:10px; font-size:0.95rem; display:none; }
+.feedback.visible { display:block; }
+.feedback.ok { background:var(--okbg); border:1px solid #a7f3d0; color:var(--ok); }
+.feedback.err { background:var(--errbg); border:1px solid #fecaca; color:var(--err); }
+.feedback code { background:rgba(255,255,255,0.7); padding:1px 6px; border-radius:4px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+.panel { margin-top:14px; padding:14px 16px; border-radius:10px; font-size:0.95rem; display:none; }
+.panel.visible { display:block; }
+.panel.pista { background:var(--warnbg); border:1px solid #fde68a; color:var(--warn); }
+.panel.explicacion { background:#f5f3ff; border:1px solid #ddd6fe; color:#5b21b6; }
+.marcador { margin-top:20px; padding-top:16px; border-top:1px solid var(--line); display:flex; gap:22px; flex-wrap:wrap; align-items:center; color:var(--muted); font-size:0.9rem; }
+.marcador b { color:var(--ink); font-weight:600; }
+.kbd { display:inline-block; padding:1px 7px; background:#fff; border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; font-size:0.8rem; color:var(--ink); font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+footer { text-align:center; color:var(--muted); font-size:0.85rem; margin-top:22px; }
+@media (max-width:560px) {
+  .card-head { padding:18px 18px; }
+  .card-body { padding:16px 16px 20px; }
+  .card-head h1 { font-size:1.3rem; }
+  #respuesta { min-width:100%; }
+  .btn-primary, .btn-ghost, .btn-soft { flex:1; }
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-head">
+        <h1>Generador infinito de ejercicios</h1>
+        <div class="sub">Materia: ÁLGEBRA · Tema: Operaciones con números complejos, interpretación geométrica, fórmula de De Moivre, raíces, aplicaciones ingenieriles (electrónica, mecánica, diseño, arquitectura)</div>
+      </div>
+      <div class="card-body">
+        <div class="topbar"><button class="btn-ghost" id="btnNuevo">Nuevo ejercicio</button></div>
+        <div id="enunciado"></div>
+        <div class="row">
+          <input id="respuesta" type="text" placeholder="Usa ^ para potencias y / para fracciones…" autocomplete="off">
+          <button class="btn-primary" id="btnVerificar">Verificar</button>
+          <button class="btn-soft" id="btnPista">Pista</button>
+          <button class="btn-soft" id="btnExplicacion">Explicación</button>
+        </div>
+        <div id="feedback" class="feedback"></div>
+        <div id="pistaBox" class="panel pista"></div>
+        <div id="explicacionBox" class="panel explicacion"></div>
+        <div class="marcador">
+          Aciertos: <b id="mArc">0</b> · Intentos: <b id="mInt">0</b>
+          <span class="legend"><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</span>
+        </div>
+      </div>
+    </div>
+    <footer>Generador aleatorio educativo · ÁLGEBRA · Números complejos, De Moivre, raíces, aplicaciones ingenieriles</footer>
+  </div>
+
+<script>
+// ============ ESTADO ============
+var aciertos = 0, intentos = 0;
+var ejercicio = null;
+
+// ============ UTILIDADES ============
+function escaparHTML(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function normalizar(v) {
+    v = String(v).toLowerCase().trim();
+    v = v.replace(/\$/g,'').replace(/\{/g,'').replace(/\}/g,'');
+    v = v.replace(/·/g,'*');
+    v = v.replace(/\*/g, '');           // elimina asteriscos
+    v = v.replace(/j/g, 'i');           // notación de ingeniería j → i
+    v = v.replace(/°/g,'').replace(/grados/g,'').replace(/deg/g,'');
+    v = v.replace(/²/g,'^2').replace(/³/g,'^3');
+    v = v.replace(/\s/g,'');
+    return v;
+}
+function aNumero(s) {
+    s = String(s).trim().replace(/\s/g,'');
+    var m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+    if (m) { var num=parseFloat(m[1]), den=parseFloat(m[2]); if (den===0) return NaN; return num/den; }
+    if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+    return NaN;
+}
+function coincideTexto(entrada, acepta) {
+    var e = normalizar(entrada);
+    for (var i=0;i<acepta.length;i++) if (normalizar(acepta[i])===e) return true;
+    return false;
+}
+// Analiza un número complejo escrito en texto plano (3+4i, 2i, -1, i, ...)
+function parseComplejo(s) {
+    s = String(s).trim().replace(/\s/g,'').replace(/\*/g,'').replace(/j/g,'i').replace(/\(/g,'').replace(/\)/g,'').toLowerCase();
+    if (s === '') return null;
+    if (s === 'i' || s === '+i') return {re:0, im:1};
+    if (s === '-i') return {re:0, im:-1};
+    if (s.indexOf('i') === -1) {
+        var n = parseFloat(s);
+        return isNaN(n) ? null : {re:n, im:0};
+    }
+    if (s.charAt(s.length-1) !== 'i') return null;
+    var rest = s.substring(0, s.length-1);
+    var signIdx = -1;
+    for (var k = rest.length - 1; k > 0; k--) {
+        if (rest[k] === '+' || rest[k] === '-') { signIdx = k; break; }
+    }
+    var reStr, imStr;
+    if (signIdx === -1) { reStr = '0'; imStr = rest; }
+    else { reStr = rest.substring(0, signIdx); imStr = rest.substring(signIdx); }
+    if (imStr === '' || imStr === '+') imStr = '+1';
+    if (imStr === '-') imStr = '-1';
+    var re = parseFloat(reStr);
+    var im = parseFloat(imStr);
+    if (isNaN(re) || isNaN(im)) return null;
+    return {re:re, im:im};
+}
+function coincideComplejo(entrada, real, imag, tol) {
+    var p = parseComplejo(entrada);
+    if (!p) return false;
+    tol = tol || 0.001;
+    return Math.abs(p.re - real) <= tol && Math.abs(p.im - imag) <= tol;
+}
+function tiposet(nodo, intento) {
+    intento = intento || 0;
+    if (window.MathJax && window.MathJax.typesetPromise) { window.MathJax.typesetPromise([nodo]); return; }
+    if (intento < 40) setTimeout(function(){ tiposet(nodo, intento+1); }, 200);
+}
+// Formatea un complejo (re, im) como cadena legible: 3+4i, 2i, -1, i, -i, 3-4i
+function latexComplejo(re, im) {
+    if (im === 0) return String(re);
+    if (re === 0) {
+        if (im === 1) return 'i';
+        if (im === -1) return '-i';
+        return im + 'i';
+    }
+    var sign = im > 0 ? '+' : '-';
+    var absImag = Math.abs(im);
+    if (absImag === 1) return re + sign + 'i';
+    return re + sign + absImag + 'i';
+}
+
+// ============ GENERADOR ============
+// Pool de divisiones "limpias": numerador/denominador = resultado entero
+var POOL_DIV = [
+    {n:[3,1],  d:[1,1], r:[2,-1]},  {n:[5,1],  d:[1,1], r:[3,-2]},
+    {n:[3,3],  d:[1,1], r:[3, 0]},  {n:[4,2],  d:[1,1], r:[3,-1]},
+    {n:[5,3],  d:[1,1], r:[4,-1]},  {n:[7,1],  d:[1,1], r:[4,-3]},
+    {n:[1,3],  d:[1,1], r:[2, 1]},  {n:[3,5],  d:[1,1], r:[4, 1]},
+    {n:[1,5],  d:[1,1], r:[3, 2]},  {n:[4,4],  d:[1,1], r:[4, 0]},
+    {n:[1,3],  d:[2,1], r:[1, 1]},  {n:[4,2],  d:[2,1], r:[2, 0]},
+    {n:[6,3],  d:[2,1], r:[3, 0]},  {n:[3,4],  d:[2,1], r:[2, 1]},
+    {n:[5,5],  d:[2,1], r:[3, 1]}
+];
+// Pool para módulo: ternas pitagóricas (incluye signos)
+var POOL_MODULO = [
+    {a:3, b:4, mod:5},   {a:6, b:8, mod:10},  {a:5, b:12, mod:13},
+    {a:8, b:15, mod:17}, {a:9, b:12, mod:15}, {a:7, b:24, mod:25},
+    {a:-3, b:4, mod:5},  {a:3, b:-4, mod:5},  {a:-5, b:12, mod:13},
+    {a:5, b:-12, mod:13}
+];
+// Pool para De Moivre: (cos θ + i sin θ)^n con resultado en {1,-1,i,-i}
+var POOL_DEMOIVRE = [
+    {theta:30, n:3,  re:0,  im:1},   {theta:30, n:6,  re:-1, im:0},
+    {theta:30, n:12, re:1,  im:0},   {theta:45, n:2,  re:0,  im:1},
+    {theta:45, n:4,  re:-1, im:0},   {theta:45, n:6,  re:0,  im:-1},
+    {theta:45, n:8,  re:1,  im:0},   {theta:60, n:3,  re:-1, im:0},
+    {theta:60, n:6,  re:1,  im:0},   {theta:90, n:2,  re:-1, im:0},
+    {theta:90, n:3,  re:0,  im:-1},  {theta:90, n:4,  re:1,  im:0}
+];
+// Pool para (a+bi)^2 con resultado entero limpio
+var POOL_POTENCIA2 = [
+    {a:1, b:1,  re:0,  im:2},   {a:1, b:-1, re:0,  im:-2},
+    {a:-1, b:1, re:0,  im:-2},  {a:2, b:1,  re:3,  im:4},
+    {a:1, b:2,  re:-3, im:4},   {a:2, b:-1, re:3,  im:-4},
+    {a:2, b:2,  re:0,  im:8},   {a:1, b:3,  re:-8, im:6},
+    {a:3, b:1,  re:8,  im:6},   {a:3, b:-1, re:8,  im:-6}
+];
+
+function genComplejos() {
+    var v = Math.floor(Math.random()*6);
+    var o = {};
+
+    if (v === 0) {
+        // VARIANTE 1: Suma de complejos (simbólica → complejo)
+        var a = 1 + Math.floor(Math.random()*5);  // 1..5
+        var b = 1 + Math.floor(Math.random()*5);
+        var c = 1 + Math.floor(Math.random()*5);
+        var d = 1 + Math.floor(Math.random()*5);
+        var re = a + c, im = b + d;
+        o.tipo = 'simbolica';
+        o.problema = 'En un circuito electrónico diseñado por la ingeniera Herminia, dos señales AC se representan como \\(z_1='+latexComplejo(a,b)+'\\) y \\(z_2='+latexComplejo(c,d)+'\\) voltios. Calcula la señal total \\(z_1+z_2\\).';
+        o.solucion = latexComplejo(re, im);
+        o.respuestaLaTeX = latexComplejo(re, im);
+        o.acepta = [latexComplejo(re, im)];
+        o.re = re; o.im = im; o.tolerancia = 0.001;
+        o.pista = 'Suma por separado las partes reales y las partes imaginarias: \\(\\mathrm{Re}(z_1+z_2)=a+c\\) y \\(\\mathrm{Im}(z_1+z_2)=b+d\\).';
+        o.explicacion = 'Paso 1. Identificamos \\(z_1='+latexComplejo(a,b)+'\\) y \\(z_2='+latexComplejo(c,d)+'\\). Paso 2. Suma de partes reales: \\('+a+'+'+c+'='+re+'\\). Paso 3. Suma de partes imaginarias: \\('+b+'+'+d+'='+im+'\\). Paso 4. Resultado: \\('+latexComplejo(re,im)+'\\).';
+    }
+    else if (v === 1) {
+        // VARIANTE 2: Producto de complejos (simbólica → complejo)
+        var a = 1 + Math.floor(Math.random()*3);  // 1..3
+        var b = 1 + Math.floor(Math.random()*3);
+        var c = 1 + Math.floor(Math.random()*3);
+        var d = 1 + Math.floor(Math.random()*3);
+        var re = a*c - b*d, im = a*d + b*c;
+        o.tipo = 'simbolica';
+        o.problema = 'En un sistema de modulación de señales de una comunidad tseltal, dos señales \\(z_1='+latexComplejo(a,b)+'\\) y \\(z_2='+latexComplejo(c,d)+'\\) se multiplican. Calcula el producto \\(z_1 z_2\\).';
+        o.solucion = latexComplejo(re, im);
+        o.respuestaLaTeX = latexComplejo(re, im);
+        o.acepta = [latexComplejo(re, im)];
+        o.re = re; o.im = im; o.tolerancia = 0.001;
+        o.pista = 'Aplica \\((a+bi)(c+di)=(ac-bd)+(ad+bc)i\\). Multiplica componente a componente recordando que \\(i^2=-1\\).';
+        o.explicacion = 'Paso 1. Fórmula: \\((a+bi)(c+di)=(ac-bd)+(ad+bc)i\\). Paso 2. Sustituimos \\(a='+a+', b='+b+', c='+c+', d='+d+'\\). Paso 3. Real: \\('+a+'\\cdot'+c+'-'+b+'\\cdot'+d+'='+re+'\\). Imaginaria: \\('+a+'\\cdot'+d+'+'+b+'\\cdot'+c+'='+im+'\\). Paso 4. Resultado: \\('+latexComplejo(re,im)+'\\).';
+    }
+    else if (v === 2) {
+        // VARIANTE 3: División de complejos (simbólica → complejo)
+        var t = POOL_DIV[Math.floor(Math.random()*POOL_DIV.length)];
+        var na=t.n[0], nb=t.n[1], da=t.d[0], db=t.d[1], re=t.r[0], im=t.r[1];
+        var normSq = da*da + db*db;
+        o.tipo = 'simbolica';
+        o.problema = 'En un análisis de impedancia liderado por la ingeniera Sofía, se calcula la función de transferencia \\(\\dfrac{z_1}{z_2}\\) donde \\(z_1='+latexComplejo(na,nb)+'\\) y \\(z_2='+latexComplejo(da,db)+'\\). Determina el cociente.';
+        o.solucion = latexComplejo(re, im);
+        o.respuestaLaTeX = latexComplejo(re, im);
+        o.acepta = [latexComplejo(re, im)];
+        o.re = re; o.im = im; o.tolerancia = 0.001;
+        o.pista = 'Multiplica numerador y denominador por el conjugado \\(\\overline{z_2}='+da+'-'+db+'i\\). El denominador se vuelve \\(c^2+d^2\\), un número real.';
+        o.explicacion = 'Paso 1. Multiplicamos por el conjugado: \\(\\dfrac{z_1}{z_2}=\\dfrac{z_1\\,\\overline{z_2}}{|z_2|^2}\\). Paso 2. Numerador: \\(('+latexComplejo(na,nb)+')('+da+'-'+db+'i)='+latexComplejo(na*da+nb*db, nb*da-na*db)+'\\). Paso 3. Denominador: \\('+da+'^2+'+db+'^2='+normSq+'\\). Paso 4. Resultado: \\(\\dfrac{'+latexComplejo(na*da+nb*db, nb*da-na*db)+'}{'+normSq+'}='+latexComplejo(re,im)+'\\).';
+    }
+    else if (v === 3) {
+        // VARIANTE 4: Módulo |z| (numérica)
+        var t = POOL_MODULO[Math.floor(Math.random()*POOL_MODULO.length)];
+        var a=t.a, b=t.b, mod=t.mod;
+        o.tipo = 'numerica';
+        o.problema = 'En un sistema de control robótico diseñado por la ingeniera Elena, la magnitud de la señal compleja \\(z='+latexComplejo(a,b)+'\\) representa la amplitud. Calcula el módulo \\(|z|\\).';
+        o.solucion = String(mod);
+        o.respuestaLaTeX = String(mod);
+        o.acepta = [String(mod)];
+        o.respuesta = mod; o.tolerancia = 0.001;
+        o.pista = 'Aplica \\(|a+bi|=\\sqrt{a^2+b^2}\\). Geométricamente, es la distancia del punto \\((a,b)\\) al origen en el plano complejo.';
+        o.explicacion = 'Paso 1. Fórmula del módulo: \\(|z|=\\sqrt{a^2+b^2}\\). Paso 2. Sustituimos \\(a='+a+', b='+b+'\\). Paso 3. Suma de cuadrados: \\(('+a+')^2+('+b+')^2='+(a*a+b*b)+'\\). Paso 4. Resultado: \\(\\sqrt{'+(a*a+b*b)+'}='+mod+'\\).';
+    }
+    else if (v === 4) {
+        // VARIANTE 5: Fórmula de De Moivre (simbólica → complejo en {±1, ±i})
+        var t = POOL_DEMOIVRE[Math.floor(Math.random()*POOL_DEMOIVRE.length)];
+        var theta=t.theta, n=t.n, re=t.re, im=t.im;
+        var totalAng = theta * n;
+        var reducedAng = ((totalAng % 360) + 360) % 360;
+        o.tipo = 'simbolica';
+        o.problema = 'En un procesador de señales de inteligencia artificial, una rotación de fase representada por \\(\\cos '+theta+'^{\\circ}+i\\sin '+theta+'^{\\circ}\\) se aplica \\('+n+'\\) veces. Aplicando la fórmula de De Moivre, calcula \\((\\cos '+theta+'^{\\circ}+i\\sin '+theta+'^{\\circ})^{'+n+'}\\).';
+        o.solucion = latexComplejo(re, im);
+        o.respuestaLaTeX = latexComplejo(re, im);
+        o.acepta = [latexComplejo(re, im)];
+        o.re = re; o.im = im; o.tolerancia = 0.001;
+        o.pista = 'Aplica De Moivre: \\((\\cos\\theta+i\\sin\\theta)^n=\\cos(n\\theta)+i\\sin(n\\theta)\\). Calcula \\(n\\theta\\) y reconoce el valor notable.';
+        o.explicacion = 'Paso 1. Fórmula de De Moivre: \\((\\cos\\theta+i\\sin\\theta)^n=\\cos(n\\theta)+i\\sin(n\\theta)\\). Paso 2. Calculamos \\(n\\theta='+n+'\\cdot'+theta+'^{\\circ}='+totalAng+'^{\\circ}\\), equivalente a \\('+reducedAng+'^{\\circ}\\). Paso 3. \\(\\cos '+reducedAng+'^{\\circ}='+re+'\\) y \\(\\sin '+reducedAng+'^{\\circ}='+im+'\\). Paso 4. Resultado: \\('+latexComplejo(re,im)+'\\).';
+    }
+    else {
+        // VARIANTE 6: Cuadrado de complejo (simbólica → complejo)
+        var t = POOL_POTENCIA2[Math.floor(Math.random()*POOL_POTENCIA2.length)];
+        var a=t.a, b=t.b, re=t.re, im=t.im;
+        o.tipo = 'simbolica';
+        o.problema = 'En el análisis de un motor eléctrico que supervisa la ingeniera Rosa, el cuadrado de la impedancia compleja \\(z='+latexComplejo(a,b)+'\\) aparece en la potencia reactiva. Calcula \\(z^2\\).';
+        o.solucion = latexComplejo(re, im);
+        o.respuestaLaTeX = latexComplejo(re, im);
+        o.acepta = [latexComplejo(re, im)];
+        o.re = re; o.im = im; o.tolerancia = 0.001;
+        o.pista = 'Desarrolla \\((a+bi)^2=a^2+2abi+(bi)^2\\). Recuerda que \\((bi)^2=-b^2\\).';
+        o.explicacion = 'Paso 1. Desarrollamos \\(('+latexComplejo(a,b)+')^2=a^2+2abi+(bi)^2\\). Paso 2. \\((bi)^2=b^2 i^2=-b^2\\). Paso 3. Real: \\('+a+'^2-'+b+'^2='+(a*a-b*b)+'\\). Imaginaria: \\(2\\cdot'+a+'\\cdot'+b+'='+im+'\\). Paso 4. Resultado: \\('+latexComplejo(re,im)+'\\).';
+    }
+
+    return o;
+}
+
+// ============ UI ============
+function nuevoEjercicio() {
+    ejercicio = genComplejos();
+    var enun = document.getElementById('enunciado');
+    enun.innerHTML = ejercicio.problema;
+    tiposet(enun);
+    var inp = document.getElementById('respuesta');
+    inp.value = ''; inp.focus();
+    var fb = document.getElementById('feedback');
+    fb.className = 'feedback'; fb.innerHTML = '';
+    var pb = document.getElementById('pistaBox');
+    pb.className = 'panel pista'; pb.innerHTML = '';
+    var eb = document.getElementById('explicacionBox');
+    eb.className = 'panel explicacion'; eb.innerHTML = '';
+}
+function verificar() {
+    if (!ejercicio) return;
+    var entradaRaw = document.getElementById('respuesta').value;
+    if (!entradaRaw.trim()) return;
+    var entrada = entradaRaw.trim()
+        .replace(/^\s*[a-zA-Z]\s*=\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*<=\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*>=\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*≤\s*/,'')
+        .replace(/^\s*[a-zA-Z]\s*≥\s*/,'')
+        .trim();
+    intentos++;
+    document.getElementById('mInt').textContent = intentos;
+    var ok = false;
+    if (ejercicio.tipo === 'numerica') {
+        var num = aNumero(entrada);
+        if (!isNaN(num) && Math.abs(num - ejercicio.respuesta) <= ejercicio.tolerancia) ok = true;
+        else if (coincideTexto(entrada, ejercicio.acepta)) ok = true;
+    } else {
+        ok = coincideTexto(entrada, ejercicio.acepta);
+        // respaldo: intentar parsear como complejo si se definieron re e im
+        if (!ok && ejercicio.re !== undefined && ejercicio.im !== undefined) {
+            ok = coincideComplejo(entrada, ejercicio.re, ejercicio.im, ejercicio.tolerancia);
+        }
+    }
+    var fb = document.getElementById('feedback');
+    if (ok) {
+        aciertos++;
+        document.getElementById('mArc').textContent = aciertos;
+        fb.className = 'feedback ok visible';
+        fb.innerHTML = '<div style="font-weight:600;">✓ ¡Correcto!</div>'
+            + '<div>Escribiste: <code>' + escaparHTML(entradaRaw.trim()) + '</code></div>'
+            + '<div>En notación matemática: \\(' + ejercicio.respuestaLaTeX + '\\)</div>';
+        tiposet(fb);
+    } else {
+        fb.className = 'feedback err visible';
+        fb.innerHTML = '<div>✗ Todavía no. Revisa tu procedimiento o pide una pista.</div>';
+    }
+}
+function mostrarPista() {
+    if (!ejercicio) return;
+    var p = document.getElementById('pistaBox');
+    p.innerHTML = ejercicio.pista; p.classList.add('visible'); tiposet(p);
+}
+function mostrarExplicacion() {
+    if (!ejercicio) return;
+    var e = document.getElementById('explicacionBox');
+    e.innerHTML = ejercicio.explicacion; e.classList.add('visible'); tiposet(e);
+}
+
+// ============ EVENTOS ============
+document.getElementById('btnNuevo').addEventListener('click', nuevoEjercicio);
+document.getElementById('btnVerificar').addEventListener('click', verificar);
+document.getElementById('btnPista').addEventListener('click', mostrarPista);
+document.getElementById('btnExplicacion').addEventListener('click', mostrarExplicacion);
+document.getElementById('respuesta').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || (e.keyCode || e.which) === 13) verificar();
+});
+document.addEventListener('keydown', function (e) {
+    var tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+    if ((e.key === 'n' || e.key === 'N') && tag !== 'input' && tag !== 'textarea') nuevoEjercicio();
+});
+
+// ============ ARRANQUE ============
+nuevoEjercicio();
+</script>
+</body>
+</html>
