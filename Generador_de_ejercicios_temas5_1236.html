@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+}
+*{box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); margin:0; padding:24px 16px;
+  min-height:100vh;
+}
+.wrap{max-width:900px; margin:0 auto;}
+.card{
+  background:var(--card); border-radius:16px;
+  box-shadow:0 10px 30px rgba(17,24,39,.08);
+  overflow:hidden; border:1px solid var(--line);
+}
+.head{
+  background:linear-gradient(135deg, var(--brand), var(--brand2));
+  color:#fff; padding:22px 26px;
+}
+.head h1{margin:0 0 6px; font-size:1.4rem;}
+.head p{margin:0; opacity:.92; font-size:.95rem;}
+.body{padding:22px 26px;}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+.row.end{justify-content:flex-end;}
+.btn-primary,.btn-ghost,.btn-soft{
+  border:1px solid transparent; border-radius:10px; padding:9px 14px;
+  font-size:.95rem; cursor:pointer; font-weight:600;
+  transition:transform .05s ease, background .15s ease;
+}
+.btn-primary{background:var(--brand); color:#fff;}
+.btn-primary:hover{background:var(--brand2);}
+.btn-ghost{background:transparent; color:var(--brand); border-color:var(--brand);}
+.btn-ghost:hover{background:#eef2ff;}
+.btn-soft{background:#eef2ff; color:var(--brand); border-color:#e0e7ff;}
+.btn-soft:hover{background:#e0e7ff;}
+.btn-primary:active,.btn-ghost:active,.btn-soft:active{transform:translateY(1px);}
+#enunciado{
+  background:#fafaff; border:1px dashed var(--line); border-radius:10px;
+  padding:14px 16px; font-size:1.02rem; line-height:1.55; margin-bottom:14px;
+}
+#respuesta{
+  flex:1; min-width:220px; padding:10px 12px; border-radius:10px;
+  border:1px solid var(--line); font-size:1rem; outline:none;
+}
+#respuesta:focus{border-color:var(--brand); box-shadow:0 0 0 3px #eef2ff;}
+.feedback{
+  display:none; border-radius:10px; padding:12px 14px; margin:14px 0;
+  font-size:.98rem; line-height:1.5;
+}
+.feedback.ok{display:block; background:var(--okbg); border:1px solid #a7f3d0; color:var(--ok);}
+.feedback.err{display:block; background:var(--errbg); border:1px solid #fecaca; color:var(--err);}
+.feedback code{background:#fff; padding:1px 6px; border-radius:6px; border:1px solid var(--line); color:var(--ink);}
+.panel{display:none; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:.96rem; line-height:1.55;}
+.panel.visible{display:block;}
+.panel.pista{background:var(--warnbg); border:1px solid #fde68a; color:var(--warn);}
+.panel.explicacion{background:#f5f3ff; border:1px solid #ddd6fe; color:#5b21b6;}
+.marcador{
+  display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+  margin-top:16px; padding-top:14px; border-top:1px solid var(--line);
+  font-size:.92rem; color:var(--muted);
+}
+.marcador b{color:var(--ink);}
+.kbd{
+  display:inline-block; padding:2px 8px; border-radius:6px;
+  background:#f3f4f6; border:1px solid var(--line);
+  font-family:ui-monospace,monospace; font-size:.82rem; color:var(--ink);
+}
+footer{text-align:center; color:var(--muted); font-size:.85rem; padding:20px 0;}
+@media (max-width:560px){
+  .body,.head{padding-left:16px; padding-right:16px;}
+  .head h1{font-size:1.15rem;}
+  .row{flex-direction:column; align-items:stretch;}
+  #respuesta{min-width:0;}
+  .btn-primary,.btn-ghost,.btn-soft{width:100%;}
+  .row.end{justify-content:stretch;}
+}
+</style>
+<script>
+window.MathJax = {
+  tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="head">
+      <h1>Generador infinito de ejercicios</h1>
+      <p>Materia: Álgebra · Tema: Vectores en dos o tres dimensiones, leyes de senos y cosenos en el plano</p>
+    </div>
+    <div class="body">
+      <div class="row end">
+        <button class="btn-ghost" onclick="nuevoEjercicio()">Nuevo ejercicio</button>
+      </div>
+      <div id="enunciado"></div>
+      <div class="row">
+        <input id="respuesta" type="text" placeholder="Usa ^ para potencias y / para fracciones…" autocomplete="off">
+        <button class="btn-primary" onclick="verificar()">Verificar</button>
+        <button class="btn-soft" onclick="mostrarPista()">Pista</button>
+        <button class="btn-soft" onclick="mostrarExplicacion()">Explicación</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="pistaBox" class="panel pista"></div>
+      <div id="explicacionBox" class="panel explicacion"></div>
+      <div class="marcador">
+        <span>Aciertos: <b id="mArc">0</b></span>
+        <span>Intentos: <b id="mInt">0</b></span>
+        <span><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</span>
+      </div>
+    </div>
+  </div>
+  <footer>Generador aleatorio educativo · Álgebra · Vectores y leyes de senos y cosenos</footer>
+</div>
+<script>
+// ===== UTILIDADES =====
+function escaparHTML(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function normalizar(valor){
+  if(valor === null || valor === undefined) return '';
+  var s = String(valor).toLowerCase().trim();
+  s = s.replace(/\$/g,'').replace(/[{}]/g,'').replace(/\s+/g,'');
+  s = s.replace(/°/g,'').replace(/grados?/g,'').replace(/deg/g,'');
+  return s;
+}
+function aNumero(v){
+  if(v === null || v === undefined) return null;
+  var s = String(v).trim();
+  s = s.replace(/°/g,'').replace(/grados?/gi,'').replace(/deg/gi,'').trim();
+  if(!s) return null;
+  var m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(m){
+    var a = parseFloat(m[1]), b = parseFloat(m[2]);
+    if(b === 0) return null;
+    return a/b;
+  }
+  var n = parseFloat(s.replace(/,/g,'.'));
+  return isNaN(n) ? null : n;
+}
+function coincideTexto(entrada, acepta){
+  var n = normalizar(entrada);
+  if(!n) return false;
+  for(var i=0;i<acepta.length;i++){
+    if(n === normalizar(acepta[i])) return true;
+  }
+  return false;
+}
+function tiposet(nodo, intento){
+  intento = intento || 0;
+  if(!nodo) return;
+  if(window.MathJax && window.MathJax.typesetPromise){
+    try{ window.MathJax.typesetPromise([nodo]); }catch(e){}
+    return;
+  }
+  if(intento >= 40) return;
+  setTimeout(function(){ tiposet(nodo, intento+1); }, 200);
+}
+function rnd(min, max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+var protagonistas = [
+  'la ingeniera mecatrónica Valeria',
+  'la diseñadora industrial Ana',
+  'la doctora en IA Camila',
+  'la estudiante de robótica Lucía',
+  'la arquitecta bilingüe Nayeli',
+  'la maestra artesana Yolanda',
+  'la investigadora tsotsil Petra',
+  'la ingeniera civil Renata',
+  'la diseñadora Paola',
+  'la científica Frida',
+  'la ingeniera en innovación Sofía',
+  'la estudiante de maestría Ximena'
+];
+function prota(){
+  return protagonistas[rnd(0, protagonistas.length-1)];
+}
+
+// ===== GENERADOR =====
+function gen(){
+  var variantes = [vVecMag, vDotProd, vVecSuma, vLeyCosLado, vLeyCosAngulo, vLeySenLado, vFuerzas, vPerpendicular];
+  return variantes[rnd(0, variantes.length-1)]();
+}
+
+// V1: Magnitud de un vector 3D (numérica)
+function vVecMag(){
+  var pool = [[1,2,2,3],[2,3,6,7],[3,4,12,13],[1,4,8,9],[2,6,9,11],[4,4,7,9],[6,6,7,11],[2,10,11,15],[2,4,4,6]];
+  var p = pool[rnd(0,pool.length-1)];
+  var s = function(){ return Math.random()<0.5?-1:1; };
+  var a=p[0]*s(), b=p[1]*s(), c=p[2]*s(), ans=p[3];
+  var pr = prota();
+  var problema = pr+' analiza el desplazamiento de un efector final en su celda de manufactura. El vector es $\\vec{v}=('+a+','+b+','+c+')$. Calcula la magnitud $|\\vec{v}|$ para calibrar la trayectoria del robot.';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$|\\vec{v}|=\\sqrt{'+a+'^2+'+b+'^2+'+c+'^2}=\\sqrt{'+(a*a+b*b+c*c)+'}='+ans+'$.',
+    respuestaLaTeX: String(ans),
+    acepta: [String(ans)],
+    respuesta: ans,
+    tolerancia: 0.001,
+    pista: 'La magnitud de un vector en tres dimensiones es $|\\vec{v}|=\\sqrt{v_1^2+v_2^2+v_3^2}$.',
+    explicacion: 'Paso 1. Elevar al cuadrado cada componente: $'+a+'^2='+(a*a)+'$, $'+b+'^2='+(b*b)+'$, $'+c+'^2='+(c*c)+'$.\nPaso 2. Sumar los cuadrados: '+(a*a+b*b+c*c)+'.\nPaso 3. Extraer raíz cuadrada: $\\sqrt{'+(a*a+b*b+c*c)+'}='+ans+'$.'
+  };
+}
+
+// V2: Producto punto (numérica)
+function vDotProd(){
+  var a=rnd(-5,5), b=rnd(-5,5), c=rnd(-5,5);
+  var d=rnd(-5,5), e=rnd(-5,5), f=rnd(-5,5);
+  var ans = a*d + b*e + c*f;
+  var pr = prota();
+  var problema = 'Durante una simulación de '+pr+' se registran dos lecturas de fuerza: $\\vec{u}=('+a+','+b+','+c+')$ y $\\vec{v}=('+d+','+e+','+f+')$. Calcula el producto punto $\\vec{u}\\cdot\\vec{v}$.';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$\\vec{u}\\cdot\\vec{v}='+a+'\\cdot('+d+')+'+b+'\\cdot('+e+')+'+c+'\\cdot('+f+')='+ans+'$.',
+    respuestaLaTeX: String(ans),
+    acepta: [String(ans)],
+    respuesta: ans,
+    tolerancia: 0.001,
+    pista: 'En tres dimensiones, $\\vec{u}\\cdot\\vec{v}=u_1v_1+u_2v_2+u_3v_3$.',
+    explicacion: 'Paso 1. Multiplicar componente a componente: $'+a+'\\cdot('+d+')='+(a*d)+'$, $'+b+'\\cdot('+e+')='+(b*e)+'$, $'+c+'\\cdot('+f+')='+(c*f)+'$.\nPaso 2. Sumar los productos: '+(a*d)+' + ('+(b*e)+') + ('+(c*f)+') = '+ans+'.\nPaso 3. Revisar los signos de cada término.'
+  };
+}
+
+// V3: Suma de vectores 3D (simbólica)
+function vVecSuma(){
+  var a=rnd(-5,5), b=rnd(-5,5), c=rnd(-5,5);
+  var d=rnd(-5,5), e=rnd(-5,5), f=rnd(-5,5);
+  var sx=a+d, sy=b+e, sz=c+f;
+  var pr = prota();
+  var problema = pr+' combina dos señales de un sensor tridimensional: $\\vec{u}=('+a+','+b+','+c+')$ y $\\vec{v}=('+d+','+e+','+f+')$. Obtén la suma $\\vec{u}+\\vec{v}$ en el formato $(x,y,z)$.';
+  var rl = '('+sx+','+sy+','+sz+')';
+  return {
+    tipo:'simbolica',
+    problema: problema,
+    solucion: '$\\vec{u}+\\vec{v}='+rl+'$.',
+    respuestaLaTeX: rl,
+    acepta: [rl, sx+','+sy+','+sz, '['+sx+','+sy+','+sz+']', sx+', '+sy+', '+sz],
+    pista: 'La suma se hace componente a componente: $(u_1+v_1,\\,u_2+v_2,\\,u_3+v_3)$.',
+    explicacion: 'Paso 1. Sumar la primera componente: $'+a+'+('+d+')='+sx+'$.\nPaso 2. Sumar la segunda: $'+b+'+('+e+')='+sy+'$.\nPaso 3. Sumar la tercera: $'+c+'+('+f+')='+sz+'$.\nPaso 4. Escribir el vector resultante: $'+rl+'$.'
+  };
+}
+
+// V4: Ley de cosenos - encontrar un lado (numérica)
+function vLeyCosLado(){
+  var pool = [
+    [8,3,60,7],[3,8,60,7],[5,8,60,7],[8,5,60,7],
+    [3,5,120,7],[5,3,120,7],[7,8,120,13],[8,7,120,13],
+    [3,4,90,5],[4,3,90,5],[5,12,90,13],[8,15,90,17]
+  ];
+  var p = pool[rnd(0,pool.length-1)];
+  var a=p[0], b=p[1], ang=p[2], ans=p[3];
+  var pr = prota();
+  var problema = 'En el diseño de un soporte triangular, '+pr+' conoce dos lados de longitud $'+a+'$ y $'+b+'$ que forman un ángulo de $'+ang+'^\\circ$ entre sí. Determina la longitud del tercer lado.';
+  var cosv = (ang===60)?'\\tfrac{1}{2}':(ang===120)?'-\\tfrac{1}{2}':'0';
+  var term = (ang===60)?(' + '+a+'\\cdot'+b+'\\cdot \\tfrac{1}{2}'):(ang===120)?(' - '+a+'\\cdot'+b+'\\cdot \\tfrac{1}{2}'):'';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'Por la ley de cosenos: $c^2='+a+'^2+'+b+'^2-2\\cdot '+a+'\\cdot '+b+'\\cdot \\cos('+ang+'^\\circ)$; al sustituir $\\cos('+ang+'^\\circ)='+cosv+'$ se obtiene $c^2='+(ans*ans)+'$, entonces $c='+ans+'$.',
+    respuestaLaTeX: String(ans),
+    acepta: [String(ans)],
+    respuesta: ans,
+    tolerancia: 0.001,
+    pista: 'Ley de cosenos: $c^2=a^2+b^2-2ab\\cos(C)$, donde $C$ es el ángulo entre los lados $a$ y $b$.',
+    explicacion: 'Paso 1. Escribir la ley de cosenos: $c^2='+a+'^2+'+b+'^2-2\\cdot '+a+'\\cdot '+b+'\\cos('+ang+'^\\circ)$.\nPaso 2. Sustituir $\\cos('+ang+'^\\circ)='+cosv+'$: $c^2='+(a*a)+'+'+(b*b)+term+'$.\nPaso 3. Simplificar: $c^2='+(ans*ans)+'$.\nPaso 4. Tomar raíz positiva: $c='+ans+'$.'
+  };
+}
+
+// V5: Ley de cosenos - encontrar un ángulo (numérica, grados)
+function vLeyCosAngulo(){
+  var pool = [
+    [3,4,5,90],[4,3,5,90],[5,12,13,90],[8,15,17,90],
+    [5,8,7,60],[8,5,7,60],[7,8,13,120],[8,7,13,120],[5,5,5,60]
+  ];
+  var p = pool[rnd(0,pool.length-1)];
+  var a=p[0], b=p[1], c=p[2], ans=p[3];
+  var pr = prota();
+  var problema = 'En una estructura arquitectónica modelada por '+pr+', se forma un triángulo con lados $a='+a+'$, $b='+b+'$ y $c='+c+'$. Determina la medida del ángulo $C$ (opuesto al lado $c$), en grados.';
+  var num = (a*a+b*b-c*c);
+  var den = 2*a*b;
+  var cosv = (num/den === 0.5)?'\\tfrac{1}{2}':(num/den === -0.5)?'-\\tfrac{1}{2}':'0';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$\\cos C=\\dfrac{a^2+b^2-c^2}{2ab}=\\dfrac{'+num+'}{'+den+'}=\\cos('+ans+'^\\circ)$, por lo tanto $C='+ans+'^\\circ$.',
+    respuestaLaTeX: ans+'^\\circ',
+    acepta: [String(ans), ans+'°', ans+' grados'],
+    respuesta: ans,
+    tolerancia: 0.001,
+    pista: 'Despeja $\\cos C$ de la ley de cosenos: $\\cos C=\\dfrac{a^2+b^2-c^2}{2ab}$.',
+    explicacion: 'Paso 1. Sustituir en la fórmula: $\\cos C=\\dfrac{'+a+'^2+'+b+'^2-'+c+'^2}{2\\cdot '+a+'\\cdot '+b+'}$.\nPaso 2. Calcular numerador y denominador: $\\dfrac{'+(a*a)+'+'+(b*b)+'-'+(c*c)+'}{'+den+'} = \\dfrac{'+num+'}{'+den+'}$.\nPaso 3. Simplificar: $\\cos C='+cosv+'$.\nPaso 4. Identificar el ángulo: $C='+ans+'^\\circ$.'
+  };
+}
+
+// V6: Ley de senos - encontrar un lado (numérica)
+function vLeySenLado(){
+  var a = rnd(3,8);
+  var b = 2*a;
+  var pr = prota();
+  var problema = 'En un triángulo de una placa de diseño, se conocen $A=30^\\circ$, $B=90^\\circ$ y el lado $a='+a+'$ (opuesto al ángulo $A$). Usa la ley de senos para calcular el lado $b$ (opuesto al ángulo $B$).';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$\\dfrac{b}{\\sin 90^\\circ}=\\dfrac{a}{\\sin 30^\\circ}$, es decir $\\dfrac{b}{1}=\\dfrac{'+a+'}{1/2}$, entonces $b='+b+'$.',
+    respuestaLaTeX: String(b),
+    acepta: [String(b)],
+    respuesta: b,
+    tolerancia: 0.001,
+    pista: 'Ley de senos: $\\dfrac{a}{\\sin A}=\\dfrac{b}{\\sin B}$. Recuerda que $\\sin 90^\\circ=1$ y $\\sin 30^\\circ=1/2$.',
+    explicacion: 'Paso 1. Escribir la ley de senos: $\\dfrac{a}{\\sin A}=\\dfrac{b}{\\sin B}$.\nPaso 2. Sustituir valores: $\\dfrac{'+a+'}{\\sin 30^\\circ}=\\dfrac{b}{\\sin 90^\\circ}$.\nPaso 3. Usar $\\sin 30^\\circ=\\tfrac{1}{2}$ y $\\sin 90^\\circ=1$: $\\dfrac{'+a+'}{1/2}=\\dfrac{b}{1}$.\nPaso 4. Despejar: $b=2\\cdot '+a+'='+b+'$.'
+  };
+}
+
+// V7: Aplicación - resultante de dos fuerzas (numérica)
+function vFuerzas(){
+  var pool = [
+    [3,5,60,7],[5,3,60,7],
+    [8,3,120,7],[3,8,120,7],[5,8,120,7],[8,5,120,7],
+    [7,8,120,13],[8,7,120,13],
+    [3,4,90,5],[5,12,90,13],[8,15,90,17],
+    [5,5,120,5]
+  ];
+  var p = pool[rnd(0,pool.length-1)];
+  var f1=p[0], f2=p[1], ang=p[2], ans=p[3];
+  var pr = prota();
+  var cosv = (ang===60)?'\\tfrac{1}{2}':(ang===120)?'-\\tfrac{1}{2}':'0';
+  var problema = pr+' analiza dos fuerzas aplicadas a un mecanismo: $F_1='+f1+'\\text{ N}$ y $F_2='+f2+'\\text{ N}$ formando un ángulo de $'+ang+'^\\circ$ entre ellas. Calcula la magnitud de la fuerza resultante.';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$R^2=F_1^2+F_2^2+2F_1F_2\\cos(\\theta)='+f1+'^2+'+f2+'^2+2\\cdot '+f1+'\\cdot '+f2+'\\cdot\\cos('+ang+'^\\circ)='+(ans*ans)+'$; por lo tanto $R='+ans+'\\text{ N}$.',
+    respuestaLaTeX: String(ans),
+    acepta: [String(ans)],
+    respuesta: ans,
+    tolerancia: 0.001,
+    pista: 'Por la ley de cosenos aplicada a la suma de fuerzas: $R^2=F_1^2+F_2^2+2F_1F_2\\cos\\theta$.',
+    explicacion: 'Paso 1. Plantear: $R^2='+f1+'^2+'+f2+'^2+2\\cdot '+f1+'\\cdot '+f2+'\\cos('+ang+'^\\circ)$.\nPaso 2. Sustituir $\\cos('+ang+'^\\circ)='+cosv+'$.\nPaso 3. Simplificar: $R^2='+(ans*ans)+'$.\nPaso 4. Tomar raíz positiva: $R='+ans+'\\text{ N}$.'
+  };
+}
+
+// V8: Encontrar k para perpendicularidad (numérica)
+function vPerpendicular(){
+  var pool = [
+    [[3,1,2],2,-4,2],
+    [[2,5,1],0,4,-2],
+    [[3,2,1],1,1,-1],
+    [[1,2,3],0,1,-3],
+    [[2,3,1],3,-1,-4],
+    [[1,1,1],2,-1,-1]
+  ];
+  var p = pool[rnd(0,pool.length-1)];
+  var u = p[0], v2=p[1], v3=p[2], ans=p[3];
+  var pr = prota();
+  var problema = pr+' necesita que el vector $\\vec{u}=('+u[0]+','+u[1]+','+u[2]+')$ sea perpendicular al vector $\\vec{v}=(k,'+v2+','+v3+')$. Determina el valor de $k$.';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$\\vec{u}\\cdot\\vec{v}='+u[0]+'\\cdot k+'+u[1]+'\\cdot('+v2+')+'+u[2]+'\\cdot('+v3+')=0$, entonces $'+u[0]+'k='+(-(u[1]*v2+u[2]*v3))+'$, y $k='+ans+'$.',
+    respuestaLaTeX: String(ans),
+    acepta: [String(ans)],
+    respuesta: ans,
+    tolerancia: 0.001,
+    pista: 'Dos vectores son perpendiculares si su producto punto es cero: $\\vec{u}\\cdot\\vec{v}=0$.',
+    explicacion: 'Paso 1. Plantear la condición de perpendicularidad: $\\vec{u}\\cdot\\vec{v}=0$.\nPaso 2. Desarrollar: $'+u[0]+'k+'+u[1]+'\\cdot('+v2+')+'+u[2]+'\\cdot('+v3+')=0$.\nPaso 3. Simplificar: $'+u[0]+'k+'+(u[1]*v2+u[2]*v3)+'=0$.\nPaso 4. Despejar: $k='+ans+'$.'
+  };
+}
+
+// ===== UI =====
+var ejercicioActual = null;
+var aciertos = 0, intentos = 0;
+
+function nuevoEjercicio(){
+  ejercicioActual = gen();
+  var enun = document.getElementById('enunciado');
+  enun.innerHTML = ejercicioActual.problema;
+  tiposet(enun);
+  document.getElementById('respuesta').value = '';
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+  var pistaBox = document.getElementById('pistaBox');
+  pistaBox.className = 'panel pista';
+  pistaBox.innerHTML = '';
+  var expBox = document.getElementById('explicacionBox');
+  expBox.className = 'panel explicacion';
+  expBox.innerHTML = '';
+  document.getElementById('respuesta').focus();
+}
+
+function verificar(){
+  if(!ejercicioActual) return;
+  var entrada = document.getElementById('respuesta').value;
+  var fb = document.getElementById('feedback');
+  var correcto = false;
+
+  if(ejercicioActual.tipo === 'numerica'){
+    var num = aNumero(entrada);
+    if(num !== null && Math.abs(num - ejercicioActual.respuesta) <= ejercicioActual.tolerancia){
+      correcto = true;
+    }
+    if(!correcto && coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  } else {
+    if(coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  }
+
+  intentos++;
+  document.getElementById('mInt').textContent = intentos;
+
+  if(correcto){
+    aciertos++;
+    document.getElementById('mArc').textContent = aciertos;
+    fb.className = 'feedback ok';
+    fb.innerHTML = '✓ ¡Correcto!<br>Escribiste: <code>'+escaparHTML(entrada)+'</code><br>En notación matemática: $'+ejercicioActual.respuestaLaTeX+'$';
+    tiposet(fb);
+  } else {
+    fb.className = 'feedback err';
+    fb.innerHTML = '✗ Todavía no. Revisa tu procedimiento o pide una pista.';
+  }
+}
+
+function mostrarPista(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('pistaBox');
+  box.innerHTML = ejercicioActual.pista;
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+function mostrarExplicacion(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('explicacionBox');
+  box.innerHTML = ejercicioActual.explicacion.replace(/\n/g,'<br>');
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+// ===== EVENTOS =====
+document.getElementById('respuesta').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); verificar(); }
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'n' || e.key === 'N'){
+    var activo = document.activeElement;
+    if(activo && activo.id === 'respuesta') return;
+    nuevoEjercicio();
+  }
+});
+
+// ===== ARRANQUE =====
+nuevoEjercicio();
+</script>
+</body>
+</html>
