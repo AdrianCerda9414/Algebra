@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+}
+*{box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); margin:0; padding:24px 16px;
+  min-height:100vh;
+}
+.wrap{max-width:900px; margin:0 auto;}
+.card{
+  background:var(--card); border-radius:16px;
+  box-shadow:0 10px 30px rgba(17,24,39,.08);
+  overflow:hidden; border:1px solid var(--line);
+}
+.head{
+  background:linear-gradient(135deg, var(--brand), var(--brand2));
+  color:#fff; padding:22px 26px;
+}
+.head h1{margin:0 0 6px; font-size:1.4rem;}
+.head p{margin:0; opacity:.92; font-size:.95rem;}
+.body{padding:22px 26px;}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+.row.end{justify-content:flex-end;}
+.btn-primary,.btn-ghost,.btn-soft{
+  border:1px solid transparent; border-radius:10px; padding:9px 14px;
+  font-size:.95rem; cursor:pointer; font-weight:600;
+  transition:transform .05s ease, background .15s ease;
+}
+.btn-primary{background:var(--brand); color:#fff;}
+.btn-primary:hover{background:var(--brand2);}
+.btn-ghost{background:transparent; color:var(--brand); border-color:var(--brand);}
+.btn-ghost:hover{background:#eef2ff;}
+.btn-soft{background:#eef2ff; color:var(--brand); border-color:#e0e7ff;}
+.btn-soft:hover{background:#e0e7ff;}
+.btn-primary:active,.btn-ghost:active,.btn-soft:active{transform:translateY(1px);}
+#enunciado{
+  background:#fafaff; border:1px dashed var(--line); border-radius:10px;
+  padding:14px 16px; font-size:1.02rem; line-height:1.55; margin-bottom:14px;
+}
+#respuesta{
+  flex:1; min-width:220px; padding:10px 12px; border-radius:10px;
+  border:1px solid var(--line); font-size:1rem; outline:none;
+}
+#respuesta:focus{border-color:var(--brand); box-shadow:0 0 0 3px #eef2ff;}
+.feedback{
+  display:none; border-radius:10px; padding:12px 14px; margin:14px 0;
+  font-size:.98rem; line-height:1.5;
+}
+.feedback.ok{display:block; background:var(--okbg); border:1px solid #a7f3d0; color:var(--ok);}
+.feedback.err{display:block; background:var(--errbg); border:1px solid #fecaca; color:var(--err);}
+.feedback code{background:#fff; padding:1px 6px; border-radius:6px; border:1px solid var(--line); color:var(--ink);}
+.panel{display:none; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:.96rem; line-height:1.55;}
+.panel.visible{display:block;}
+.panel.pista{background:var(--warnbg); border:1px solid #fde68a; color:var(--warn);}
+.panel.explicacion{background:#f5f3ff; border:1px solid #ddd6fe; color:#5b21b6;}
+.marcador{
+  display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+  margin-top:16px; padding-top:14px; border-top:1px solid var(--line);
+  font-size:.92rem; color:var(--muted);
+}
+.marcador b{color:var(--ink);}
+.kbd{
+  display:inline-block; padding:2px 8px; border-radius:6px;
+  background:#f3f4f6; border:1px solid var(--line);
+  font-family:ui-monospace,monospace; font-size:.82rem; color:var(--ink);
+}
+footer{text-align:center; color:var(--muted); font-size:.85rem; padding:20px 0;}
+@media (max-width:560px){
+  .body,.head{padding-left:16px; padding-right:16px;}
+  .head h1{font-size:1.15rem;}
+  .row{flex-direction:column; align-items:stretch;}
+  #respuesta{min-width:0;}
+  .btn-primary,.btn-ghost,.btn-soft{width:100%;}
+  .row.end{justify-content:stretch;}
+}
+</style>
+<script>
+window.MathJax = {
+  tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="head">
+      <h1>Generador infinito de ejercicios</h1>
+      <p>Materia: Álgebra · Tema: Intervalos, orden, desigualdades lineales, valor absoluto, desigualdades con valor absoluto, función racional y desigualdades cuadráticas</p>
+    </div>
+    <div class="body">
+      <div class="row end">
+        <button class="btn-ghost" onclick="nuevoEjercicio()">Nuevo ejercicio</button>
+      </div>
+      <div id="enunciado"></div>
+      <div class="row">
+        <input id="respuesta" type="text" placeholder="Usa ^ para potencias y / para fracciones…" autocomplete="off">
+        <button class="btn-primary" onclick="verificar()">Verificar</button>
+        <button class="btn-soft" onclick="mostrarPista()">Pista</button>
+        <button class="btn-soft" onclick="mostrarExplicacion()">Explicación</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="pistaBox" class="panel pista"></div>
+      <div id="explicacionBox" class="panel explicacion"></div>
+      <div class="marcador">
+        <span>Aciertos: <b id="mArc">0</b></span>
+        <span>Intentos: <b id="mInt">0</b></span>
+        <span><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</span>
+      </div>
+    </div>
+  </div>
+  <footer>Generador aleatorio educativo · Álgebra · Intervalos, desigualdades y valor absoluto</footer>
+</div>
+<script>
+// ===== UTILIDADES =====
+function escaparHTML(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function normalizar(valor){
+  if(valor === null || valor === undefined) return '';
+  var s = String(valor).toLowerCase().trim();
+  s = s.replace(/≤/g,'<=').replace(/≥/g,'>=');
+  s = s.replace(/\$/g,'').replace(/[{}]/g,'').replace(/\s+/g,'');
+  return s;
+}
+function aNumero(v){
+  if(v === null || v === undefined) return null;
+  var s = String(v).trim();
+  if(!s) return null;
+  var m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(m){
+    var a = parseFloat(m[1]), b = parseFloat(m[2]);
+    if(b === 0) return null;
+    return a/b;
+  }
+  var n = parseFloat(s.replace(/,/g,'.'));
+  return isNaN(n) ? null : n;
+}
+function coincideTexto(entrada, acepta){
+  var n = normalizar(entrada);
+  if(!n) return false;
+  for(var i=0;i<acepta.length;i++){
+    if(n === normalizar(acepta[i])) return true;
+  }
+  return false;
+}
+function tiposet(nodo, intento){
+  intento = intento || 0;
+  if(!nodo) return;
+  if(window.MathJax && window.MathJax.typesetPromise){
+    try{ window.MathJax.typesetPromise([nodo]); }catch(e){}
+    return;
+  }
+  if(intento >= 40) return;
+  setTimeout(function(){ tiposet(nodo, intento+1); }, 200);
+}
+function pick(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+function intervalForms(a, b, openA, openB){
+  var la = openA ? '(' : '[';
+  var lb = openB ? ')' : ']';
+  var ia = openA ? '<' : '<=';
+  var ib = openB ? '<' : '<=';
+  return [la + a + ',' + b + lb, a + ia + 'x' + ib + b];
+}
+
+// Protagonistas femeninas e interculturales
+var PROTAS = [
+  'la ingeniera mecatrónica Valeria',
+  'la diseñadora industrial Ana',
+  'la doctora en IA Camila',
+  'la estudiante de robótica Lucía',
+  'la arquitecta bilingüe Nayeli',
+  'la maestra artesana Yolanda',
+  'la investigadora tsotsil Petra',
+  'la ingeniera civil Renata',
+  'la diseñadora Paola',
+  'la científica Frida',
+  'la ingeniera en innovación Sofía',
+  'la estudiante de maestría Ximena'
+];
+function prota(){ return pick(PROTAS); }
+function ctxLab(){ return pick([
+  'su laboratorio de mecatrónica',
+  'su taller de innovación y diseño',
+  'el centro de investigación en inteligencia artificial',
+  'su proyecto de robótica colaborativa',
+  'su despacho de diseño industrial'
+]); }
+
+// ===== GENERADOR =====
+function gen(){
+  var variantes = [vLinIneq, vAbsEq, vAbsIneq, vTriIneq, vQuadIneq, vRatIneq, vInterval, vAbsMax];
+  return variantes[Math.floor(Math.random()*variantes.length)]();
+}
+
+// V1: Desigualdad lineal - mayor/menor entero (numérica)
+function vLinIneq(){
+  var casos = [
+    { ie:'3x+5<20',    sol:'x<5',  kind:'MAYOR', ans:4 },
+    { ie:'2x-3\\ge 7', sol:'x\\ge 5', kind:'MENOR', ans:5 },
+    { ie:'5x-2\\le 18', sol:'x\\le 4', kind:'MAYOR', ans:4 },
+    { ie:'-2x+1<9',    sol:'x>-4', kind:'MENOR', ans:-3 },
+    { ie:'4x+1>13',    sol:'x>3',  kind:'MENOR', ans:4 },
+    { ie:'2x+7<15',    sol:'x<4',  kind:'MAYOR', ans:3 },
+    { ie:'3x-4\\ge 2', sol:'x\\ge 2', kind:'MENOR', ans:2 }
+  ];
+  var c = pick(casos);
+  var pr = prota();
+  var problema = pr + ' debe encontrar un valor entero que cumpla la desigualdad $' + c.ie + '$ dentro de las restricciones de calibración de ' + ctxLab() + '. ¿Cuál es el ' + c.kind + ' número entero que satisface la desigualdad?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'Al resolver se obtiene $' + c.sol + '$, por lo tanto el valor pedido es $' + c.ans + '$.',
+    respuestaLaTeX: String(c.ans),
+    acepta: [String(c.ans)],
+    respuesta: c.ans,
+    tolerancia: 0.001,
+    pista: 'Aplica las propiedades de orden: sumar o restar el mismo número en ambos miembros conserva la desigualdad. Multiplicar o dividir por un número NEGATIVO INVIERTE el sentido de la desigualdad.',
+    explicacion: 'Paso 1. Despejar $x$ aplicando operaciones en ambos miembros.\nPaso 2. Al dividir por un coeficiente negativo, invertir el sentido.\nPaso 3. Solución: $' + c.sol + '$.\nPaso 4. El ' + c.kind.toLowerCase() + ' entero que cumple es $' + c.ans + '$.'
+  };
+}
+
+// V2: Ecuación con valor absoluto - mayor solución (numérica)
+function vAbsEq(){
+  var casos = [
+    { eq:'|2x-3|=7', a:2, b:-3, c:7, s1:5, s2:-2 },
+    { eq:'|x+1|=4',  a:1, b:1,  c:4, s1:3, s2:-5 },
+    { eq:'|3x-6|=9', a:3, b:-6, c:9, s1:5, s2:-1 },
+    { eq:'|x-2|=8',  a:1, b:-2, c:8, s1:10, s2:-6 },
+    { eq:'|2x+4|=10', a:2, b:4, c:10, s1:3, s2:-7 },
+    { eq:'|4x-8|=12', a:4, b:-8, c:12, s1:5, s2:-1 }
+  ];
+  var c = pick(casos);
+  var mayor = Math.max(c.s1, c.s2);
+  var pr = prota();
+  var problema = pr + ' en ' + ctxLab() + ' modela una condición de tolerancia mediante $' + c.eq + '$. La ecuación tiene dos soluciones reales. ¿Cuál es la MAYOR de ellas?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'De $' + c.eq + '$ se obtiene $x=' + c.s1 + '$ o $x=' + c.s2 + '$. La mayor es $x=' + mayor + '$.',
+    respuestaLaTeX: String(mayor),
+    acepta: [String(mayor)],
+    respuesta: mayor,
+    tolerancia: 0.001,
+    pista: 'Usa la propiedad: $|X|=r \\iff X=r$ o $X=-r$ (con $r\\ge 0$). Plantea las dos ecuaciones lineales y resuelve cada una.',
+    explicacion: 'Paso 1. Plantear las dos ecuaciones: $' + c.eq.replace('|','').replace('|','').replace(/=(.*)/, '=$1') + '$ y el lado negativo.\nPaso 2. Resolver cada ecuación lineal.\nPaso 3. Las soluciones son $x=' + c.s1 + '$ y $x=' + c.s2 + '$.\nPaso 4. La mayor es $x=' + mayor + '$.'
+  };
+}
+
+// V3: Desigualdad con valor absoluto - intervalo (simbólica)
+function vAbsIneq(){
+  var casos = [
+    { coef:1, b:-3, r:5, op:'<',    open:true },
+    { coef:1, b:2,  r:3, op:'\\le', open:false },
+    { coef:1, b:-1, r:4, op:'<',    open:true },
+    { coef:2, b:-4, r:6, op:'\\le', open:false },
+    { coef:1, b:5,  r:2, op:'<',    open:true }
+  ];
+  var c = pick(casos);
+  var l2 = -c.r - c.b;
+  var r2 = c.r - c.b;
+  var l3 = l2 / c.coef;
+  var r3 = r2 / c.coef;
+  var pol = (c.coef === 1) ? 'x' : (c.coef === -1) ? '-x' : (c.coef + 'x');
+  if(c.b > 0) pol += '+' + c.b;
+  else if(c.b < 0) pol += c.b;
+  var signLatex = (c.op === '<') ? '<' : '\\le';
+  var ie = '|' + pol + '|' + (c.op === '<' ? '<' : '\\le') + c.r;
+  var la = c.open ? '(' : '[';
+  var lb = c.open ? ')' : ']';
+  var latexAns = la + l3 + ',' + r3 + lb;
+  var forms = intervalForms(l3, r3, c.open, c.open);
+  var pr = prota();
+  var problema = pr + ' necesita que la señal $' + ie + '$ se mantenga dentro del rango permitido por el controlador en ' + ctxLab() + '. Resuelve la desigualdad de valor absoluto y escribe la solución en notación de intervalo (por ejemplo (2,5) o [2,5]).';
+  var paso2op = (c.b < 0) ? 'Sumar ' + Math.abs(c.b) : 'Restar ' + c.b;
+  var pasos;
+  if(c.coef === 1){
+    pasos = 'Paso 1. Por la propiedad del valor absoluto: $-' + c.r + ' ' + signLatex + ' ' + pol + ' ' + signLatex + ' ' + c.r + '$.\n'
+          + 'Paso 2. ' + paso2op + ' en los tres miembros: $' + l3 + ' ' + signLatex + ' x ' + signLatex + ' ' + r3 + '$.\n'
+          + 'Paso 3. Notación de intervalo: $' + latexAns + '$.';
+  } else {
+    pasos = 'Paso 1. Por la propiedad del valor absoluto: $-' + c.r + ' ' + signLatex + ' ' + pol + ' ' + signLatex + ' ' + c.r + '$.\n'
+          + 'Paso 2. ' + paso2op + ' en los tres miembros: $' + l2 + ' ' + signLatex + ' ' + c.coef + 'x ' + signLatex + ' ' + r2 + '$.\n'
+          + 'Paso 3. Dividir por ' + c.coef + ': $' + l3 + ' ' + signLatex + ' x ' + signLatex + ' ' + r3 + '$.\n'
+          + 'Paso 4. Notación de intervalo: $' + latexAns + '$.';
+  }
+  return {
+    tipo:'simbolica',
+    problema: problema,
+    solucion: 'La solución es $' + latexAns + '$.',
+    respuestaLaTeX: latexAns,
+    acepta: forms,
+    pista: 'Aplica la propiedad: $|X|' + (c.op === '<' ? '<' : '\\le') + 'r \\iff -r' + (c.op === '<' ? '<' : '\\le') + 'X' + (c.op === '<' ? '<' : '\\le') + 'r$. Sustituye $X=' + pol + '$ y despeja $x$.',
+    explicacion: pasos
+  };
+}
+
+// V4: Desigualdad del triángulo - menor tercer lado entero (numérica)
+function vTriIneq(){
+  var casos = [
+    { a:3, b:7 },
+    { a:4, b:9 },
+    { a:5, b:8 },
+    { a:2, b:6 },
+    { a:6, b:10 }
+  ];
+  var c = pick(casos);
+  var lo = c.b - c.a;
+  var hi = c.a + c.b;
+  var ans = lo + 1;
+  var pr = prota();
+  var problema = pr + ' está diseñando un soporte triangular en ' + ctxLab() + '. Dos de sus lados miden $' + c.a + '$ cm y $' + c.b + '$ cm. Por la DESIGUALDAD DEL TRIÁNGULO, ¿cuál es el MENOR valor entero posible para el tercer lado $c$?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'La desigualdad del triángulo impone $|' + c.b + '-' + c.a + '|<c<' + c.a + '+' + c.b + '$, es decir $' + lo + '<c<' + hi + '$. El menor entero es $c=' + ans + '$.',
+    respuestaLaTeX: String(ans),
+    acepta: [String(ans)],
+    respuesta: ans,
+    tolerancia: 0.001,
+    pista: 'Desigualdad del triángulo: para lados $a$, $b$ y $c$, debe cumplirse $|a-b|<c<a+b$. Encuentra el menor entero mayor que $|a-b|$.',
+    explicacion: 'Paso 1. Plantear $|' + c.b + '-' + c.a + '<c<' + c.a + '+' + c.b + '$.\nPaso 2. Simplificar: $' + lo + '<c<' + hi + '$.\nPaso 3. El MENOR entero que cumple es $c=' + ans + '$.'
+  };
+}
+
+// V5: Desigualdad cuadrática - intervalo (simbólica)
+function vQuadIneq(){
+  var casos = [
+    { f:'x^2-5x+6', r1:2, r2:3, op:'<',  closed:false, ie:'x^2-5x+6<0',  fac:'(x-2)(x-3)<0' },
+    { f:'x^2-4',    r1:-2, r2:2, op:'<',  closed:false, ie:'x^2-4<0',     fac:'(x-2)(x+2)<0' },
+    { f:'x^2-6x+8', r1:2, r2:4, op:'<',  closed:false, ie:'x^2-6x+8<0',  fac:'(x-2)(x-4)<0' },
+    { f:'x^2-x-6',  r1:-2, r2:3, op:'<',  closed:false, ie:'x^2-x-6<0',   fac:'(x-3)(x+2)<0' },
+    { f:'x^2-7x+12', r1:3, r2:4, op:'\\le', closed:true, ie:'x^2-7x+12\\le 0', fac:'(x-3)(x-4)\\le 0' }
+  ];
+  var c = pick(casos);
+  var la = c.closed ? '[' : '(';
+  var lb = c.closed ? ']' : ')';
+  var latexAns = la + c.r1 + ',' + c.r2 + lb;
+  var forms = intervalForms(c.r1, c.r2, !c.closed, !c.closed);
+  var pr = prota();
+  var problema = pr + ' en ' + ctxLab() + ' analiza la región donde la función de costos $' + c.ie + '$ permanece no positiva. Resuelve la desigualdad cuadrática y escribe la solución en notación de intervalo (por ejemplo (2,3) o [2,3]).';
+  var pasos = 'Paso 1. Factorizar el polinomio: $' + c.fac + '$.\n'
+             + 'Paso 2. Las raíces son $x=' + c.r1 + '$ y $x=' + c.r2 + '$.\n'
+             + 'Paso 3. La parábola abre hacia arriba; el trinomio es negativo entre las raíces.\n'
+             + 'Paso 4. Solución: $' + latexAns + '$.';
+  return {
+    tipo:'simbolica',
+    problema: problema,
+    solucion: 'La solución es $' + latexAns + '$.',
+    respuestaLaTeX: latexAns,
+    acepta: forms,
+    pista: 'Factoriza el trinomio $' + c.f + '$ y localiza sus raíces. La parábola abre hacia arriba (coeficiente de $x^2$ positivo), por lo que es negativa entre las raíces y positiva fuera.',
+    explicacion: pasos
+  };
+}
+
+// V6: Desigualdad racional - intervalo (simbólica)
+function vRatIneq(){
+  var casos = [
+    { a:1, b:5 },
+    { a:2, b:7 },
+    { a:-3, b:1 },
+    { a:-1, b:4 },
+    { a:2, b:6 }
+  ];
+  var c = pick(casos);
+  var numT = (c.a >= 0) ? '(x-' + c.a + ')' : '(x+' + Math.abs(c.a) + ')';
+  var denT = (c.b >= 0) ? '(x-' + c.b + ')' : '(x+' + Math.abs(c.b) + ')';
+  var ie = '\\dfrac{' + numT + '}{' + denT + '}<0';
+  var lo = Math.min(c.a, c.b);
+  var hi = Math.max(c.a, c.b);
+  var latexAns = '(' + lo + ',' + hi + ')';
+  var forms = intervalForms(lo, hi, true, true);
+  var pr = prota();
+  var problema = pr + ' modela en ' + ctxLab() + ' una razón de ganancia con la desigualdad $' + ie + '$. Resuelve la desigualdad racional y escribe la solución en notación de intervalo.';
+  var pasos = 'Paso 1. Una fracción es negativa si numerador y denominador tienen signos opuestos.\n'
+             + 'Paso 2. El numerador $' + numT + '$ es positivo cuando $x>' + c.a + '$, negativo cuando $x<' + c.a + '$.\n'
+             + 'Paso 3. El denominador $' + denT + '$ es positivo cuando $x>' + c.b + '$, negativo cuando $x<' + c.b + '$. (Nunca es $0$ en la solución.)\n'
+             + 'Paso 4. Los signos son opuestos en el intervalo $' + latexAns + '$.';
+  return {
+    tipo:'simbolica',
+    problema: problema,
+    solucion: 'La solución es $' + latexAns + '$.',
+    respuestaLaTeX: latexAns,
+    acepta: forms,
+    pista: 'Analiza los signos del numerador y del denominador por separado. Una fracción es negativa si los signos son opuestos. Recuerda excluir los valores que anulan el denominador.',
+    explicacion: pasos
+  };
+}
+
+// V7: Intervalo - menor/mayor entero (numérica)
+function vInterval(){
+  var casos = [
+    { lo:2, hi:5, lopen:true,  ropen:false, ask:'MENOR', ans:3,  inter:'(2,5]' },
+    { lo:2, hi:5, lopen:false, ropen:true,  ask:'MAYOR', ans:4,  inter:'[2,5)' },
+    { lo:3, hi:8, lopen:true,  ropen:false, ask:'MENOR', ans:4,  inter:'(3,8]' },
+    { lo:1, hi:6, lopen:false, ropen:false, ask:'MAYOR', ans:6,  inter:'[1,6]' },
+    { lo:-3, hi:2, lopen:true, ropen:true,  ask:'MENOR', ans:-2, inter:'(-3,2)' },
+    { lo:-5, hi:-1, lopen:false, ropen:false, ask:'MAYOR', ans:-1, inter:'[-5,-1]' }
+  ];
+  var c = pick(casos);
+  var pr = prota();
+  var problema = pr + ' en ' + ctxLab() + ' programó una alarma que se activa cuando el sensor cae en el intervalo $' + c.inter + '$. Para probar el sistema, ¿cuál es el ' + c.ask + ' número entero que pertenece a ese intervalo?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'El ' + c.ask.toLowerCase() + ' entero del intervalo $' + c.inter + '$ es $' + c.ans + '$.',
+    respuestaLaTeX: String(c.ans),
+    acepta: [String(c.ans)],
+    respuesta: c.ans,
+    tolerancia: 0.001,
+    pista: 'En notación de intervalo, el paréntesis ( o ) indica que el extremo NO se incluye; el corchete [ o ] indica que SÍ se incluye. Busca el ' + c.ask.toLowerCase() + ' entero que cumple la condición.',
+    explicacion: 'Paso 1. Interpretar $' + c.inter + '$ según sus paréntesis y corchetes.\nPaso 2. Listar los enteros dentro del intervalo.\nPaso 3. El ' + c.ask.toLowerCase() + ' entero es $' + c.ans + '$.'
+  };
+}
+
+// V8: Desigualdad del triángulo - máximo |a+b| (numérica)
+function vAbsMax(){
+  var casos = [
+    { m:5, n:3 }, { m:7, n:2 }, { m:4, n:6 }, { m:3, n:8 }, { m:6, n:4 }, { m:2, n:9 }
+  ];
+  var c = pick(casos);
+  var ans = c.m + c.n;
+  var pr = prota();
+  var problema = pr + ' trabaja con dos cantidades reales $a$ y $b$ en ' + ctxLab() + ', conocidas solo por su valor absoluto: $|a|=' + c.m + '$ y $|b|=' + c.n + '$. Por la DESIGUALDAD DEL TRIÁNGULO, ¿cuál es el MÁXIMO valor posible de $|a+b|$?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$|a+b|\\le |a|+|b|=' + c.m + '+' + c.n + '=' + ans + '$. La igualdad se alcanza si $a$ y $b$ tienen el mismo signo.',
+    respuestaLaTeX: String(ans),
+    acepta: [String(ans)],
+    respuesta: ans,
+    tolerancia: 0.001,
+    pista: 'Desigualdad del triángulo para números reales: $|a+b|\\le |a|+|b|$. El máximo se alcanza cuando $a$ y $b$ tienen el MISMO SIGNO.',
+    explicacion: 'Paso 1. Aplicar la desigualdad del triángulo: $|a+b|\\le |a|+|b|$.\nPaso 2. Sustituir: $|a+b|\\le ' + c.m + '+' + c.n + '=' + ans + '$.\nPaso 3. La igualdad se logra cuando $a$ y $b$ tienen el mismo signo (ambos positivos o ambos negativos).\nPaso 4. El máximo es $' + ans + '$.'
+  };
+}
+
+// ===== UI =====
+var ejercicioActual = null;
+var aciertos = 0, intentos = 0;
+
+function nuevoEjercicio(){
+  ejercicioActual = gen();
+  var enun = document.getElementById('enunciado');
+  enun.innerHTML = ejercicioActual.problema;
+  tiposet(enun);
+  document.getElementById('respuesta').value = '';
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+  var pistaBox = document.getElementById('pistaBox');
+  pistaBox.className = 'panel pista';
+  pistaBox.innerHTML = '';
+  var expBox = document.getElementById('explicacionBox');
+  expBox.className = 'panel explicacion';
+  expBox.innerHTML = '';
+  document.getElementById('respuesta').focus();
+}
+
+function verificar(){
+  if(!ejercicioActual) return;
+  var entrada = document.getElementById('respuesta').value;
+  var fb = document.getElementById('feedback');
+  var correcto = false;
+
+  if(ejercicioActual.tipo === 'numerica'){
+    var num = aNumero(entrada);
+    if(num !== null && Math.abs(num - ejercicioActual.respuesta) <= ejercicioActual.tolerancia){
+      correcto = true;
+    }
+    if(!correcto && coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  } else {
+    if(coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  }
+
+  intentos++;
+  document.getElementById('mInt').textContent = intentos;
+
+  if(correcto){
+    aciertos++;
+    document.getElementById('mArc').textContent = aciertos;
+    fb.className = 'feedback ok';
+    fb.innerHTML = '<span style="font-weight:600">✓ ¡Correcto!</span><br>Escribiste: <code>' + escaparHTML(entrada) + '</code><br>En notación matemática: $' + ejercicioActual.respuestaLaTeX + '$';
+    tiposet(fb);
+  } else {
+    fb.className = 'feedback err';
+    var extra = '';
+    if(ejercicioActual.tipo === 'simbolica'){
+      extra = ' Recuerda escribir intervalos como (2,5) o [2,5], o como desigualdades del tipo 2<x<5.';
+    }
+    fb.innerHTML = '✗ Todavía no. Revisa tu procedimiento o pide una pista.' + extra;
+  }
+}
+
+function mostrarPista(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('pistaBox');
+  box.innerHTML = ejercicioActual.pista;
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+function mostrarExplicacion(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('explicacionBox');
+  box.innerHTML = ejercicioActual.explicacion.replace(/\n/g,'<br>');
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+// ===== EVENTOS =====
+document.getElementById('respuesta').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); verificar(); }
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'n' || e.key === 'N'){
+    var activo = document.activeElement;
+    if(activo && activo.id === 'respuesta') return;
+    nuevoEjercicio();
+  }
+});
+
+// ===== ARRANQUE =====
+nuevoEjercicio();
+</script>
+</body>
+</html>
