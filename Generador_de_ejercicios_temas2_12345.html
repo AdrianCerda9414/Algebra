@@ -3,639 +3,1484 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Generador infinito de ejercicios</title>
+<title>Generador infinito de ejercicios · Álgebra · Números complejos</title>
 <script>
 window.MathJax = {
-  tex: {inlineMath: [['$', '$'], ['\(', '\)']], displayMath: [['$$', '$$']]},
-  svg: {fontCache: 'global'},
-  options: {skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']}
+  tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code','svg','option']}
 };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+  onerror="window.__mjFallo=true;"></script>
 <style>
-:root {
-  --bg: #f4f6fb;
-  --card: #fff;
-  --ink: #111827;
-  --muted: #6b7280;
-  --brand: #4f46e5;
-  --brand2: #7c3aed;
-  --line: #e5e7eb;
-  --ok: #059669;
-  --okbg: #ecfdf5;
-  --err: #dc2626;
-  --errbg: #fef2f2;
-  --warn: #b45309;
-  --warnbg: #fffbeb;
+/* ===== VARIABLES Y BASE ===== */
+:root{
+  --bg:#f4f6fb;--card:#fff;--ink:#111827;--muted:#6b7280;
+  --brand:#4f46e5;--brand2:#7c3aed;--line:#e5e7eb;
+  --ok:#059669;--okbg:#ecfdf5;--err:#dc2626;--errbg:#fef2f2;
+  --warn:#b45309;--warnbg:#fffbeb;
+  --okTit:#047857;--errTit:#b91c1c;
 }
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.55;padding:24px 16px 60px;
+  background-image:
+    radial-gradient(900px 500px at 12% -10%,rgba(124,58,237,.10),transparent 60%),
+    radial-gradient(800px 600px at 110% 20%,rgba(79,70,229,.10),transparent 65%);
 }
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 24px 16px;
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(17,24,39,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(17,24,39,.04) 1px,transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000 40%,transparent 100%);
+          mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000 40%,transparent 100%);
 }
-.container {
-  width: 100%;
-  max-width: 900px;
-  background: var(--card);
-  border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 24px;
+.wrap{max-width:900px;margin:0 auto;position:relative;z-index:1}
+/* ===== TARJETA ===== */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:22px;
+  box-shadow:0 30px 70px -34px rgba(17,24,39,.45);overflow:hidden;
 }
-header {
-  background: linear-gradient(135deg, var(--brand), var(--brand2));
-  color: #fff;
-  padding: 28px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.card-head{
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  color:#fff;padding:24px 28px 22px;position:relative;overflow:hidden;
 }
-h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+.card-head::before{
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.18) 1px,transparent 1px);
+  background-size:14px 14px;opacity:.5;
 }
-.subtitle {
-  font-size: 0.95rem;
-  opacity: 0.9;
-  font-weight: 400;
+.card-head h1{margin:0 0 6px;font-size:clamp(1.4rem,3.5vw,1.7rem);font-weight:700}
+.card-head .sub{font-size:.96rem;opacity:.95}
+.card-head svg.ilus{position:absolute;right:18px;top:18px;opacity:.35;width:64px;height:64px}
+.card-body{padding:22px 28px 26px}
+/* ===== TOPBAR ===== */
+.topbar{display:flex;justify-content:flex-end;margin-bottom:14px}
+.btn-ghost.icono svg{transition:transform .35s ease}
+.btn-ghost.icono:hover svg{transform:rotate(180deg)}
+/* ===== BOTONES ===== */
+.btn-primary,.btn-ghost,.btn-soft{
+  font-family:inherit;font-size:.95rem;border-radius:10px;padding:10px 16px;
+  cursor:pointer;border:1px solid transparent;font-weight:600;
+  transition:transform .12s ease,background .15s,border-color .15s,color .15s;
+  display:inline-flex;align-items:center;gap:8px;
 }
-.content {
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-primary:active{transform:scale(.985)}
+.btn-ghost{background:transparent;color:var(--brand);border-color:var(--line)}
+.btn-ghost:hover{background:#f9fafb;transform:translateY(-2px)}
+.btn-soft{background:#eef2ff;color:var(--brand);border-color:transparent}
+.btn-soft:hover{background:#e0e7ff;transform:translateY(-2px)}
+.btn-primary:focus-visible,.btn-ghost:focus-visible,.btn-soft:focus-visible{
+  outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.25);
 }
-.top-row {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+/* ===== ENUNCIADO ===== */
+#enunciado{background:#f9fafb;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.texto-prob{font-size:1.04rem;line-height:1.6}
+/* ===== ESQUEMA SVG ===== */
+.esquema-wrap{
+  margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:12px;
+  padding:10px;display:flex;flex-direction:column;align-items:center;
 }
-.btn-ghost {
-  background: transparent;
-  border: 1px solid var(--line);
-  color: var(--ink);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.esquema-wrap .caption{font-size:.78rem;color:var(--muted);margin-top:4px;text-align:center}
+svg.esquema{display:block;width:100%;max-width:340px;height:auto;aspect-ratio:1/1;
+  background:#fff;border-radius:8px;touch-action:none;cursor:grab}
+svg.esquema:active{cursor:grabbing}
+/* ===== FILA RESPUESTA ===== */
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#respuesta{
+  flex:1;min-width:220px;padding:11px 14px;font-size:1rem;
+  border:1px solid var(--line);border-radius:10px;font-family:inherit;
+  transition:border-color .15s,box-shadow .15s;
 }
-.btn-ghost:hover {
-  background: var(--bg);
-  border-color: var(--muted);
+#respuesta:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+#respuesta.mal{border-color:var(--err);animation:sacudir .4s}
+@keyframes sacudir{
+  0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}
 }
-#enunciado {
-  font-size: 1.15rem;
-  line-height: 1.6;
-  color: var(--ink);
-  background: var(--bg);
-  padding: 20px;
-  border-radius: 12px;
-  border-left: 4px solid var(--brand);
+/* ===== FEEDBACK ===== */
+.feedback{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:.95rem;display:none}
+.feedback.visible{display:block;animation:entra .25s ease}
+@keyframes entra{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.feedback.ok{background:var(--okbg);border:1px solid #a7f3d0;color:var(--okTit)}
+.feedback.err{background:var(--errbg);border:1px solid #fecaca;color:var(--errTit)}
+.feedback code{background:rgba(255,255,255,.7);padding:1px 6px;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.feedback .titulo{font-weight:600;margin-bottom:4px}
+/* ===== PANELES ===== */
+.panel{margin-top:14px;padding:14px 16px;border-radius:10px;font-size:.95rem;display:none}
+.panel.visible{display:block;animation:entra .25s ease}
+.panel.pista{background:var(--warnbg);border:1px solid #fde68a;color:var(--warn)}
+.panel.explicacion{background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6}
+.panel.explicacion .pasos{margin:0;padding:0;list-style:none}
+.panel.explicacion .paso{margin:6px 0}
+.panel.explicacion .paso b{color:#4c1d95}
+.panel.explicacion .respuesta-final{margin-top:10px;padding-top:8px;border-top:1px dashed #c4b5fd;font-weight:600}
+/* ===== MARCADOR ===== */
+.marcador{
+  margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
+  display:flex;gap:22px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:.9rem;
 }
-.input-row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+.marcador .stat b{color:var(--ink);font-weight:700;font-size:1.1rem}
+.marcador .stat{display:flex;flex-direction:column;line-height:1.1}
+.marcador .stat span{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
+.historial{display:flex;gap:4px;flex-wrap:wrap;max-width:200px}
+.historial .punto{width:10px;height:10px;border-radius:50%}
+.historial .punto.ok{background:var(--ok)}
+.historial .punto.err{background:var(--err)}
+.historial .punto.vacio{background:#e5e7eb}
+.kbd{
+  display:inline-block;padding:1px 7px;background:#fff;border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:5px;font-size:.8rem;color:var(--ink);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
 }
-#respuesta {
-  flex: 1;
-  min-width: 220px;
-  padding: 12px 16px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s;
+.btn-reset{font-size:.78rem;padding:5px 10px}
+/* ===== FOOTER ===== */
+footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:22px}
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:#e6e9f5}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--brand),var(--brand2));border-radius:6px}
+/* ===== MATHJAX CONTENCIÓN ===== */
+mjx-container[jax="SVG"]:not([display="true"]){
+  display:inline !important;
+  vertical-align:baseline;
+  white-space:nowrap;
+  max-width:none;
 }
-#respuesta:focus {
-  border-color: var(--brand);
+.texto-prob, .panel, .feedback, .paso, .respuesta-final{ white-space: normal; }
+/* ===== RESPALDO LATEX FALLBACK ===== */
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.85em;line-height:1}
+.frac .num{border-bottom:1px solid currentColor;padding:0 4px}
+.frac .den{padding:0 4px}
+.sqrt-wrap{display:inline-block;border-top:1px solid currentColor;padding:0 4px}
+.vec-wrap{position:relative;display:inline-block}
+.vec-wrap::after{content:"→";position:absolute;left:0;right:0;top:-.85em;text-align:center;font-size:.7em}
+/* ===== RESPONSIVE ===== */
+@media(max-width:760px){
+  .esquema-wrap{max-width:290px;margin-left:auto;margin-right:auto}
 }
-.btn-primary {
-  background: var(--brand);
-  color: #fff;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+@media(max-width:560px){
+  .card-head{padding:18px 18px}
+  .card-body{padding:16px 16px 20px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  #respuesta{grid-column:1/-1;min-width:0}
+  .btn-primary{grid-column:1/-1}
+  .btn-soft{grid-column:span 1}
+  .marcador{gap:14px}
 }
-.btn-primary:hover {
-  background: #4338ca;
-}
-.btn-soft {
-  background: #eef2ff;
-  color: var(--brand);
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.btn-soft:hover {
-  background: #e0e7ff;
-}
-.feedback {
-  padding: 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  display: none;
-  line-height: 1.5;
-}
-.feedback.ok {
-  background: var(--okbg);
-  color: var(--ok);
-  border: 1px solid #a7f3d0;
-}
-.feedback.err {
-  background: var(--errbg);
-  color: var(--err);
-  border: 1px solid #fecaca;
-}
-.feedback.visible {
-  display: block;
-}
-.panel {
-  padding: 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  display: none;
-  line-height: 1.5;
-}
-.panel.pista {
-  background: var(--warnbg);
-  color: var(--warn);
-  border: 1px solid #fde68a;
-}
-.panel.explicacion {
-  background: #f5f3ff;
-  color: #6d28d9;
-  border: 1px solid #ddd6fe;
-}
-.panel.visible {
-  display: block;
-}
-.footer-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
-  color: var(--muted);
-  border-top: 1px solid var(--line);
-  padding-top: 20px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.kbd {
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-bottom-width: 2px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 0.8rem;
-}
-footer {
-  text-align: center;
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: auto;
-}
-@media (max-width: 560px) {
-  .content {
-    padding: 20px;
-  }
-  .input-row {
-    flex-direction: column;
-  }
-  .btn-primary, .btn-soft {
-    width: 100%;
-  }
-  .top-row {
-    justify-content: stretch;
-  }
-  .btn-ghost {
-    width: 100%;
-    text-align: center;
-  }
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 </style>
 </head>
 <body>
-
-<div class="container">
-  <header>
-    <h1>Generador infinito de ejercicios</h1>
-    <div class="subtitle">Materia: ALGEBRA &middot; Tema: Definicion de numeros complejos, plano de Argand, notacion, igualdad de numeros complejos, notacion binomial, cis, polar, propiedades, conjugacion, propiedades geometricas, y algebraicas</div>
-  </header>
-  
-  <div class="content">
-    <div class="top-row">
-      <button class="btn-ghost" id="btnNuevo">Nuevo ejercicio</button>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-head">
+        <svg class="ilus" viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="1.6">
+          <circle cx="32" cy="32" r="22"/>
+          <line x1="6" y1="32" x2="58" y2="32"/>
+          <line x1="32" y1="6" x2="32" y2="58"/>
+          <line x1="32" y1="32" x2="48" y2="18"/>
+          <path d="M 44 32 A 12 12 0 0 0 48 18" fill="rgba(255,255,255,.2)"/>
+          <circle cx="48" cy="18" r="2.5" fill="white"/>
+        </svg>
+        <h1>Generador infinito de ejercicios</h1>
+        <div class="sub">Materia: ÁLGEBRA · Tema: Propiedades geométricas de los números complejos</div>
+      </div>
+      <div class="card-body">
+        <div class="topbar">
+          <button class="btn-ghost icono" id="btnNuevo" aria-label="Nuevo ejercicio">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+            Nuevo ejercicio
+          </button>
+        </div>
+        <div id="enunciado"></div>
+        <div class="row">
+          <input id="respuesta" type="text" placeholder="Usa ^ para potencias y / para fracciones…" autocomplete="off">
+          <button class="btn-primary" id="btnVerificar">Verificar</button>
+          <button class="btn-soft" id="btnPista" aria-pressed="false" aria-controls="pistaBox">Pista</button>
+          <button class="btn-soft" id="btnExplicacion" aria-pressed="false" aria-controls="explicacionBox">Explicación</button>
+        </div>
+        <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+        <div id="pistaBox" class="panel pista"></div>
+        <div id="explicacionBox" class="panel explicacion"></div>
+        <div class="marcador">
+          <div class="stat"><b id="mArc">0</b><span>Aciertos</span></div>
+          <div class="stat"><b id="mInt">0</b><span>Intentos</span></div>
+          <div class="stat"><b id="mRacha">0</b><span>Racha</span></div>
+          <div class="historial" id="historial" aria-label="Historial de últimos intentos"></div>
+          <div style="flex:1"></div>
+          <span><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</span>
+          <button class="btn-ghost btn-reset" id="btnReset">Reiniciar marcador</button>
+        </div>
+      </div>
     </div>
-    
-    <div id="enunciado">Cargando enunciado...</div>
-    
-    <div class="input-row">
-      <input type="text" id="respuesta" placeholder="Usa ^ para potencias y / para fracciones..." autocomplete="off">
-      <button class="btn-primary" id="btnVerificar">Verificar</button>
-      <button class="btn-soft" id="btnPista">Pista</button>
-      <button class="btn-soft" id="btnExplicacion">Explicación</button>
-    </div>
-    
-    <div id="feedback" class="feedback"></div>
-    <div id="pistaBox" class="panel pista"></div>
-    <div id="explicacionBox" class="panel explicacion"></div>
-    
-    <div class="footer-stats">
-      <div>Aciertos: <span id="mArc">0</span> | Intentos: <span id="mInt">0</span></div>
-      <div><span class="kbd">Enter</span> = verificar &middot; <span class="kbd">N</span> = nuevo</div>
-    </div>
+    <footer>Generador aleatorio educativo · ÁLGEBRA · Propiedades geométricas de los números complejos</footer>
   </div>
-</div>
-
-<footer>
-  Generador aleatorio educativo &middot; ALGEBRA &middot; Definicion de numeros complejos, plano de Argand, notacion, igualdad de numeros complejos, notacion binomial, cis, polar, propiedades, conjugacion, propiedades geometricas, y algebraicas
-</footer>
 
 <script>
-var aciertos = 0;
-var intentos = 0;
-var ejercicioActual = null;
+// ============ ESTADO ============
+var aciertos = 0, intentos = 0, racha = 0, historial = [];
+var ejercicio = null;
+var yaVerificado = false;
+var etiquetaActual = '', figuraActual = null;
+var varianteAnterior = -1;
+var MJ_INTENTOS = 0;
 
-function escaparHTML(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+// ============ UTILIDADES ============
+function escaparHTML(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-function normalizar(valor) {
-  if (typeof valor !== 'string') {
-    valor = String(valor);
+function normalizar(v){
+  v = String(v).toLowerCase().trim();
+  v = v.replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/ú/g,'u').replace(/ñ/g,'n');
+  v = v.replace(/\$/g,'').replace(/\{/g,'').replace(/\}/g,'');
+  v = v.replace(/\\left/g,'').replace(/\\right/g,'');
+  v = v.replace(/\\[,;!]/g,'').replace(/\\displaystyle/g,'');
+  v = v.replace(/\\cdot/g,'*').replace(/\\times/g,'*').replace(/·/g,'*');
+  v = v.replace(/°/g,'').replace(/grados/g,'').replace(/deg/g,'');
+  v = v.replace(/√/g,'sqrt').replace(/π/g,'pi');
+  v = v.replace(/\s/g,'');
+  // fracción pura a/b → valor decimal (si es numérica)
+  var m = v.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(m){ var num=parseFloat(m[1]), den=parseFloat(m[2]); if(den!==0) v = String(num/den); }
+  return v;
+}
+function limpiarNumero(txt){
+  txt = String(txt).toLowerCase().trim();
+  txt = txt.replace(/\\frac\{(-?\d+(?:\.\d+)?)\}\{(-?\d+(?:\.\d+)?)\}/g,'($1/$2)');
+  txt = txt.replace(/\\dfrac\{(-?\d+(?:\.\d+)?)\}\{(-?\d+(?:\.\d+)?)\}/g,'($1/$2)');
+  txt = txt.replace(/\\tfrac\{(-?\d+(?:\.\d+)?)\}\{(-?\d+(?:\.\d+)?)\}/g,'($1/$2)');
+  txt = txt.replace(/√/g,'sqrt').replace(/\\sqrt/g,'sqrt');
+  txt = txt.replace(/π/g,'pi').replace(/\\pi/g,'pi');
+  txt = txt.replace(/°/g,'').replace(/grados/g,'').replace(/deg/g,'');
+  txt = txt.replace(/,/g,'.');
+  txt = txt.replace(/\s/g,'');
+  return txt;
+}
+// Evaluador aritmético SEGURO (descenso recursivo, sin eval)
+function aNumero(txt){
+  txt = limpiarNumero(txt);
+  if(txt === '') return NaN;
+  var p = {s:txt, i:0};
+  try{
+    var v = _expr(p);
+    if(p.i < p.s.length) return NaN;
+    if(!isFinite(v)) return NaN;
+    return v;
+  }catch(e){ return NaN; }
+}
+function _expr(p){
+  var v = _term(p);
+  while(p.i < p.s.length && (p.s[p.i]==='+'||p.s[p.i]==='-')){
+    var op = p.s[p.i++]; var t = _term(p);
+    v = (op==='+')? v+t : v-t;
   }
-  var limpio = valor.toLowerCase().replace(/\s+/g, '').replace(/undefined/g, '');
-  var regexFrac = /^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/;
-  var match = limpio.match(regexFrac);
-  if (match) {
-    var num = parseFloat(match[1]);
-    var den = parseFloat(match[2]);
-    if (den !== 0) {
-      return String(num / den);
-    }
+  return v;
+}
+function _term(p){
+  var v = _power(p);
+  while(p.i < p.s.length && (p.s[p.i]==='*'||p.s[p.i]==='/'||_implMult(p))){
+    var op = p.s[p.i];
+    if(op==='*'||op==='/') p.i++;
+    var t = _power(p);
+    if(op==='/'){ if(t===0) return NaN; v=v/t; } else v=v*t;
   }
-  return limpio;
+  return v;
 }
-
-function aNumero(val) {
-  var norm = normalizar(val);
-  var num = parseFloat(norm);
-  return isNaN(num) ? null : num;
-}
-
-function coincideTexto(entrada, aceptadas) {
-  var normEntrada = normalizar(entrada);
-  for (var i = 0; i < aceptadas.length; i++) {
-    if (normEntrada === normalizar(aceptadas[i])) {
-      return true;
-    }
+function _implMult(p){
+  if(p.i>=p.s.length) return false;
+  var c = p.s[p.i];
+  if(c==='('||c==='s'||c==='p'){
+    var prev = p.i>0? p.s[p.i-1] : '';
+    return prev && (prev>='0'&&prev<='9' || prev===')');
   }
   return false;
 }
-
-function tiposet(nodo, intento) {
-  if (typeof intento === 'undefined') {
-    intento = 0;
+function _power(p){
+  var v = _unary(p);
+  if(p.i < p.s.length && p.s[p.i]==='^'){
+    p.i++;
+    var e = _unary(p);
+    v = Math.pow(v,e);
   }
-  if (window.MathJax && window.MathJax.typesetPromise) {
-    window.MathJax.typesetPromise([nodo]).catch(function (err) {
-      console.error(err);
+  return v;
+}
+function _unary(p){
+  if(p.i < p.s.length && p.s[p.i]==='-'){ p.i++; return -_unary(p); }
+  if(p.i < p.s.length && p.s[p.i]==='+'){ p.i++; return _unary(p); }
+  return _primary(p);
+}
+function _primary(p){
+  if(p.i>=p.s.length) return NaN;
+  var c = p.s[p.i];
+  if(c==='('){
+    p.i++;
+    var v = _expr(p);
+    if(p.i<p.s.length && p.s[p.i]===')') p.i++;
+    return v;
+  }
+  if(c>='0'&&c<='9'){
+    var num='';
+    while(p.i<p.s.length && ((_esDig(p.s[p.i]))||p.s[p.i]==='.')){ num+=p.s[p.i++]; }
+    return parseFloat(num);
+  }
+  if(p.s.substr(p.i,4)==='sqrt'){
+    p.i+=4;
+    if(p.i<p.s.length && p.s[p.i]==='('){
+      p.i++; var a=_expr(p);
+      if(p.i<p.s.length && p.s[p.i]===')') p.i++;
+      if(a<0) return NaN;
+      return Math.sqrt(a);
+    }
+    return NaN;
+  }
+  if(p.s.substr(p.i,2)==='pi'){ p.i+=2; return Math.PI; }
+  return NaN;
+}
+function _esDig(c){ return c>='0'&&c<='9'; }
+// Parser de número complejo en texto plano
+function parseComplejo(s){
+  s = String(s).trim().toLowerCase().replace(/\s/g,'').replace(/\*/g,'').replace(/j/g,'i').replace(/\(/g,'').replace(/\)/g,'');
+  if(s==='') return null;
+  if(s==='i'||s==='+i') return {re:0,im:1};
+  if(s==='-i') return {re:0,im:-1};
+  if(s.indexOf('i')===-1){ var n=aNumero(s); return isNaN(n)?null:{re:n,im:0}; }
+  if(s.charAt(s.length-1)!=='i') return null;
+  var rest = s.substring(0,s.length-1);
+  var signIdx=-1;
+  for(var k=rest.length-1;k>0;k--){
+    if(rest[k]==='+'||rest[k]==='-'){ signIdx=k; break; }
+  }
+  var reStr, imStr;
+  if(signIdx===-1){ reStr='0'; imStr=rest; }
+  else { reStr=rest.substring(0,signIdx); imStr=rest.substring(signIdx); }
+  if(imStr===''||imStr==='+') imStr='+1';
+  if(imStr==='-') imStr='-1';
+  var re=aNumero(reStr), im=aNumero(imStr);
+  if(isNaN(re)||isNaN(im)) return null;
+  return {re:re,im:im};
+}
+// Parser de ángulo: admite "30", "30°", "pi/6", "3pi/4"
+function parseAngulo(txt){
+  txt = String(txt).trim().toLowerCase().replace(/\s/g,'').replace(/°/g,'').replace(/grados/g,'').replace(/deg/g,'').replace(/sen/g,'sin');
+  if(txt.indexOf('pi')!==-1){
+    var rad = aNumero(txt);
+    if(isNaN(rad)) return NaN;
+    return rad*180/Math.PI;
+  }
+  return aNumero(txt);
+}
+// Parser de forma polar: r(cosθ+i sinθ), rcisθ, r∠θ
+function parsePolar(txt){
+  txt = String(txt).toLowerCase().replace(/\s/g,'').replace(/°/g,'').replace(/grados/g,'').replace(/sen/g,'sin');
+  // rcisθ
+  var m = txt.match(/^(.+?)cis(.+)$/);
+  if(m){ return {r:aNumero(m[1]), ang:parseAngulo(m[2])}; }
+  // r∠θ
+  m = txt.match(/^(.+?)∠(.+)$/);
+  if(m){ return {r:aNumero(m[1]), ang:parseAngulo(m[2])}; }
+  // r(cosθ+isinθ)
+  m = txt.match(/^(.+?)\(cos(.+?)\+isin(.+?)\)$/);
+  if(m){ return {r:aNumero(m[1]), ang:parseAngulo(m[2])}; }
+  // r(cosθ+i sinθ)
+  m = txt.match(/^(.+?)\(cos(.+?)\+i\*?sin(.+?)\)$/);
+  if(m){ return {r:aNumero(m[1]), ang:parseAngulo(m[2])}; }
+  // r(cosθ+i senθ) (ya normalizado sin)
+  m = txt.match(/^(.+?)\(cos(.+?)\+isin(.+?)\)$/);
+  if(m){ return {r:aNumero(m[1]), ang:parseAngulo(m[2])}; }
+  return null;
+}
+// Comparadores
+function coincideTexto(entrada, acepta){
+  var e = normalizar(entrada);
+  for(var i=0;i<acepta.length;i++){
+    if(normalizar(acepta[i])===e) return true;
+    // igualdad numérica
+    var n1 = aNumero(entrada), n2 = aNumero(acepta[i]);
+    if(!isNaN(n1)&&!isNaN(n2)&&Math.abs(n1-n2)<=0.002) return true;
+  }
+  return false;
+}
+function coincideComplejo(entrada, re, im, tol){
+  var p = parseComplejo(entrada);
+  if(!p) return false;
+  tol = tol||0.002;
+  return Math.abs(p.re-re)<=tol && Math.abs(p.im-im)<=tol;
+}
+function coincidePolar(entrada, r, ang, tol){
+  var p = parsePolar(entrada);
+  if(!p||isNaN(p.r)||isNaN(p.ang)) return false;
+  tol = tol||0.5;
+  // normalizar ang a (-180,180]
+  var a1 = ((p.ang%360)+360)%360; if(a1>180) a1-=360;
+  var a2 = ((ang%360)+360)%360; if(a2>180) a2-=360;
+  return Math.abs(p.r-r)<=tol && Math.abs(a1-a2)<=tol;
+}
+function coincideAngulo(entrada, ang, tol){
+  var a = parseAngulo(entrada);
+  if(isNaN(a)) return false;
+  tol = tol||0.5;
+  var a1 = ((a%360)+360)%360; if(a1>180) a1-=360;
+  var a2 = ((ang%360)+360)%360; if(a2>180) a2-=360;
+  return Math.abs(a1-a2)<=tol;
+}
+// MathJax typeset con respaldo
+function tiposet(nodo, intento){
+  intento = intento||0;
+  if(window.__mjFallo){ _respaldoLaTeX(nodo); return; }
+  if(window.MathJax && window.MathJax.typesetPromise){
+    window.MathJax.typesetPromise([nodo]).catch(function(){
+      _respaldoLaTeX(nodo);
     });
-  } else if (intento < 40) {
-    setTimeout(function() {
-      tiposet(nodo, intento + 1);
-    }, 200);
+    return;
+  }
+  if(intento<40){ setTimeout(function(){ tiposet(nodo,intento+1); },200); }
+  else _respaldoLaTeX(nodo);
+}
+// Respaldo LaTeX→HTML sin conexión
+function _respaldoLaTeX(nodo){
+  var walker = document.createTreeWalker(nodo, NodeFilter.SHOW_TEXT, null);
+  var nodos = [];
+  while(walker.nextNode()){
+    var n = walker.currentNode;
+    var tag = n.parentNode.tagName.toLowerCase();
+    if(['code','pre','script','style','textarea'].indexOf(tag)!==-1) continue;
+    if(n.parentNode.dataset && n.parentNode.dataset.mj) continue;
+    nodos.push(n);
+  }
+  for(var i=0;i<nodos.length;i++){
+    var t = nodos[i].nodeValue;
+    if(t.indexOf('$')===-1 && t.indexOf('\\(')===-1) continue;
+    nodos[i].nodeValue = '';
+    var span = document.createElement('span');
+    span.dataset.mj = '1';
+    span.innerHTML = _latexAHTML(t);
+    nodos[i].parentNode.replaceChild(span, nodos[i]);
   }
 }
-
-function genDefinicionComplejos() {
-  var a = Math.floor(Math.random() * 8) + 1;
-  var b = Math.floor(Math.random() * 8) + 1;
-  var c = Math.floor(Math.random() * 8) + 1;
-  var d = Math.floor(Math.random() * 8) + 1;
-  
-  var realTotal = a + c;
-  var imagTotal = b + d;
-  
-  var enunciado = "En el modelado de corrientes alternas para innovación en diseño mecatrónico, se suman dos impedancias complejas representadas en forma binomial: $Z_1 = " + a + " + " + b + "i$ y $Z_2 = " + c + " + " + d + "i$. Determina la parte real de la impedancia resultante $Z_1 + Z_2$.";
-  var pista = "Para sumar números complejos en forma binomial, se suman por separado las partes reales entre sí y las partes imaginarias entre sí.";
-  var explicacion = "Paso 1. Agrupa las partes reales de ambos números complejos: $" + a + " + " + c + " = " + realTotal + "$. Paso 2. Agrupa las partes imaginarias: $" + b + " + " + d + " = " + imagTotal + "$. Paso 3. La suma es $" + realTotal + " + " + imagTotal + "i$, por lo que su parte real solicitada es $" + realTotal + "$.";
-  
-  return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "La parte real es $" + realTotal + "$",
-    respuestaLaTeX: String(realTotal),
-    acepta: [String(realTotal)],
-    respuesta: realTotal,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
-  };
+function _latexAHTML(texto){
+  return texto.replace(/\$([^$]+)\$|\\\((.+?)\\\)/g, function(m, p1, p2){
+    return _texAHTML(p1||p2);
+  });
 }
-
-function genPlanoArgand() {
-  var x = Math.floor(Math.random() * 6) + 1;
-  var y = Math.floor(Math.random() * 6) + 1;
-  
-  var modCuadrado = x * x + y * y;
-  
-  var enunciado = "En el plano de Argand, una investigadora en inteligencia artificial ubica un vector de estado complejo asociado a un sensor en las coordenadas $( " + x + ", " + y + " )$, que corresponden al número complejo $Z = " + x + " + " + y + "i$. Calcula el cuadrado de la longitud (módulo al cuadrado) de este vector respecto al origen.";
-  var pista = "El cuadrado del módulo de un número complejo $Z = x + yi$ en el plano de Argand se calcula como $|Z|^2 = x^2 + y^2$.";
-  var explicacion = "Paso 1. Identifica las componentes real $x = " + x + "$ e imaginaria $y = " + y + "$. Paso 2. Sustituye en la fórmula del cuadrado del módulo: $|Z|^2 = (" + x + ")^2 + (" + y + ")^2$. Paso 3. Opera los cuadrados: $" + (x * x) + " + " + (y * y) + " = " + modCuadrado + "$.";
-  
-  return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "El cuadrado del módulo es $" + modCuadrado + "$",
-    respuestaLaTeX: String(modCuadrado),
-    acepta: [String(modCuadrado)],
-    respuesta: modCuadrado,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
-  };
+function _texAHTML(tex){
+  tex = tex.replace(/\\left/g,'').replace(/\\right/g,'')
+           .replace(/\\bigl/g,'').replace(/\\bigr/g,'')
+           .replace(/\\Bigl/g,'').replace(/\\Bigr/g,'')
+           .replace(/\\[,;!]/g,'').replace(/\\displaystyle/g,'');
+  tex = tex.replace(/\\text\{([^}]*)\}/g,'$1')
+           .replace(/\\mathrm\{([^}]*)\}/g,'$1')
+           .replace(/\\mathbf\{([^}]*)\}/g,'<b>$1</b>')
+           .replace(/\\operatorname\{([^}]*)\}/g,'$1');
+  // fracciones (simple, un nivel)
+  tex = tex.replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g, function(m,a,b){
+    return '<span class="frac"><span class="num">'+a+'</span><span class="den">'+b+'</span></span>';
+  });
+  // raíz
+  tex = tex.replace(/\\sqrt\{([^{}]*)\}/g, function(m,a){
+    return '<span class="sqrt-wrap">'+a+'</span>';
+  });
+  // símbolos
+  tex = tex.replace(/\\cdot/g,'·').replace(/\\times/g,'×')
+           .replace(/\\theta/g,'θ').replace(/\\tau/g,'τ').replace(/\\pi/g,'π')
+           .replace(/\\le/g,'≤').replace(/\\ge/g,'≥').replace(/\\neq/g,'≠')
+           .replace(/\\lt/g,'&lt;').replace(/\\gt/g,'&gt;')
+           .replace(/\\to/g,'→').replace(/\\circ/g,'°').replace(/\\alpha/g,'α')
+           .replace(/\\beta/g,'β').replace(/\\gamma/g,'γ').replace(/\\phi/g,'φ')
+           .replace(/\\lambda/g,'λ').replace(/\\mu/g,'μ').replace(/\\in/g,'∈')
+           .replace(/\\subset/g,'⊂').replace(/\\mathbb\{N\}/g,'ℕ')
+           .replace(/\\mathbb\{Z\}/g,'ℤ').replace(/\\mathbb\{Q\}/g,'ℚ')
+           .replace(/\\mathbb\{R\}/g,'ℝ').replace(/\\mathbb\{C\}/g,'ℂ')
+           .replace(/\\setminus/g,'∖').replace(/\\gcd/g,'gcd').replace(/\\cos/g,'cos')
+           .replace(/\\sin/g,'sen').replace(/\\tan/g,'tan').replace(/\\arg/g,'arg');
+  // acentos
+  tex = tex.replace(/\\vec\{([^}]*)\}/g,'<span class="vec-wrap">$1</span>')
+           .replace(/\\hat\{([^}]*)\}/g,'<span style="text-decoration:overline">$1</span>')
+           .replace(/\\bar\{([^}]*)\}/g,'<span style="text-decoration:overline">$1</span>');
+  // super/sub
+  tex = tex.replace(/\^\{([^{}]*)\}/g,'<sup>$1</sup>')
+           .replace(/\^(\w)/g,'<sup>$1</sup>')
+           .replace(/_\{([^{}]*)\}/g,'<sub>$1</sub>')
+           .replace(/_(\w)/g,'<sub>$1</sub>');
+  tex = tex.replace(/\{/g,'').replace(/\}/g,'');
+  return tex;
 }
-
-function genIgualdadComplejos() {
-  var m = Math.floor(Math.random() * 5) + 2;
-  var n = Math.floor(Math.random() * 5) + 2;
-  var sum = m + n;
-  
-  var enunciado = "Para que dos sistemas de control con variables complejas sean perfectamente equivalentes, se requiere la igualdad entre $Z_1 = " + m + " + " + n + "i$ y $Z_2 = x + yi$. Determina la suma de las incógnitas $x + y$.";
-  var pista = "Dos números complejos son iguales si y solo si sus partes reales son iguales entre sí y sus partes imaginarias son iguales entre sí.";
-  var explicacion = "Paso 1. Iguala la parte real de $Z_1$ con $x$, obteniendo $x = " + m + "$. Paso 2. Iguala la parte imaginaria de $Z_1$ con $y$, obteniendo $y = " + n + "$. Paso 3. Calcula la suma solicitada $x + y = " + m + " + " + n + " = " + sum + "$.";
-  
-  return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "La suma es $" + sum + "$",
-    respuestaLaTeX: String(sum),
-    acepta: [String(sum)],
-    respuesta: sum,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
-  };
+// Math helpers
+function mcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=b; b=a%b; a=t; } return a; }
+function fraccionStr(n,d){
+  if(d===0) return '0';
+  var g = mcd(n,d);
+  n/=g; d/=g;
+  if(d<0){ n=-n; d=-d; }
+  return n + '/' + d;
 }
-
-function genCisPolar() {
-  var r = Math.floor(Math.random() * 4) + 2;
-  
-  var enunciado = "En el análisis de redes de comunicaciones desarrollado por un equipo de innovación digital, se expresa un número complejo en forma polar como $Z = " + r + " \\text{ cis}(0^\\circ)$. Escribe el valor numérico de la parte real de este número complejo.";
-  var pista = "La forma polar $r \\text{ cis}(\\theta)$ equivale en forma binomial a $r(\\cos(\\theta) + i \\sin(\\theta))$. Evalúa para $\\theta = 0^\\circ$.";
-  var explicacion = "Paso 1. Recuerda que $\\text{cis}(0^\\circ) = \\cos(0^\\circ) + i\\sin(0^\\circ) = 1 + 0i$. Paso 2. Multiplica por el módulo $r = " + r + "$, obteniendo $Z = " + r + "(1) + " + r + "(0)i = " + r + "$. Paso 3. La parte real resultante es exactamente $" + r + "$.";
-  
-  return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "La parte real es $" + r + "$",
-    respuestaLaTeX: String(r),
-    acepta: [String(r)],
-    respuesta: r,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
-  };
-}
-
-function genConjugacion() {
-  var a = Math.floor(Math.random() * 5) + 1;
-  var b = Math.floor(Math.random() * 5) + 1;
-  
-  var producto = a * a + b * b;
-  
-  var enunciado = "Una diseñadora en ingeniería mecatrónica calcula la potencia disipada multiplicando un número complejo por su conjugado. Si $Z = " + a + " + " + b + "i$, calcula el producto de $Z$ por su conjugado $\\bar{Z}$ ($Z \\cdot \\bar{Z}$).";
-  var pista = "El producto de un número complejo $Z = a + bi$ por su conjugado $\\bar{Z} = a - bi$ se define como $a^2 + b^2$.";
-  var explicacion = "Paso 1. Identifica las componentes $a = " + a + "$ y $b = " + b + "$. Paso 2. Aplica la propiedad algebraica del conjugado: $Z \\cdot \\bar{Z} = a^2 + b^2 = (" + a + ")^2 + (" + b + ")^2$. Paso 3. Resuelve los cuadrados y súmalos: $" + (a * a) + " + " + (b * b) + " = " + producto + "$.";
-  
-  return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "El producto es $" + producto + "$",
-    respuestaLaTeX: String(producto),
-    acepta: [String(producto)],
-    respuesta: producto,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
-  };
-}
-
-function genPropiedadesAlgebraicas() {
-  var a = Math.floor(Math.random() * 3) + 1;
-  var b = Math.floor(Math.random() * 3) + 1;
-  
-  var realRes = a * a - b * b;
-  var imagRes = 2 * a * b;
-  
-  var imagStr = imagRes >= 0 ? "+ " + imagRes + "i" : "- " + Math.abs(imagRes) + "i";
-  
-  var enunciado = "Para evaluar la respuesta al impulso de un filtro digital, un algoritmo de inteligencia artificial eleva al cuadrado el número complejo $Z = " + a + " + " + b + "i$. Escribe el resultado en forma binomial expandida $x + yi$, introduciendo solo la parte real resultante.";
-  var pista = "Desarrolla el binomio al cuadrado considerando que $(a + bi)^2 = a^2 - b^2 + 2abi$, recordando que $i^2 = -1$.";
-  var explicacion = "Paso 1. Aplica el binomio al cuadrado: $(" + a + " + " + b + "i)^2 = (" + a + ")^2 + 2(" + a + ")(" + b + ")i + (" + b + "i)^2$. Paso 2. Simplifica recordando que $i^2 = -1$: $" + (a * a) + " + " + (2 * a * b) + "i - " + (b * b) + "$. Paso 3. Agrupa la parte real resultante: $" + realRes + "$.";
-  
-  return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "La parte real es $" + realRes + "$",
-    respuestaLaTeX: String(realRes),
-    acepta: [String(realRes)],
-    respuesta: realRes,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
-  };
-}
-
-function genPropiedadesGeometricas() {
-  var x = 3;
-  var y = 4;
-  var mod = 5;
-  
-  var enunciado = "En un estudio geométrico en el plano de Argand para un sistema robótico, se representa la posición compleja $Z = " + x + " + " + y + "i$. Utiliza la interpretación geométrica para calcular la distancia de este punto al origen (módulo $|Z|$).";
-  var pista = "El módulo de un número complejo en el plano de Argand representa geométricamente la distancia euclidiana desde el origen hasta el punto $(x, y)$, calculada como $\\sqrt{x^2 + y^2}$.";
-  var explicacion = "Paso 1. Sustituye las coordenadas $x = " + x + "$ e $y = " + y + "$ en la fórmula del módulo: $|Z| = \\sqrt{" + x + "^2 + " + y + "^2}$. Paso 2. Calcula los cuadrados: $\\sqrt{" + (x * x) + " + " + (y * y) + "} = \\sqrt{25}$. Paso 3. Obtén la raíz principal exacta, que es $" + mod + "$.";
-  
-  return {
-    tipo: 'numerica',
-    problema: enunciado,
-    solucion: "El módulo es $" + mod + "$",
-    respuestaLaTeX: String(mod),
-    acepta: [String(mod)],
-    respuesta: mod,
-    tolerancia: 0.001,
-    pista: pista,
-    explicacion: explicacion
-  };
-}
-
-function genNotacionBinomialSimbolica() {
-  var a = Math.floor(Math.random() * 4) + 1;
-  var b = Math.floor(Math.random() * 4) + 1;
-  
-  var conjStr = a + "-" + b + "i";
-  if (b === 1) {
-    conjStr = a + "-i";
+function latexComplejo(re, im){
+  if(im===0) return String(re);
+  if(re===0){
+    if(im===1) return 'i';
+    if(im===-1) return '-i';
+    return im + 'i';
   }
-  
-  var enunciado = "Una investigadora en innovación y diseño mecatrónico requiere el conjugado de un número complejo para normalizar una señal. Si el número es $Z = " + a + " + " + b + "i$, escribe la expresión algebraica de su conjugado $\\bar{Z}$ en forma binomial.";
-  var pista = "El conjugado de un número complejo $Z = a + bi$ se obtiene cambiando el signo de su componente imaginaria, resultando $\\bar{Z} = a - bi$.";
-  var explicacion = "Paso 1. Identifica la parte real $a = " + a + "$ y la parte imaginaria $b = " + b + "$. Paso 2. Cambia el signo del término imaginario de positivo a negativo. Paso 3. Escribe la expresión resultante como $" + conjStr + "$.";
-  
-  return {
-    tipo: 'simbolica',
-    problema: enunciado,
-    solucion: "El conjugado es $" + conjStr + "$",
-    respuestaLaTeX: conjStr,
-    acepta: [conjStr, a + "-" + b + "i"],
-    pista: pista,
-    explicacion: explicacion
-  };
+  var sign = im>0?'+':'-';
+  var absI = Math.abs(im);
+  if(absI===1) return re + sign + 'i';
+  return re + sign + absI + 'i';
+}
+function redondearAng(a){
+  // reducir a (-180,180]
+  a = ((a%360)+360)%360;
+  if(a>180) a-=360;
+  return a;
 }
 
-var generadores = [
-  genDefinicionComplejos,
-  genPlanoArgand,
-  genIgualdadComplejos,
-  genCisPolar,
-  genConjugacion,
-  genPropiedadesAlgebraicas,
-  genPropiedadesGeometricas,
-  genNotacionBinomialSimbolica
+// ============ GENERADOR ============
+var POOL_MOD = [
+  {a:3,b:4,mod:5}, {a:5,b:12,mod:13}, {a:8,b:15,mod:17},
+  {a:7,b:24,mod:25}, {a:20,b:21,mod:29}
+];
+var POOL_ARG = [
+  {a:1,b:1,ang:45,aL:'1',bL:'1'},
+  {a:-1,b:1,ang:135,aL:'-1',bL:'1'},
+  {a:-1,b:-1,ang:-135,aL:'-1',bL:'-1'},
+  {a:1,b:-1,ang:-45,aL:'1',bL:'-1'},
+  {a:1,b:0,ang:0,aL:'1',bL:'0'},
+  {a:-1,b:0,ang:180,aL:'-1',bL:'0'},
+  {a:0,b:1,ang:90,aL:'0',bL:'1'},
+  {a:0,b:-1,ang:-90,aL:'0',bL:'-1'},
+  {a:2,b:2,ang:45,aL:'2',bL:'2'},
+  {a:-3,b:3,ang:135,aL:'-3',bL:'3'},
+  {a:Math.sqrt(3),b:1,ang:30,aL:'\\sqrt{3}',bL:'1'},
+  {a:-Math.sqrt(3),b:1,ang:150,aL:'-\\sqrt{3}',bL:'1'},
+  {a:1,b:Math.sqrt(3),ang:60,aL:'1',bL:'\\sqrt{3}'},
+  {a:-1,b:Math.sqrt(3),ang:120,aL:'-1',bL:'\\sqrt{3}'},
+  {a:1,b:-Math.sqrt(3),ang:-60,aL:'1',bL:'-\\sqrt{3}'},
+  {a:-1,b:-Math.sqrt(3),ang:-120,aL:'-1',bL:'-\\sqrt{3}'}
+];
+var POOL_DEMOIVRE = [
+  {theta:30,n:3,re:0,im:1},
+  {theta:30,n:6,re:-1,im:0},
+  {theta:45,n:2,re:0,im:1},
+  {theta:45,n:4,re:-1,im:0},
+  {theta:45,n:6,re:0,im:-1},
+  {theta:45,n:8,re:1,im:0},
+  {theta:60,n:3,re:-1,im:0},
+  {theta:60,n:6,re:1,im:0},
+  {theta:90,n:2,re:-1,im:0},
+  {theta:90,n:3,re:0,im:-1},
+  {theta:90,n:4,re:1,im:0}
+];
+var POOL_RAICES = [
+  {r:8,n:3,sep:120,mod:2},
+  {r:27,n:3,sep:120,mod:3},
+  {r:16,n:4,sep:90,mod:2},
+  {r:1,n:6,sep:60,mod:1},
+  {r:1,n:4,sep:90,mod:1},
+  {r:1,n:3,sep:120,mod:1},
+  {r:32,n:5,sep:72,mod:2}
+];
+var POOL_DIST = [
+  {x1:0,y1:0,x2:3,y2:4,d:5},
+  {x1:0,y1:0,x2:6,y2:8,d:10},
+  {x1:0,y1:0,x2:5,y2:12,d:13},
+  {x1:1,y1:1,x2:4,y2:5,d:5},
+  {x1:-3,y1:0,x2:0,y2:4,d:5},
+  {x1:0,y1:0,x2:8,y2:15,d:17}
+];
+var POOL_MID = [
+  {x1:2,y1:3,x2:4,y2:5,mx:3,my:4},
+  {x1:-2,y1:4,x2:6,y2:0,mx:2,my:2},
+  {x1:0,y1:0,x2:6,y2:8,mx:3,my:4},
+  {x1:-4,y1:-2,x2:4,y2:2,mx:0,my:0},
+  {x1:1,y1:5,x2:7,y2:-1,mx:4,my:2}
+];
+var POOL_PRODUCTO_MOD = [
+  {r1:3,r2:4,prod:12},
+  {r1:5,r2:3,prod:15},
+  {r1:5,r2:13,prod:65},
+  {r1:2,r2:5,prod:10},
+  {r1:4,r2:5,prod:20}
+];
+var POOL_PRODUCTO_ANG = [
+  {a1:30,a2:60,sum:90},
+  {a1:45,a2:90,sum:135},
+  {a1:120,a2:60,sum:180},
+  {a1:-30,a2:60,sum:30},
+  {a1:150,a2:60,sum:-150},
+  {a1:45,a2:45,sum:90},
+  {a1:-90,a2:120,sum:30}
+];
+var POOL_COCIENTE_MOD = [
+  {r1:6,r2:3,coc:2},
+  {r1:4,r2:8,coc:'1/2'},
+  {r1:10,r2:5,coc:2},
+  {r1:9,r2:3,coc:3},
+  {r1:15,r2:5,coc:3}
+];
+var POOL_COCIENTE_ANG = [
+  {a1:60,a2:30,dif:30},
+  {a1:90,a2:45,dif:45},
+  {a1:120,a2:60,dif:60},
+  {a1:0,a2:45,dif:-45},
+  {a1:90,a2:30,dif:60},
+  {a1:180,a2:60,dif:120}
+];
+var POOL_LUGAR_CIRC = [
+  {cx:2,cy:-1,r:3},
+  {cx:-1,cy:3,r:5},
+  {cx:0,cy:0,r:4},
+  {cx:3,cy:2,r:6},
+  {cx:-2,cy:-2,r:5}
+];
+var POOL_LUGAR_MEDIATRIZ = [
+  {x1:1,y1:2,x2:5,y2:4},
+  {x1:0,y1:0,x2:4,y2:0},
+  {x1:-2,y1:0,x2:2,y2:0},
+  {x1:0,y1:1,x2:0,y2:5}
+];
+// Pools para regiones en el plano complejo (A11-A14)
+var POOL_REGION_TIPO = [
+  {ineq:'|z - (2+i)| \\le 3',          tipo:'disco',            fig:{tipo:'region_disco',cx:2,cy:1,r:3,cerrado:true}},
+  {ineq:'|z - (-1+2i)| \\lt 4',           tipo:'disco',            fig:{tipo:'region_disco',cx:-1,cy:2,r:4,cerrado:false}},
+  {ineq:'|z + 2 - i| = 5',             tipo:'circunferencia',   fig:{tipo:'circulo',cx:-2,cy:1,r:5}},
+  {ineq:'1 \\le |z - (3+2i)| \\le 5',  tipo:'anillo',           fig:{tipo:'region_anillo',cx:3,cy:2,r1:1,r2:5}},
+  {ineq:'2 \\le |z - (1+i)| \\le 6',   tipo:'anillo',           fig:{tipo:'region_anillo',cx:1,cy:1,r1:2,r2:6}},
+  {ineq:'0 \\lt |z| \\lt 4',                 tipo:'disco agujerado',  fig:{tipo:'region_disco_aguj',cx:0,cy:0,r:4}},
+  {ineq:'0 \\lt |z - (2-3i)| \\lt 5',        tipo:'disco agujerado',  fig:{tipo:'region_disco_aguj',cx:2,cy:-3,r:5}},
+  {ineq:'\\operatorname{Re}(z) \\gt 2',   tipo:'semiplano',        fig:{tipo:'region_semi',eje:'Re',op:'>',k:2}},
+  {ineq:'\\operatorname{Re}(z) \\lt -1',  tipo:'semiplano',        fig:{tipo:'region_semi',eje:'Re',op:'<',k:-1}},
+  {ineq:'\\operatorname{Im}(z) \\gt 3',   tipo:'semiplano',        fig:{tipo:'region_semi',eje:'Im',op:'>',k:3}},
+  {ineq:'\\operatorname{Im}(z) \\lt -2',  tipo:'semiplano',        fig:{tipo:'region_semi',eje:'Im',op:'<',k:-2}},
+  {ineq:'1 \\lt \\operatorname{Re}(z) \\lt 4', tipo:'franja',         fig:{tipo:'region_franja',eje:'Re',a:1,b:4}},
+  {ineq:'-2 \\lt \\operatorname{Im}(z) \\lt 3', tipo:'franja',       fig:{tipo:'region_franja',eje:'Im',a:-2,b:3}}
+];
+var POOL_ANILLO = [
+  {cx:3,cy:2,r1:1,r2:5},
+  {cx:1,cy:1,r1:2,r2:6},
+  {cx:-2,cy:4,r1:1,r2:4},
+  {cx:0,cy:0,r1:3,r2:7},
+  {cx:4,cy:-1,r1:2,r2:5}
+];
+var POOL_DISCO_AGUJ = [
+  {cx:0,cy:0,r:4},
+  {cx:2,cy:-3,r:5},
+  {cx:-1,cy:2,r:3},
+  {cx:3,cy:1,r:6}
+];
+var POOL_FRANJA = [
+  {eje:'Re',a:1,b:4},
+  {eje:'Re',a:-3,b:2},
+  {eje:'Re',a:0,b:5},
+  {eje:'Im',a:-2,b:3},
+  {eje:'Im',a:1,b:5},
+  {eje:'Im',a:-4,b:-1}
 ];
 
-function nuevoEjercicio() {
-  var indice = Math.floor(Math.random() * generadores.length);
-  ejercicioActual = generadores[indice]();
-  
-  document.getElementById('enunciado').innerHTML = ejercicioActual.problema;
-  document.getElementById('respuesta').value = '';
-  
-  var feedback = document.getElementById('feedback');
-  feedback.className = 'feedback';
-  feedback.innerHTML = '';
-  
-  var pistaBox = document.getElementById('pistaBox');
-  pistaBox.className = 'panel pista';
-  pistaBox.innerHTML = '<strong>Pista:</strong> ' + ejercicioActual.pista;
-  
-  var explicacionBox = document.getElementById('explicacionBox');
-  explicacionBox.className = 'panel explicacion';
-  explicacionBox.innerHTML = '<strong>Explicación:</strong> ' + ejercicioActual.explicacion;
-  
-  tiposet(document.getElementById('enunciado'));
-  tiposet(pistaBox);
-  tiposet(explicacionBox);
-  
-  document.getElementById('respuesta').focus();
+function ri(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+function azar(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function nz(a,b){ var s=Math.random()<.5?-1:1; return s*ri(a,b); }
+
+function genComplejos(){
+  var v;
+  do{ v = Math.floor(Math.random()*14); } while(v === varianteAnterior);
+  varianteAnterior = v;
+  var o = {};
+  if(v===0){
+    // A1: Módulo |z|=a+bi (numerica)
+    var t = azar(POOL_MOD);
+    var sa = Math.random()<.5?-1:1, sb = Math.random()<.5?-1:1;
+    var a = sa*t.a, b = sb*t.b, mod = t.mod;
+    var aL = (a<0?'-':'') + t.a, bL = (b<0?'-':'') + t.b;
+    o.tipo = 'numerica';
+    etiquetaActual = 'Módulo';
+    figuraActual = {tipo:'punto', x:a, y:b, label:'z'};
+    o.problema = 'En un sistema de adquisición de señales de un robot, un fasor de corriente se representa como $z = '+aL+' + '+bL+'i$ A. Calcula el módulo $|z|$.';
+    o.solucion = String(mod);
+    o.respuestaLaTeX = mod + '\\,\\text{A}';
+    o.acepta = [String(mod)];
+    o.respuesta = mod; o.tolerancia = 0.001;
+    o.pista = 'Aplica $|z| = \\sqrt{a^2 + b^2}$. Eleva al cuadrado cada componente, suma y toma raíz.';
+    o.explicacion = 'Paso 1. Fórmula del módulo: $|z| = \\sqrt{a^2 + b^2}$.\nPaso 2. Sustituimos $a = '+aL+'$ y $b = '+bL+'$.\nPaso 3. Cuadrados: $('+aL+')^2 + ('+bL+')^2 = '+(a*a)+' + '+(b*b)+' = '+(a*a+b*b)+'$.\nPaso 4. Raíz: $\\sqrt{'+(a*a+b*b)+'} = '+mod+'$ A.';
+  }
+  else if(v===1){
+    // A2: Argumento principal (numerica, grados)
+    var t = azar(POOL_ARG);
+    var a = t.a, b = t.b, ang = t.ang, aL = t.aL, bL = t.bL;
+    o.tipo = 'numerica';
+    etiquetaActual = 'Argumento';
+    figuraActual = {tipo:'argumento', x:a, y:b, label:'z'};
+    o.problema = 'Un sensor mide una señal compleja $z = '+aL+' + '+bL+'i$ V. Determina el argumento principal $\\arg(z)$ en grados, con la convención $(-180^{\\circ}, 180^{\\circ}]$.';
+    o.solucion = ang + '°';
+    o.respuestaLaTeX = ang + '^{\\circ}';
+    o.acepta = [String(ang), ang+'°', ang+' grados'];
+    o.respuesta = ang; o.tolerancia = 0.5;
+    o.pista = 'Usa $\\arg(z) = \\operatorname{atan2}(b, a)$ en grados. Recuerda el cuadrante: signo de $a$ y $b$ decide el ángulo.';
+    o.explicacion = 'Paso 1. Por la convención $(-180^{\\circ},180^{\\circ}]$, calculamos el ángulo desde el eje real positivo.\nPaso 2. Para $a = '+aL+'$, $b = '+bL+'$ identificamos el cuadrante.\nPaso 3. El ángulo de referencia (con los valores absolutos) corresponde a un ángulo notable.\nPaso 4. Aplicando el signo por cuadrante: $\\arg(z) = '+ang+'^{\\circ}$.';
+  }
+  else if(v===2){
+    // A3: Conjugado (simbolica)
+    var a = ri(2,6)*(Math.random()<.5?-1:1);
+    var b = ri(1,6)*(Math.random()<.5?-1:1);
+    while(b===0) b = ri(1,6)*(Math.random()<.5?-1:1);
+    o.tipo = 'simbolica';
+    etiquetaActual = 'Conjugado';
+    figuraActual = {tipo:'punto', x:a, y:b, label:'z'};
+    var zLatex = latexComplejo(a,b);
+    var zBarLatex = latexComplejo(a,-b);
+    o.problema = 'En un procesamiento de señales con IA, una componente fasorial tiene el valor $z = '+zLatex+'$. Determina el conjugado $\\bar{z}$ en forma $a+bi$.';
+    o.solucion = zBarLatex;
+    o.respuestaLaTeX = zBarLatex;
+    o.acepta = [zBarLatex];
+    o.re = a; o.im = -b; o.tolerancia = 0.002;
+    o.pista = 'El conjugado $\\bar{z}$ refleja $z$ sobre el eje real: cambia el signo de la parte imaginaria.';
+    o.explicacion = 'Paso 1. Dado $z = '+zLatex+'$.\nPaso 2. El conjugado invierte el signo de la parte imaginaria.\nPaso 3. $\\bar{z} = '+a+' + ('+(-b)+')i = '+zBarLatex+'$.\nPaso 4. Verifica: $|\\bar{z}| = |z|$ y $z\\cdot \\bar{z} = |z|^2$.';
+  }
+  else if(v===3){
+    // A4: Forma polar (simbolica)
+    var ang = azar([0,90,180,-90,30,60,120,150,-30,-60,-120,-150,45,135,-45,-135]);
+    var r = ri(2,6);
+    if(ang===90||ang===-90||ang===180||ang===0){
+      // binomial limpio
+    } else if(ang===30||ang===150||ang===-30||ang===-150){
+      r = 2; // para √3 components con módulo 2
+    } else if(ang===60||ang===120||ang===-60||ang===-120){
+      r = 2;
+    } else {
+      r = Math.sqrt(2); // 45° family
+    }
+    // Calcular componentes
+    var rad = ang*Math.PI/180;
+    var a = r*Math.cos(rad), b = r*Math.sin(rad);
+    var aL, bL, rL;
+    if(ang===0||ang===180){ aL = (a<0?'-':'')+r; bL = '0'; rL = String(r); }
+    else if(ang===90||ang===-90){ aL = '0'; bL = (b<0?'-':'')+r; rL = String(r); }
+    else if(ang===30){ aL='\\sqrt{3}'; bL='1'; rL='2'; }
+    else if(ang===150){ aL='-\\sqrt{3}'; bL='1'; rL='2'; }
+    else if(ang===-30){ aL='\\sqrt{3}'; bL='-1'; rL='2'; }
+    else if(ang===-150){ aL='-\\sqrt{3}'; bL='-1'; rL='2'; }
+    else if(ang===60){ aL='1'; bL='\\sqrt{3}'; rL='2'; }
+    else if(ang===120){ aL='-1'; bL='\\sqrt{3}'; rL='2'; }
+    else if(ang===-60){ aL='1'; bL='-\\sqrt{3}'; rL='2'; }
+    else if(ang===-120){ aL='-1'; bL='-\\sqrt{3}'; rL='2'; }
+    else if(ang===45){ aL='1'; bL='1'; rL='\\sqrt{2}'; }
+    else if(ang===135){ aL='-1'; bL='1'; rL='\\sqrt{2}'; }
+    else if(ang===-45){ aL='1'; bL='-1'; rL='\\sqrt{2}'; }
+    else if(ang===-135){ aL='-1'; bL='-1'; rL='\\sqrt{2}'; }
+    o.tipo = 'simbolica';
+    etiquetaActual = 'Forma polar';
+    figuraActual = {tipo:'polar', r:r, ang:ang};
+    o.problema = 'Un fasor de control tiene componentes $z = '+aL+' + '+bL+'i$. Exprésalo en forma polar $r(\\cos\\theta + i\\,\\operatorname{sen}\\theta)$ con $\\theta$ en grados.';
+    o.solucion = rL + '(cos ' + ang + '° + i sen ' + ang + '°)';
+    o.respuestaLaTeX = rL + '\\,\\bigl(\\cos ' + ang + '^{\\circ} + i\\,\\operatorname{sen} ' + ang + '^{\\circ}\\bigr)';
+    o.acepta = [
+      rL+'(cos'+ang+'+isen'+ang+')',
+      rL+'(cos'+ang+'+i sen'+ang+')',
+      rL+'(cos'+ang+'+i sin'+ang+')',
+      rL+'cis'+ang,
+      rL+'∠'+ang
+    ];
+    o.r = (typeof r === 'number') ? r : Math.sqrt(2);
+    o.ang = ang; o.tolerancia = 0.5;
+    o.pista = 'Calcula $r = |z|$ y $\\theta = \\arg(z)$ en grados. Recuerda las formas equivalentes: $r(\\cos\\theta + i\\,\\operatorname{sen}\\theta)$, $r\\,\\operatorname{cis}\\theta$, $r\\angle\\theta$.';
+    o.explicacion = 'Paso 1. Módulo: $r = |z| = '+rL+'$.\nPaso 2. Argumento: $\\theta = '+ang+'^{\\circ}$ (cuadrante y ángulo notable).\nPaso 3. Forma polar: $z = '+rL+'\\,\\bigl(\\cos '+ang+'^{\\circ} + i\\,\\operatorname{sen} '+ang+'^{\\circ}\\bigr)$.\nPaso 4. Equivalencias: $= '+rL+'\\,\\operatorname{cis} '+ang+'^{\\circ} = '+rL+'\\angle '+ang+'^{\\circ}$.';
+  }
+  else if(v===4){
+    // A5: Producto como rotación (numerica, módulo o argumento)
+    var sub = Math.random()<.5? 'mod' : 'ang';
+    if(sub==='mod'){
+      var t = azar(POOL_PRODUCTO_MOD);
+      var r1 = t.r1, r2 = t.r2, prod = t.prod;
+      o.tipo = 'numerica';
+      etiquetaActual = 'Producto: módulo';
+      figuraActual = {tipo:'puntos', pts:[{x:r1,y:0,label:'z₁'},{x:0,y:r2,label:'z₂'}]};
+      o.problema = 'Dos señales fasoriales en un procesador de IA tienen módulos $|z_1| = '+r1+'$ y $|z_2| = '+r2+'$. Calcula el módulo del producto $|z_1 z_2|$.';
+      o.solucion = String(prod);
+      o.respuestaLaTeX = String(prod);
+      o.acepta = [String(prod)];
+      o.respuesta = prod; o.tolerancia = 0.001;
+      o.pista = 'El módulo del producto es el producto de los módulos: $|z_1 z_2| = |z_1|\\cdot|z_2|$.';
+      o.explicacion = 'Paso 1. Propiedad: $|z_1 z_2| = |z_1|\\cdot|z_2|$.\nPaso 2. Sustituimos: $= '+r1+' \\cdot '+r2+'$.\nPaso 3. Producto: $= '+prod+'$.\nPaso 4. Resultado: $|z_1 z_2| = '+prod+'$.';
+    } else {
+      var t = azar(POOL_PRODUCTO_ANG);
+      o.tipo = 'numerica';
+      etiquetaActual = 'Producto: argumento';
+      figuraActual = {tipo:'puntos', pts:[{x:Math.cos(t.a1*Math.PI/180),y:Math.sin(t.a1*Math.PI/180),label:'z₁'},{x:Math.cos(t.a2*Math.PI/180),y:Math.sin(t.a2*Math.PI/180),label:'z₂'}]};
+      o.problema = 'Dos fasores de un servo tienen argumentos $\\arg(z_1) = '+t.a1+'^{\\circ}$ y $\\arg(z_2) = '+t.a2+'^{\\circ}$. Calcula $\\arg(z_1 z_2)$ reducido al intervalo $(-180^{\\circ},180^{\\circ}]$.';
+      o.solucion = t.sum + '°';
+      o.respuestaLaTeX = t.sum + '^{\\circ}';
+      o.acepta = [String(t.sum), t.sum+'°', t.sum+' grados'];
+      o.respuesta = t.sum; o.tolerancia = 0.5;
+      o.pista = 'El argumento del producto es la suma: $\\arg(z_1 z_2) = \\arg(z_1) + \\arg(z_2)$, reducido a $(-180^{\\circ},180^{\\circ}]$.';
+      o.explicacion = 'Paso 1. Propiedad: $\\arg(z_1 z_2) = \\arg(z_1) + \\arg(z_2)$.\nPaso 2. Suma: $'+t.a1+'^{\\circ} + '+t.a2+'^{\\circ} = '+(t.a1+t.a2)+'^{\\circ}$.\nPaso 3. Reducción al intervalo $(-180^{\\circ},180^{\\circ}]$: $'+t.sum+'^{\\circ}$.\nPaso 4. Resultado: $\\arg(z_1 z_2) = '+t.sum+'^{\\circ}$.';
+    }
+  }
+  else if(v===5){
+    // A6: Cociente (numerica)
+    var sub = Math.random()<.5? 'mod' : 'ang';
+    if(sub==='mod'){
+      var t = azar(POOL_COCIENTE_MOD);
+      var r1 = t.r1, r2 = t.r2, coc = t.coc;
+      o.tipo = 'numerica';
+      etiquetaActual = 'Cociente: módulo';
+      figuraActual = {tipo:'puntos', pts:[{x:r1,y:0,label:'z₁'},{x:0,y:r2,label:'z₂'}]};
+      o.problema = 'En un circuito de impedancia, $|z_1| = '+r1+'\\,\\Omega$ y $|z_2| = '+r2+'\\,\\Omega$. Calcula el módulo del cociente $|z_1/z_2|$.';
+      var cocStr = (typeof coc === 'string') ? coc : String(coc);
+      o.solucion = cocStr;
+      o.respuestaLaTeX = (typeof coc === 'string') ? '\\frac{'+r1+'}{'+r2+'} = '+coc : String(coc);
+      o.acepta = [cocStr, r1+'/'+r2];
+      o.respuesta = (typeof coc === 'number') ? coc : r1/r2;
+      o.tolerancia = 0.01;
+      o.pista = 'El módulo del cociente es el cociente de los módulos: $|z_1/z_2| = |z_1|/|z_2|$.';
+      o.explicacion = 'Paso 1. Propiedad: $|z_1/z_2| = |z_1|/|z_2|$.\nPaso 2. Sustituimos: $= '+r1+' / '+r2+'$.\nPaso 3. Cociente: $= '+cocStr+'$.\nPaso 4. Resultado: $|z_1/z_2| = '+cocStr+'$.';
+    } else {
+      var t = azar(POOL_COCIENTE_ANG);
+      o.tipo = 'numerica';
+      etiquetaActual = 'Cociente: argumento';
+      figuraActual = {tipo:'puntos', pts:[{x:Math.cos(t.a1*Math.PI/180),y:Math.sin(t.a1*Math.PI/180),label:'z₁'},{x:Math.cos(t.a2*Math.PI/180),y:Math.sin(t.a2*Math.PI/180),label:'z₂'}]};
+      o.problema = 'Dos fasores de un servo tienen argumentos $\\arg(z_1) = '+t.a1+'^{\\circ}$ y $\\arg(z_2) = '+t.a2+'^{\\circ}$. Calcula $\\arg(z_1/z_2)$ en la convención $(-180^{\\circ},180^{\\circ}]$.';
+      o.solucion = t.dif + '°';
+      o.respuestaLaTeX = t.dif + '^{\\circ}';
+      o.acepta = [String(t.dif), t.dif+'°', t.dif+' grados'];
+      o.respuesta = t.dif; o.tolerancia = 0.5;
+      o.pista = 'El argumento del cociente es la diferencia: $\\arg(z_1/z_2) = \\arg(z_1) - \\arg(z_2)$.';
+      o.explicacion = 'Paso 1. Propiedad: $\\arg(z_1/z_2) = \\arg(z_1) - \\arg(z_2)$.\nPaso 2. Resta: $'+t.a1+'^{\\circ} - '+t.a2+'^{\\circ} = '+t.dif+'^{\\circ}$.\nPaso 3. Verificamos que está en $(-180^{\\circ},180^{\\circ}]$.\nPaso 4. Resultado: $\\arg(z_1/z_2) = '+t.dif+'^{\\circ}$.';
+    }
+  }
+  else if(v===6){
+    // A7: De Moivre potencia (simbolica)
+    var t = azar(POOL_DEMOIVRE);
+    var theta = t.theta, n = t.n, re = t.re, im = t.im;
+    var totalAng = theta * n;
+    var redAng = redondearAng(totalAng);
+    o.tipo = 'simbolica';
+    etiquetaActual = 'Potencia de De Moivre';
+    figuraActual = {tipo:'polar', r:1, ang:theta, extraAng:redAng};
+    o.problema = 'En un módulo de rotación de fase para animación, se aplica $\\bigl(\\cos '+theta+'^{\\circ} + i\\,\\operatorname{sen} '+theta+'^{\\circ}\\bigr)^{'+n+'}$. Calcula el resultado en forma $a+bi$.';
+    var resLatex = latexComplejo(re, im);
+    o.solucion = resLatex;
+    o.respuestaLaTeX = resLatex;
+    o.acepta = [resLatex];
+    o.re = re; o.im = im; o.tolerancia = 0.002;
+    o.pista = 'Aplica De Moivre: $(\\cos\\theta + i\\,\\operatorname{sen}\\theta)^n = \\cos(n\\theta) + i\\,\\operatorname{sen}(n\\theta)$. Reduce $n\\theta$ a $(-180^{\\circ},180^{\\circ}]$.';
+    o.explicacion = 'Paso 1. Fórmula de De Moivre: $(\\cos\\theta + i\\,\\operatorname{sen}\\theta)^n = \\cos(n\\theta) + i\\,\\operatorname{sen}(n\\theta)$.\nPaso 2. Calculamos $n\\theta = '+n+'\\cdot'+theta+'^{\\circ} = '+totalAng+'^{\\circ}$, equivalente a $'+redAng+'^{\\circ}$.\nPaso 3. $\\cos '+redAng+'^{\\circ} = '+re+'$ y $\\operatorname{sen} '+redAng+'^{\\circ} = '+im+'$.\nPaso 4. Resultado: $'+resLatex+'$.';
+  }
+  else if(v===7){
+    // A8: Raíces n-ésimas (numerica)
+    var t = azar(POOL_RAICES);
+    var r = t.r, n = t.n, sep = t.sep, mod = t.mod;
+    var sub = azar(['numero','separacion','modulo']);
+    o.tipo = 'numerica';
+    etiquetaActual = 'Raíces n-ésimas: ' + (sub==='numero'?'cantidad':sub==='separacion'?'separación':'módulo');
+    figuraActual = {tipo:'circulo', cx:0, cy:0, r:mod, raices:true, n:n};
+    if(sub==='numero'){
+      o.problema = 'En un análisis de estabilidad de un sistema de control, se estudian las raíces $n$-ésimas de $z^n = '+r+'$. ¿Cuántas raíces $n$-ésimas tiene (con $n = '+n+'$)?';
+      o.solucion = String(n);
+      o.respuestaLaTeX = String(n);
+      o.acepta = [String(n)];
+      o.respuesta = n; o.tolerancia = 0.001;
+      o.pista = 'El teorema fundamental del álgebra dice que $z^n = r$ tiene exactamente $n$ raíces complejas.';
+      o.explicacion = 'Paso 1. La ecuación $z^n = '+r+'$ es polinómica de grado $n$.\nPaso 2. Por el teorema fundamental del álgebra tiene $n$ raíces complejas.\nPaso 3. Estas se distribuyen uniformemente en el plano complejo sobre una circunferencia.\nPaso 4. Resultado: $'+n+'$ raíces.';
+    } else if(sub==='separacion'){
+      o.problema = 'Las '+n+' raíces $n$-ésimas de $z^n = '+r+'$ se distribuyen uniformemente en una circunferencia. ¿Cuál es la separación angular (en grados) entre raíces consecutivas, para $n = '+n+'$?';
+      o.solucion = sep + '°';
+      o.respuestaLaTeX = sep + '^{\\circ}';
+      o.acepta = [String(sep), sep+'°', sep+' grados'];
+      o.respuesta = sep; o.tolerancia = 0.5;
+      o.pista = 'Las $n$ raíces se reparten en $360^{\\circ}$: la separación es $360^{\\circ}/n$.';
+      o.explicacion = 'Paso 1. Las '+n+' raíces ocupan $360^{\\circ}$ completos.\nPaso 2. Separación angular: $360^{\\circ}/n = 360^{\\circ}/'+n+'$.\nPaso 3. Cálculo: $= '+sep+'^{\\circ}$.\nPaso 4. Resultado: separación $= '+sep+'^{\\circ}$.';
+    } else {
+      o.problema = 'Las raíces $n$-ésimas de $z^n = '+r+'$ (con $n = '+n+'$) comparten todas el mismo módulo. ¿Cuál es ese módulo común?';
+      o.solucion = String(mod);
+      o.respuestaLaTeX = String(mod);
+      o.acepta = [String(mod)];
+      o.respuesta = mod; o.tolerancia = 0.001;
+      o.pista = 'El módulo común de las raíces $n$-ésimas de $z^n = r$ es $\\sqrt[n]{r}$.';
+      o.explicacion = 'Paso 1. Si $z^n = '+r+'$, el módulo de cada raíz verifica $|z|^n = '+r+'$.\nPaso 2. Por tanto $|z| = \\sqrt['+n+']{'+r+'}$.\nPaso 3. Cálculo: $= '+mod+'$.\nPaso 4. Resultado: módulo común $= '+mod+'$.';
+    }
+  }
+  else if(v===8){
+    // A9: Distancia y punto medio (numerica o simbolica)
+    var sub = Math.random()<.5? 'dist' : 'mid';
+    if(sub==='dist'){
+      var t = azar(POOL_DIST);
+      var x1=t.x1,y1=t.y1,x2=t.x2,y2=t.y2,d=t.d;
+      o.tipo = 'numerica';
+      etiquetaActual = 'Distancia entre afijos';
+      figuraActual = {tipo:'puntos', pts:[{x:x1,y:y1,label:'z₁'},{x:x2,y:y2,label:'z₂'}], segmento:true};
+      o.problema = 'Dos antenas de un sistema de posicionamiento están en los afijos $z_1 = ('+x1+','+y1+')$ y $z_2 = ('+x2+','+y2+')$ (coordenadas en metros). Calcula la distancia $|z_1 - z_2|$.';
+      o.solucion = String(d);
+      o.respuestaLaTeX = d + '\\,\\text{m}';
+      o.acepta = [String(d)];
+      o.respuesta = d; o.tolerancia = 0.001;
+      o.pista = 'Usa $|z_1-z_2| = \\sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$.';
+      o.explicacion = 'Paso 1. Fórmula: $|z_1-z_2| = \\sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$.\nPaso 2. Diferencias: $\\Delta x = '+(x2-x1)+'$, $\\Delta y = '+(y2-y1)+'$.\nPaso 3. Suma de cuadrados: $'+(x2-x1)+'^2 + '+(y2-y1)+'^2 = '+((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))+'$.\nPaso 4. Raíz: $\\sqrt{'+((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))+'} = '+d+'$ m.';
+    } else {
+      var t = azar(POOL_MID);
+      var x1=t.x1,y1=t.y1,x2=t.x2,y2=t.y2,mx=t.mx,my=t.my;
+      o.tipo = 'simbolica';
+      etiquetaActual = 'Punto medio';
+      figuraActual = {tipo:'puntos', pts:[{x:x1,y:y1,label:'z₁'},{x:x2,y:y2,label:'z₂'}], segmento:true, mid:{x:mx,y:my}};
+      o.problema = 'Dos puntos de un trayecto robótico están en $z_1 = ('+x1+','+y1+')$ y $z_2 = ('+x2+','+y2+')$ (metros). Determina el afijo del punto medio, en forma $(x,y)$.';
+      o.solucion = '(' + mx + ',' + my + ')';
+      o.respuestaLaTeX = '(' + mx + ',\\,' + my + ')';
+      o.acepta = ['('+mx+','+my+')', ''+mx+','+my, 'x='+mx+', y='+my];
+      o.re = mx; o.im = my; o.tolerancia = 0.002;
+      o.pista = 'El punto medio es $\\bigl(\\frac{x_1+x_2}{2}, \\frac{y_1+y_2}{2}\\bigr)$.';
+      o.explicacion = 'Paso 1. Fórmula del punto medio: $\\bigl(\\frac{x_1+x_2}{2}, \\frac{y_1+y_2}{2}\\bigr)$.\nPaso 2. Suma de $x$: $'+x1+' + '+x2+' = '+(x1+x2)+'$, media $= '+mx+'$.\nPaso 3. Suma de $y$: $'+y1+' + '+y2+' = '+(y1+y2)+'$, media $= '+my+'$.\nPaso 4. Resultado: $('+mx+', '+my+')$.';
+    }
+  }
+  else if(v===9){
+    // A10: Lugar geométrico (simbolica)
+    var sub = Math.random()<.5? 'circ' : 'med';
+    if(sub==='circ'){
+      var t = azar(POOL_LUGAR_CIRC);
+      var cx=t.cx,cy=t.cy,r=t.r;
+      o.tipo = 'simbolica';
+      etiquetaActual = 'Lugar: circunferencia';
+      figuraActual = {tipo:'circulo', cx:cx, cy:cy, r:r, centroLabel:'z₀'};
+      o.problema = 'En un sistema de radar, el lugar geométrico de los puntos $z$ que cumplen $|z - ('+cx+' + '+cy+'i)| = '+r+'$ es una figura. Identifícala dando centro y radio: forma "$(a,b), r=R$".';
+      o.solucion = '('+cx+','+cy+'), r='+r;
+      o.respuestaLaTeX = '\\text{circunferencia de centro } ('+cx+','+cy+') \\text{ y radio } '+r;
+      o.acepta = ['('+cx+','+cy+'),r='+r, '('+cx+','+cy+'), '+r, ''+cx+','+cy+','+r];
+      o.re = cx; o.im = cy; o.extraR = r; o.tolerancia = 0.002;
+      o.pista = 'La ecuación $|z - z_0| = r$ describe una circunferencia de centro $z_0$ y radio $r$.';
+      o.explicacion = 'Paso 1. Reconocemos la forma $|z - z_0| = r$ con $z_0 = ('+cx+','+cy+')$ y $r = '+r+'$.\nPaso 2. Esta es la definición de circunferencia: puntos a distancia constante $r$ del centro $z_0$.\nPaso 3. Centro: $('+cx+','+cy+')$.\nPaso 4. Radio: $'+r+'$.';
+    } else {
+      var t = azar(POOL_LUGAR_MEDIATRIZ);
+      var x1=t.x1,y1=t.y1,x2=t.x2,y2=t.y2;
+      o.tipo = 'simbolica';
+      etiquetaActual = 'Lugar: mediatriz';
+      figuraActual = {tipo:'mediatriz', p1:{x:x1,y:y1,label:'z₁'}, p2:{x:x2,y:y2,label:'z₂'}};
+      o.problema = 'En un diseño de trayectoria, se busca el lugar geométrico de los puntos $z$ equidistantes de $z_1 = ('+x1+','+y1+')$ y $z_2 = ('+x2+','+y2+')$. ¿Qué figura es?';
+      o.solucion = 'mediatriz';
+      o.respuestaLaTeX = '\\text{mediatriz del segmento } z_1 z_2';
+      o.acepta = ['mediatriz', 'recta mediatriz', 'la mediatriz'];
+      o.pista = 'El lugar de los puntos equidistantes de dos fijos es una recta perpendicular al segmento que los une, en su punto medio.';
+      o.explicacion = 'Paso 1. La condición $|z - z_1| = |z - z_2|$ define los puntos equidistantes de $z_1$ y $z_2$.\nPaso 2. Geométricamente, este lugar es una recta.\nPaso 3. Es perpendicular al segmento $z_1 z_2$ y pasa por su punto medio.\nPaso 4. Resultado: la mediatriz del segmento $z_1 z_2$.';
+    }
+  }
+  else if(v===10){
+    // A11: Identificar tipo de región (simbolica)
+    var t = azar(POOL_REGION_TIPO);
+    var ineq = t.ineq, tipo = t.tipo;
+    o.tipo = 'simbolica';
+    etiquetaActual = 'Identificar región';
+    figuraActual = t.fig;
+    o.problema = 'En un módulo de análisis de señales, se filtran los valores $z$ que cumplen $'+ineq+'$. ¿Qué tipo de región del plano complejo describe esta condición?';
+    o.solucion = tipo;
+    o.respuestaLaTeX = '\\text{' + tipo + '}';
+    // Sinónimos aceptados según el tipo
+    var aceptaPorTipo = {
+      'disco': ['disco', 'disco cerrado', 'circulo', 'circulo cerrado', 'circunferencia y su interior', 'region interior'],
+      'circunferencia': ['circunferencia', 'circulo', 'circunferencia de centro y radio', 'la circunferencia'],
+      'anillo': ['anillo', 'arandela', 'corona circular', 'region anular', 'anillo circular'],
+      'disco agujerado': ['disco agujerado', 'disco perforado', 'disco sin centro', 'disco menos centro', 'disco punzonado'],
+      'semiplano': ['semiplano', 'semi-plano', 'semiplano derecho', 'semiplano izquierdo', 'semiplano superior', 'semiplano inferior', 'la mitad del plano'],
+      'franja': ['franja', 'franja vertical', 'franja horizontal', 'banda', 'banda vertical', 'banda horizontal', 'strip', 'region entre dos rectas paralelas']
+    };
+    o.acepta = aceptaPorTipo[tipo] || [tipo];
+    o.pista = 'Observa la forma de la desigualdad: $|z-z_0|=r$ da circunferencia, $|z-z_0|\\le r$ da disco, $r_1\\le|z-z_0|\\le r_2$ da anillo, $0 \\lt |z-z_0| \\lt r$ da disco agujerado, $\\operatorname{Re}(z) \\gt k$ o $\\operatorname{Re}(z) \\lt k$ (análogamente con $\\operatorname{Im}$) da semiplano, y $a \\lt \\operatorname{Re}(z) \\lt b$ o $a \\lt \\operatorname{Im}(z) \\lt b$ da franja.';
+    o.explicacion = 'Paso 1. Examinamos la estructura de la desigualdad $'+ineq+'$.\nPaso 2. Identificamos si hay módulo $|\\cdot|$, igualdad o desigualdad, y si participa $\\operatorname{Re}$ o $\\operatorname{Im}$.\nPaso 3. Caso a caso: $|z-z_0|\\le r$ → disco; $|z-z_0|=r$ → circunferencia; $r_1\\le|z-z_0|\\le r_2$ → anillo; $0 \\lt |z-z_0| \\lt r$ → disco agujerado; $\\operatorname{Re}(z) \\gt k$ o $\\operatorname{Re}(z) \\lt k$ (o con $\\operatorname{Im}$) → semiplano; $a \\lt \\operatorname{Re}(z) \\lt b$ o $a \\lt \\operatorname{Im}(z) \\lt b$ → franja.\nPaso 4. Resultado: ' + tipo + '.';
+  }
+  else if(v===11){
+    // A12: Radio exterior o interior de un anillo (numerica)
+    var t = azar(POOL_ANILLO);
+    var cx=t.cx, cy=t.cy, r1=t.r1, r2=t.r2;
+    var pedir = Math.random()<.5? 'exterior' : 'interior';
+    o.tipo = 'numerica';
+    etiquetaActual = 'Anillo: radio ' + pedir;
+    figuraActual = {tipo:'region_anillo', cx:cx, cy:cy, r1:r1, r2:r2};
+    var val = (pedir==='exterior')? r2 : r1;
+    o.problema = 'En un filtro de un circuito de RF, la región de operación es el anillo $'+r1+' \\le |z - ('+latexComplejo(cx,cy)+')| \\le '+r2+'$. ¿Cuál es el radio ' + pedir + ' del anillo?';
+    o.solucion = String(val);
+    o.respuestaLaTeX = String(val);
+    o.acepta = [String(val)];
+    o.respuesta = val; o.tolerancia = 0.001;
+    o.pista = 'Un anillo $r_1 \\le |z - z_0| \\le r_2$ tiene radio interior $r_1$ y radio exterior $r_2$. Lee los dos valores en la desigualdad.';
+    o.explicacion = 'Paso 1. Forma general del anillo: $r_1 \\le |z - z_0| \\le r_2$, con $r_1$ radio interior y $r_2$ radio exterior.\nPaso 2. Identificamos $r_1 = '+r1+'$ y $r_2 = '+r2+'$.\nPaso 3. El pedido es el radio ' + pedir + '.\nPaso 4. Resultado: $' + val + '$.';
+  }
+  else if(v===12){
+    // A13: Disco agujerado — radio exterior (numerica)
+    var t = azar(POOL_DISCO_AGUJ);
+    var cx=t.cx, cy=t.cy, r=t.r;
+    o.tipo = 'numerica';
+    etiquetaActual = 'Disco agujerado: radio';
+    figuraActual = {tipo:'region_disco_aguj', cx:cx, cy:cy, r:r};
+    o.problema = 'En un modelo de estabilidad, la región válida es el disco agujerado $0 \\lt |z - ('+latexComplejo(cx,cy)+')| \\lt '+r+'$. ¿Cuál es el radio exterior del disco?';
+    o.solucion = String(r);
+    o.respuestaLaTeX = String(r);
+    o.acepta = [String(r)];
+    o.respuesta = r; o.tolerancia = 0.001;
+    o.pista = 'Un disco agujerado $0 \\lt |z - z_0| \\lt r$ excluye el centro $z_0$ pero conserva el radio exterior $r$.';
+    o.explicacion = 'Paso 1. Forma del disco agujerado: $0 \\lt |z - z_0| \\lt r$.\nPaso 2. La cota superior $r$ es el radio exterior.\nPaso 3. Identificamos $r = '+r+'$.\nPaso 4. Resultado: $'+r+'$.';
+  }
+  else if(v===13){
+    // A14: Franja — límite superior o inferior (numerica)
+    var t = azar(POOL_FRANJA);
+    var eje=t.eje, a=t.a, b=t.b;
+    var pedir = Math.random()<.5? 'superior' : 'inferior';
+    var val = (pedir==='superior')? b : a;
+    o.tipo = 'numerica';
+    etiquetaActual = 'Franja: límite ' + pedir;
+    figuraActual = {tipo:'region_franja', eje:eje, a:a, b:b};
+    var ejeTxt = (eje==='Re')? '\\operatorname{Re}(z)' : '\\operatorname{Im}(z)';
+    var ejePal = (eje==='Re')? 'real' : 'imaginaria';
+    o.problema = 'En un procesador de señales, la región de estabilidad es la franja $'+a+' \\lt '+ejeTxt+' \\lt '+b+'$. ¿Cuál es el límite ' + pedir + ' (sobre la parte ' + ejePal + ')?';
+    o.solucion = String(val);
+    o.respuestaLaTeX = String(val);
+    o.acepta = [String(val)];
+    o.respuesta = val; o.tolerancia = 0.001;
+    o.pista = 'Una franja $a \\lt '+ejeTxt+' \\lt b$ tiene límite inferior $a$ y límite superior $b$. Lee el valor pedido en la desigualdad.';
+    o.explicacion = 'Paso 1. Forma de la franja: $'+a+' \\lt '+ejeTxt+' \\lt '+b+'$.\nPaso 2. Identificamos $a = '+a+'$ (inferior) y $b = '+b+'$ (superior).\nPaso 3. El pedido es el límite ' + pedir + '.\nPaso 4. Resultado: $'+val+'$.';
+  }
+  return o;
 }
 
-function verificar() {
-  if (!ejercicioActual) return;
-  
-  var inputVal = document.getElementById('respuesta').value;
-  if (!inputVal.trim()) return;
-  
+// ============ ESQUEMA (plano de Argand) ============
+function dibujarEsquema(){
+  var svg = document.getElementById('esquema');
+  if(!svg || !figuraActual) return;
+  var W = 300, H = 300;
+  var fig = figuraActual;
+  // Calcular bounds de todos los puntos
+  var pts = [];
+  if(fig.tipo==='punto'){ pts.push({x:fig.x,y:fig.y}); pts.push({x:0,y:0}); }
+  else if(fig.tipo==='argumento'){ pts.push({x:fig.x,y:fig.y}); pts.push({x:0,y:0}); }
+  else if(fig.tipo==='puntos'){ for(var i=0;i<fig.pts.length;i++) pts.push(fig.pts[i]); pts.push({x:0,y:0}); }
+  else if(fig.tipo==='polar'){ pts.push({x:fig.r*Math.cos(fig.ang*Math.PI/180), y:fig.r*Math.sin(fig.ang*Math.PI/180)}); pts.push({x:0,y:0}); }
+  else if(fig.tipo==='circulo'){ pts.push({x:fig.cx+fig.r,y:fig.cy}); pts.push({x:fig.cx-fig.r,y:fig.cy}); pts.push({x:fig.cx,y:fig.cy+fig.r}); pts.push({x:fig.cx,y:fig.cy-fig.r}); }
+  else if(fig.tipo==='mediatriz'){ pts.push(fig.p1); pts.push(fig.p2); pts.push({x:0,y:0}); }
+  else if(fig.tipo==='region_disco' || fig.tipo==='region_disco_aguj'){ var rr = fig.r; pts.push({x:fig.cx+rr,y:fig.cy}); pts.push({x:fig.cx-rr,y:fig.cy}); pts.push({x:fig.cx,y:fig.cy+rr}); pts.push({x:fig.cx,y:fig.cy-rr}); }
+  else if(fig.tipo==='region_anillo'){ var rR=fig.r2; pts.push({x:fig.cx+rR,y:fig.cy}); pts.push({x:fig.cx-rR,y:fig.cy}); pts.push({x:fig.cx,y:fig.cy+rR}); pts.push({x:fig.cx,y:fig.cy-rR}); }
+  else if(fig.tipo==='region_semi'){ var kk=Math.abs(fig.k)+1; pts.push({x:kk,y:kk}); pts.push({x:-kk,y:-kk}); }
+  else if(fig.tipo==='region_franja'){ var fK=Math.max(Math.abs(fig.a),Math.abs(fig.b))+1; pts.push({x:fK,y:fK}); pts.push({x:-fK,y:-fK}); if(fig.eje==='Re'){ pts.push({x:fig.a,y:0}); pts.push({x:fig.b,y:0}); } else { pts.push({x:0,y:fig.a}); pts.push({x:0,y:fig.b}); } }
+  // Bounds
+  var minX=0,maxX=0,minY=0,maxY=0;
+  for(var i=0;i<pts.length;i++){
+    var p = pts[i];
+    if(p.x<minX) minX=p.x; if(p.x>maxX) maxX=p.x;
+    if(p.y<minY) minY=p.y; if(p.y>maxY) maxY=p.y;
+  }
+  var absMax = Math.max(Math.abs(minX),Math.abs(maxX),Math.abs(minY),Math.abs(maxY),1);
+  absMax = Math.max(absMax, 1) * 1.25;
+  var scale = (Math.min(W,H)/2 - 30) / absMax;
+  var cx = W/2, cy = H/2;
+  function X(x){ return cx + x*scale; }
+  function Y(y){ return cy - y*scale; } // invertir eje y
+  var svgNS = 'http://www.w3.org/2000/svg';
+  var html = '';
+  // Fondo
+  html += '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#fff" rx="6"/>';
+  // Retícula
+  var paso = scale;
+  for(var k=-absMax; k<=absMax; k+=1){
+    if(Math.abs(k)<0.001) continue;
+    html += '<line x1="'+X(k)+'" y1="'+Y(-absMax)+'" x2="'+X(k)+'" y2="'+Y(absMax)+'" stroke="#eef2ff" stroke-width="1"/>';
+    html += '<line x1="'+X(-absMax)+'" y1="'+Y(k)+'" x2="'+X(absMax)+'" y2="'+Y(k)+'" stroke="#eef2ff" stroke-width="1"/>';
+  }
+  // Ejes
+  html += '<line x1="'+X(-absMax)+'" y1="'+Y(0)+'" x2="'+X(absMax)+'" y2="'+Y(0)+'" stroke="#94a3b8" stroke-width="1.5"/>';
+  html += '<line x1="'+X(0)+'" y1="'+Y(-absMax)+'" x2="'+X(0)+'" y2="'+Y(absMax)+'" stroke="#94a3b8" stroke-width="1.5"/>';
+  // Etiquetas ejes
+  html += '<text x="'+(W-12)+'" y="'+(Y(0)-4)+'" font-size="10" fill="#64748b" text-anchor="end">Re</text>';
+  html += '<text x="'+(X(0)+6)+'" y="14" font-size="10" fill="#64748b">Im</text>';
+  // Marcas enteras
+  var intMax = Math.floor(absMax);
+  for(var k=1;k<=intMax;k++){
+    html += '<line x1="'+X(k)+'" y1="'+Y(0)-3+'" x2="'+X(k)+'" y2="'+Y(0)+3+'" stroke="#94a3b8" stroke-width="1"/>';
+    html += '<line x1="'+X(-k)+'" y1="'+Y(0)-3+'" x2="'+X(-k)+'" y2="'+Y(0)+3+'" stroke="#94a3b8" stroke-width="1"/>';
+    html += '<line x1="'+X(0)-3+'" y1="'+Y(k)+'" x2="'+X(0)+3+'" y2="'+Y(k)+'" stroke="#94a3b8" stroke-width="1"/>';
+    html += '<line x1="'+X(0)-3+'" y1="'+Y(-k)+'" x2="'+X(0)+3+'" y2="'+Y(-k)+'" stroke="#94a3b8" stroke-width="1"/>';
+  }
+  // Dibujar según tipo
+  if(fig.tipo==='punto'){
+    var px = X(fig.x), py = Y(fig.y);
+    html += '<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+px+'" y2="'+py+'" stroke="#7c3aed" stroke-width="1.8"/>';
+    html += '<circle cx="'+px+'" cy="'+py+'" r="4" fill="#7c3aed"/>';
+    html += '<text x="'+(px+6)+'" y="'+(py-6)+'" font-size="12" fill="#4c1d95" font-style="italic">'+(fig.label||'z')+'</text>';
+  }
+  else if(fig.tipo==='argumento'){
+    var px = X(fig.x), py = Y(fig.y);
+    var rad = Math.sqrt(fig.x*fig.x+fig.y*fig.y);
+    var arcR = Math.min(scale*0.6, 40);
+    var ang = Math.atan2(fig.y, fig.x) * 180/Math.PI;
+    if(ang<0) ang += 360;
+    var arc = describeArco(X(0), Y(0), arcR, 0, ang);
+    html += arc;
+    html += '<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+px+'" y2="'+py+'" stroke="#7c3aed" stroke-width="1.8"/>';
+    html += '<circle cx="'+px+'" cy="'+py+'" r="4" fill="#7c3aed"/>';
+    html += '<text x="'+(px+6)+'" y="'+(py-6)+'" font-size="12" fill="#4c1d95" font-style="italic">'+(fig.label||'z')+'</text>';
+    html += '<text x="'+(X(0)+arcR*0.7*Math.cos(ang/2*Math.PI/180)+6)+'" y="'+(Y(0)-arcR*0.7*Math.sin(ang/2*Math.PI/180))+'" font-size="11" fill="#b45309" font-style="italic">θ</text>';
+  }
+  else if(fig.tipo==='puntos'){
+    var colors = ['#4f46e5','#7c3aed','#dc2626','#059669'];
+    for(var i=0;i<fig.pts.length;i++){
+      var p = fig.pts[i];
+      var px = X(p.x), py = Y(p.y);
+      html += '<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+px+'" y2="'+py+'" stroke="'+colors[i%colors.length]+'" stroke-width="1.5" opacity="0.7"/>';
+      html += '<circle cx="'+px+'" cy="'+py+'" r="4" fill="'+colors[i%colors.length]+'"/>';
+      html += '<text x="'+(px+6)+'" y="'+(py-6)+'" font-size="12" fill="#1f2937" font-style="italic">'+(p.label||('z'+(i+1)))+'</text>';
+    }
+    if(fig.segmento && fig.pts.length>=2){
+      html += '<line x1="'+X(fig.pts[0].x)+'" y1="'+Y(fig.pts[0].y)+'" x2="'+X(fig.pts[1].x)+'" y2="'+Y(fig.pts[1].y)+'" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>';
+    }
+    if(fig.mid){
+      html += '<circle cx="'+X(fig.mid.x)+'" cy="'+Y(fig.mid.y)+'" r="3" fill="#059669"/>';
+    }
+  }
+  else if(fig.tipo==='polar'){
+    var px = X(fig.r*Math.cos(fig.ang*Math.PI/180));
+    var py = Y(fig.r*Math.sin(fig.ang*Math.PI/180));
+    var arcR = 28;
+    var arc = describeArco(X(0), Y(0), arcR, 0, fig.ang);
+    html += arc;
+    html += '<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+px+'" y2="'+py+'" stroke="#7c3aed" stroke-width="1.8"/>';
+    html += '<circle cx="'+px+'" cy="'+py+'" r="4" fill="#7c3aed"/>';
+    html += '<text x="'+(px+6)+'" y="'+(py-6)+'" font-size="12" fill="#4c1d95" font-style="italic">z</text>';
+    if(typeof fig.extraAng !== 'undefined'){
+      var ex = fig.r*Math.cos(fig.extraAng*Math.PI/180);
+      var ey = fig.r*Math.sin(fig.extraAng*Math.PI/180);
+      html += '<circle cx="'+X(ex)+'" cy="'+Y(ey)+'" r="3" fill="#059669" opacity="0.7"/>';
+      html += '<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+X(ex)+'" y2="'+Y(ey)+'" stroke="#059669" stroke-width="1.2" opacity="0.5" stroke-dasharray="3,3"/>';
+    }
+  }
+  else if(fig.tipo==='circulo'){
+    var ccx = X(fig.cx), ccy = Y(fig.cy);
+    var rad = fig.r * scale;
+    html += '<circle cx="'+ccx+'" cy="'+ccy+'" r="'+rad+'" fill="rgba(124,58,237,0.10)" stroke="#7c3aed" stroke-width="1.8"/>';
+    html += '<circle cx="'+ccx+'" cy="'+ccy+'" r="3" fill="#7c3aed"/>';
+    if(fig.raices){
+      var n = fig.n;
+      for(var k=0;k<n;k++){
+        var a = k*360/n;
+        var rx = fig.cx + fig.r*Math.cos(a*Math.PI/180);
+        var ry = fig.cy + fig.r*Math.sin(a*Math.PI/180);
+        html += '<circle cx="'+X(rx)+'" cy="'+Y(ry)+'" r="2.5" fill="#dc2626" opacity="0.5"/>';
+      }
+    }
+  }
+  else if(fig.tipo==='mediatriz'){
+    var p1 = fig.p1, p2 = fig.p2;
+    var mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
+    var dx = p2.x-p1.x, dy = p2.y-p1.y;
+    var len = Math.sqrt(dx*dx+dy*dy);
+    if(len<0.001) len = 1;
+    // perpendicular direction
+    var nx = -dy/len, ny = dx/len;
+    var ext = absMax*1.3;
+    html += '<line x1="'+X(p1.x)+'" y1="'+Y(p1.y)+'" x2="'+X(p2.x)+'" y2="'+Y(p2.y)+'" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>';
+    html += '<line x1="'+X(mx-nx*ext)+'" y1="'+Y(my-ny*ext)+'" x2="'+X(mx+nx*ext)+'" y2="'+Y(my+ny*ext)+'" stroke="#dc2626" stroke-width="1.8"/>';
+    html += '<circle cx="'+X(p1.x)+'" cy="'+Y(p1.y)+'" r="4" fill="#4f46e5"/>';
+    html += '<circle cx="'+X(p2.x)+'" cy="'+Y(p2.y)+'" r="4" fill="#4f46e5"/>';
+    html += '<text x="'+(X(p1.x)+6)+'" y="'+(Y(p1.y)-6)+'" font-size="12" fill="#1f2937" font-style="italic">'+p1.label+'</text>';
+    html += '<text x="'+(X(p2.x)+6)+'" y="'+(Y(p2.y)-6)+'" font-size="12" fill="#1f2937" font-style="italic">'+p2.label+'</text>';
+    html += '<circle cx="'+X(mx)+'" cy="'+Y(my)+'" r="3" fill="#059669"/>';
+  }
+  else if(fig.tipo==='region_disco'){
+    var ccx = X(fig.cx), ccy = Y(fig.cy);
+    var rad = fig.r * scale;
+    var fillC = fig.cerrado ? 'rgba(124,58,237,0.18)' : 'rgba(124,58,237,0.10)';
+    var strokeC = fig.cerrado ? '#7c3aed' : '#7c3aed';
+    var dash = fig.cerrado ? '' : 'stroke-dasharray="4,3"';
+    html += '<circle cx="'+ccx+'" cy="'+ccy+'" r="'+rad+'" fill="'+fillC+'" stroke="'+strokeC+'" stroke-width="1.8" '+dash+'/>';
+    html += '<circle cx="'+ccx+'" cy="'+ccy+'" r="3" fill="#7c3aed"/>';
+    html += '<text x="'+(ccx+6)+'" y="'+(ccy-6)+'" font-size="11" fill="#4c1d95" font-style="italic">z₀</text>';
+  }
+  else if(fig.tipo==='region_anillo'){
+    var ccx = X(fig.cx), ccy = Y(fig.cy);
+    var r1px = fig.r1 * scale, r2px = fig.r2 * scale;
+    // Disco exterior relleno
+    html += '<circle cx="'+ccx+'" cy="'+ccy+'" r="'+r2px+'" fill="rgba(124,58,237,0.18)" stroke="#7c3aed" stroke-width="1.8"/>';
+    // "Agujero" interior: tapar con blanco
+    html += '<circle cx="'+ccx+'" cy="'+ccy+'" r="'+r1px+'" fill="#fff" stroke="#7c3aed" stroke-width="1.4" stroke-dasharray="3,2"/>';
+    html += '<circle cx="'+ccx+'" cy="'+ccy+'" r="3" fill="#7c3aed"/>';
+    html += '<text x="'+(ccx+6)+'" y="'+(ccy-6)+'" font-size="11" fill="#4c1d95" font-style="italic">z₀</text>';
+  }
+  else if(fig.tipo==='region_disco_aguj'){
+    var ccx = X(fig.cx), ccy = Y(fig.cy);
+    var rad = fig.r * scale;
+    html += '<circle cx="'+ccx+'" cy="'+ccy+'" r="'+rad+'" fill="rgba(124,58,237,0.18)" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="4,3"/>';
+    // Marca el centro excluido con una X
+    html += '<circle cx="'+ccx+'" cy="'+ccy+'" r="4" fill="#fff" stroke="#dc2626" stroke-width="1.5"/>';
+    html += '<line x1="'+(ccx-3)+'" y1="'+(ccy-3)+'" x2="'+(ccx+3)+'" y2="'+(ccy+3)+'" stroke="#dc2626" stroke-width="1.4"/>';
+    html += '<line x1="'+(ccx-3)+'" y1="'+(ccy+3)+'" x2="'+(ccx+3)+'" y2="'+(ccy-3)+'" stroke="#dc2626" stroke-width="1.4"/>';
+  }
+  else if(fig.tipo==='region_semi'){
+    var kpx = fig.k;
+    // Rectángulo que cubre el semiplano
+    var fill = 'rgba(124,58,237,0.15)';
+    var ext = absMax*1.3;
+    if(fig.eje==='Re'){
+      if(fig.op==='>'){
+        html += '<rect x="'+X(kpx)+'" y="'+Y(ext)+'" width="'+(X(ext)-X(kpx))+'" height="'+(Y(-ext)-Y(ext))+'" fill="'+fill+'"/>';
+      } else {
+        html += '<rect x="'+X(-ext)+'" y="'+Y(ext)+'" width="'+(X(kpx)-X(-ext))+'" height="'+(Y(-ext)-Y(ext))+'" fill="'+fill+'"/>';
+      }
+      html += '<line x1="'+X(kpx)+'" y1="'+Y(-ext)+'" x2="'+X(kpx)+'" y2="'+Y(ext)+'" stroke="#7c3aed" stroke-width="1.8"/>';
+      html += '<text x="'+(X(kpx)+6)+'" y="'+(Y(ext)+12)+'" font-size="11" fill="#4c1d95">Re='+fig.k+'</text>';
+    } else {
+      if(fig.op==='>'){
+        html += '<rect x="'+X(-ext)+'" y="'+Y(ext)+'" width="'+(X(ext)-X(-ext))+'" height="'+(Y(kpx)-Y(ext))+'" fill="'+fill+'"/>';
+      } else {
+        html += '<rect x="'+X(-ext)+'" y="'+Y(kpx)+'" width="'+(X(ext)-X(-ext))+'" height="'+(Y(-ext)-Y(kpx))+'" fill="'+fill+'"/>';
+      }
+      html += '<line x1="'+X(-ext)+'" y1="'+Y(kpx)+'" x2="'+X(ext)+'" y2="'+Y(kpx)+'" stroke="#7c3aed" stroke-width="1.8"/>';
+      html += '<text x="'+(X(ext)-50)+'" y="'+(Y(kpx)-4)+'" font-size="11" fill="#4c1d95">Im='+fig.k+'</text>';
+    }
+  }
+  else if(fig.tipo==='region_franja'){
+    var fill = 'rgba(124,58,237,0.18)';
+    var ext = absMax*1.3;
+    if(fig.eje==='Re'){
+      html += '<rect x="'+X(fig.a)+'" y="'+Y(ext)+'" width="'+(X(fig.b)-X(fig.a))+'" height="'+(Y(-ext)-Y(ext))+'" fill="'+fill+'"/>';
+      html += '<line x1="'+X(fig.a)+'" y1="'+Y(-ext)+'" x2="'+X(fig.a)+'" y2="'+Y(ext)+'" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,3"/>';
+      html += '<line x1="'+X(fig.b)+'" y1="'+Y(-ext)+'" x2="'+X(fig.b)+'" y2="'+Y(ext)+'" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,3"/>';
+      html += '<text x="'+(X(fig.a)+4)+'" y="'+(Y(ext)+12)+'" font-size="11" fill="#4c1d95">a='+fig.a+'</text>';
+      html += '<text x="'+(X(fig.b)+4)+'" y="'+(Y(ext)+12)+'" font-size="11" fill="#4c1d95">b='+fig.b+'</text>';
+    } else {
+      html += '<rect x="'+X(-ext)+'" y="'+Y(fig.b)+'" width="'+(X(ext)-X(-ext))+'" height="'+(Y(fig.a)-Y(fig.b))+'" fill="'+fill+'"/>';
+      html += '<line x1="'+X(-ext)+'" y1="'+Y(fig.a)+'" x2="'+X(ext)+'" y2="'+Y(fig.a)+'" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,3"/>';
+      html += '<line x1="'+X(-ext)+'" y1="'+Y(fig.b)+'" x2="'+X(ext)+'" y2="'+Y(fig.b)+'" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,3"/>';
+      html += '<text x="'+(X(ext)-50)+'" y="'+(Y(fig.a)-4)+'" font-size="11" fill="#4c1d95">b='+fig.b+'</text>';
+      html += '<text x="'+(X(ext)-50)+'" y="'+(Y(fig.a)+14)+'" font-size="11" fill="#4c1d95">a='+fig.a+'</text>';
+    }
+  }
+  svg.innerHTML = html;
+}
+function describeArco(cx, cy, r, ang1, ang2){
+  var a1 = ang1 * Math.PI/180, a2 = ang2 * Math.PI/180;
+  var x1 = cx + r*Math.cos(a1), y1 = cy - r*Math.sin(a1);
+  var x2 = cx + r*Math.cos(a2), y2 = cy - r*Math.sin(a2);
+  var large = (ang2-ang1) > 180 ? 1 : 0;
+  return '<path d="M '+x1+' '+y1+' A '+r+' '+r+' 0 '+large+' 0 '+x2+' '+y2+'" fill="none" stroke="#b45309" stroke-width="1.5"/>';
+}
+
+// ============ UI ============
+function nuevoEjercicio(){
+  ejercicio = genComplejos();
+  yaVerificado = false;
+  var enun = document.getElementById('enunciado');
+  enun.innerHTML =
+    '<div class="texto-prob">' + ejercicio.problema + '</div>' +
+    '<div class="esquema-wrap">' +
+      '<svg class="esquema" id="esquema" viewBox="0 0 300 300" tabindex="0" aria-label="Plano de Argand del ejercicio"></svg>' +
+      '<div class="caption">Plano de Argand · arrastra para inspeccionar</div>' +
+    '</div>';
+  tiposet(enun);
+  dibujarEsquema();
+  var inp = document.getElementById('respuesta');
+  inp.value = ''; inp.classList.remove('mal'); inp.focus();
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.innerHTML = '';
+  var pb = document.getElementById('pistaBox');
+  pb.className = 'panel pista'; pb.innerHTML = '';
+  document.getElementById('btnPista').setAttribute('aria-pressed','false');
+  var eb = document.getElementById('explicacionBox');
+  eb.className = 'panel explicacion'; eb.innerHTML = '';
+  document.getElementById('btnExplicacion').setAttribute('aria-pressed','false');
+}
+function verificar(){
+  if(!ejercicio) return;
+  var entradaRaw = document.getElementById('respuesta').value;
+  if(!entradaRaw.trim()){
+    var fb = document.getElementById('feedback');
+    fb.className = 'feedback err visible';
+    fb.innerHTML = '<div class="titulo">Escribe una respuesta antes de verificar.</div>';
+    var inp = document.getElementById('respuesta');
+    inp.classList.add('mal');
+    setTimeout(function(){ inp.classList.remove('mal'); }, 450);
+    intentos++; pintarMarcador(); guardarMarcador();
+    return;
+  }
+  if(yaVerificado){
+    // idempotente: no incrementar
+    var fb2 = document.getElementById('feedback');
+    fb2.classList.add('visible');
+    var btnNuevo = document.getElementById('btnNuevo');
+    btnNuevo.style.transform = 'scale(1.05)';
+    setTimeout(function(){ btnNuevo.style.transform = ''; }, 250);
+    return;
+  }
+  var entrada = entradaRaw.trim()
+    .replace(/^\s*[a-zA-Z]\s*=\s*/,'')
+    .replace(/^\s*[a-zA-Z]\s*<=\s*/,'')
+    .replace(/^\s*[a-zA-Z]\s*>=\s*/,'')
+    .replace(/^\s*[a-zA-Z]\s*≤\s*/,'')
+    .replace(/^\s*[a-zA-Z]\s*≥\s*/,'')
+    .trim();
   intentos++;
+  var ok = false;
+  if(ejercicio.tipo === 'numerica'){
+    var num = aNumero(entrada);
+    if(!isNaN(num) && Math.abs(num - ejercicio.respuesta) <= ejercicio.tolerancia) ok = true;
+    else if(coincideTexto(entrada, ejercicio.acepta)) ok = true;
+    else if(ejercicio.ang !== undefined && coincideAngulo(entrada, ejercicio.ang, ejercicio.tolerancia)) ok = true;
+  } else {
+    ok = coincideTexto(entrada, ejercicio.acepta);
+    if(!ok && ejercicio.re !== undefined && ejercicio.im !== undefined){
+      // complejo
+      ok = coincideComplejo(entrada, ejercicio.re, ejercicio.im, ejercicio.tolerancia);
+    }
+    if(!ok && ejercicio.r !== undefined && ejercicio.ang !== undefined){
+      // polar
+      ok = coincidePolar(entrada, ejercicio.r, ejercicio.ang, ejercicio.tolerancia);
+    }
+    if(!ok && ejercicio.re !== undefined && ejercicio.im !== undefined && ejercicio.extraR !== undefined){
+      // lugar geométrico circular: aceptar (centro, radio)
+      // intenta parsear como "(a,b), r" o "a,b,r"
+      var m = entrada.match(/^\(?\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)?\s*,?\s*r?\s*=?\s*(-?\d+(?:\.\d+)?)/i);
+      if(m){
+        var pr = aNumero(m[1]), pi = aNumero(m[2]), prr = aNumero(m[3]);
+        if(!isNaN(pr) && !isNaN(pi) && !isNaN(prr) &&
+           Math.abs(pr-ejercicio.re)<=0.01 && Math.abs(pi-ejercicio.im)<=0.01 && Math.abs(prr-ejercicio.extraR)<=0.01){
+          ok = true;
+        }
+      }
+    }
+  }
+  var fb = document.getElementById('feedback');
+  if(ok){
+    aciertos++; racha++; yaVerificado = true;
+    fb.className = 'feedback ok visible';
+    fb.innerHTML =
+      '<div class="titulo" style="font-weight:600;">✓ ¡Correcto!</div>' +
+      '<div>Escribiste: <code>' + escaparHTML(entradaRaw.trim()) + '</code></div>' +
+      '<div>En notación matemática: $' + ejercicio.respuestaLaTeX + '$</div>';
+    tiposet(fb);
+  } else {
+    racha = 0;
+    var msgs = [
+      'Revisa el cuadrante del argumento y la convención declarada.',
+      'Verifica que elevaste al cuadrado con paréntesis en los negativos.',
+      'Comprueba unidades y formato de la respuesta (grados vs radianes).',
+      '¿Estás usando $i^2 = -1$ correctamente en el producto?',
+      'Recuerda: el módulo siempre es positivo; el argumento va en $(-180^{\\circ},180^{\\circ}]$.'
+    ];
+    var consejo = azar(msgs);
+    fb.className = 'feedback err visible';
+    fb.innerHTML = '<div class="titulo">✗ Todavía no</div><div>' + consejo + '</div>';
+    tiposet(fb);
+  }
+  historial.push(ok?1:0);
+  if(historial.length > 16) historial = historial.slice(-16);
+  pintarMarcador();
+  guardarMarcador();
+}
+function mostrarPista(){
+  if(!ejercicio) return;
+  var p = document.getElementById('pistaBox');
+  var visible = p.classList.contains('visible');
+  if(visible){
+    p.classList.remove('visible'); p.innerHTML = '';
+    document.getElementById('btnPista').setAttribute('aria-pressed','false');
+  } else {
+    p.innerHTML = ejercicio.pista; p.classList.add('visible');
+    document.getElementById('btnPista').setAttribute('aria-pressed','true');
+    tiposet(p);
+  }
+}
+function mostrarExplicacion(){
+  if(!ejercicio) return;
+  var e = document.getElementById('explicacionBox');
+  var visible = e.classList.contains('visible');
+  if(visible){
+    e.classList.remove('visible'); e.innerHTML = '';
+    document.getElementById('btnExplicacion').setAttribute('aria-pressed','false');
+  } else {
+    var pasos = ejercicio.explicacion.split('\n');
+    var html = '<ul class="pasos">';
+    for(var i=0;i<pasos.length;i++){
+      var paso = pasos[i];
+      html += '<li class="paso">' + paso + '</li>';
+    }
+    html += '</ul><div class="respuesta-final">Respuesta: ' + ejercicio.solucion + '</div>';
+    e.innerHTML = html; e.classList.add('visible');
+    document.getElementById('btnExplicacion').setAttribute('aria-pressed','true');
+    tiposet(e);
+  }
+}
+function pintarMarcador(){
+  document.getElementById('mArc').textContent = aciertos;
   document.getElementById('mInt').textContent = intentos;
-  
-  var esCorrecto = false;
-  
-  if (ejercicioActual.tipo === 'numerica') {
-    var numUser = aNumero(inputVal);
-    if (numUser !== null && Math.abs(numUser - ejercicioActual.respuesta) <= ejercicioActual.tolerancia) {
-      esCorrecto = true;
-    } else if (coincideTexto(inputVal, ejercicioActual.acepta)) {
-      esCorrecto = true;
-    }
-  } else {
-    if (coincideTexto(inputVal, ejercicioActual.acepta)) {
-      esCorrecto = true;
+  document.getElementById('mRacha').textContent = racha;
+  var hist = document.getElementById('historial');
+  var html = '';
+  for(var i=0;i<16;i++){
+    if(i<historial.length){
+      html += '<span class="punto '+(historial[i]?'ok':'err')+'"></span>';
+    } else {
+      html += '<span class="punto vacio"></span>';
     }
   }
-  
-  var feedback = document.getElementById('feedback');
-  if (esCorrecto) {
-    aciertos++;
-    document.getElementById('mArc').textContent = aciertos;
-    feedback.className = 'feedback ok visible';
-    feedback.innerHTML = '<div style="font-weight:600;">✓ ¡Correcto!</div>' +
-                         '<div>Escribiste: <code>' + escaparHTML(inputVal) + '</code></div>' +
-                         '<div>En notación matemática: $' + ejercicioActual.respuestaLaTeX + '$</div>';
-  } else {
-    feedback.className = 'feedback err visible';
-    feedback.innerHTML = '✗ Todavía no. Revisa tu procedimiento o pide una pista.';
-  }
-  
-  tiposet(feedback);
+  hist.innerHTML = html;
+}
+function guardarMarcador(){
+  try{
+    localStorage.setItem('complejos_marker', JSON.stringify({aciertos:aciertos, intentos:intentos, racha:racha, historial:historial}));
+  }catch(e){}
+}
+function cargarMarcador(){
+  try{
+    var s = localStorage.getItem('complejos_marker');
+    if(s){
+      var d = JSON.parse(s);
+      aciertos = d.aciertos||0; intentos = d.intentos||0;
+      racha = d.racha||0; historial = d.historial||[];
+    }
+  }catch(e){}
+}
+function reiniciarMarcador(){
+  aciertos = 0; intentos = 0; racha = 0; historial = [];
+  pintarMarcador(); guardarMarcador();
 }
 
-document.getElementById('btnNuevo').addEventListener('click', function() {
-  nuevoEjercicio();
+// ============ EVENTOS ============
+document.getElementById('btnNuevo').addEventListener('click', nuevoEjercicio);
+document.getElementById('btnVerificar').addEventListener('click', verificar);
+document.getElementById('btnPista').addEventListener('click', mostrarPista);
+document.getElementById('btnExplicacion').addEventListener('click', mostrarExplicacion);
+document.getElementById('btnReset').addEventListener('click', reiniciarMarcador);
+document.getElementById('respuesta').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' || (e.keyCode || e.which) === 13) verificar();
 });
-
-document.getElementById('btnVerificar').addEventListener('click', function() {
-  verificar();
+document.addEventListener('keydown', function(e){
+  var tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+  if((e.key === 'n' || e.key === 'N') && tag !== 'input' && tag !== 'textarea') nuevoEjercicio();
 });
-
-document.getElementById('btnPista').addEventListener('click', function() {
-  var box = document.getElementById('pistaBox');
-  box.classList.toggle('visible');
-  tiposet(box);
-});
-
-document.getElementById('btnExplicacion').addEventListener('click', function() {
-  var box = document.getElementById('explicacionBox');
-  box.classList.toggle('visible');
-  tiposet(box);
-});
-
-document.getElementById('respuesta').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    verificar();
-  }
-});
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'n' || e.key === 'N') {
-    if (document.activeElement !== document.getElementById('respuesta')) {
-      nuevoEjercicio();
+// Arrastre del esquema (pan simple para inspección)
+(function(){
+  var svg = null, dragging = false, sx = 0, sy = 0, panX = 0, panY = 0;
+  document.addEventListener('mousedown', function(e){
+    if(e.target && e.target.id === 'esquema'){
+      svg = e.target; dragging = true; sx = e.clientX; sy = e.clientY;
+      svg.setPointerCapture && svg.setPointerCapture(e.pointerId || 1);
     }
-  }
-});
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!dragging || !svg) return;
+    var dx = e.clientX - sx, dy = e.clientY - sy;
+    svg.style.transform = 'translate('+(panX+dx)+'px, '+(panY+dy)+'px)';
+  });
+  document.addEventListener('mouseup', function(e){
+    if(dragging && svg){
+      panX += e.clientX - sx; panY += e.clientY - sy;
+      dragging = false;
+    }
+  });
+})();
 
-window.onload = function() {
-  nuevoEjercicio();
-};
+// ============ ARRANQUE ============
+cargarMarcador();
+pintarMarcador();
+nuevoEjercicio();
 </script>
-
 </body>
 </html>
