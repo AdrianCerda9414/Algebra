@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador infinito de ejercicios</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#111827; --muted:#6b7280;
+  --brand:#4f46e5; --brand2:#7c3aed; --line:#e5e7eb;
+  --ok:#059669; --okbg:#ecfdf5; --err:#dc2626; --errbg:#fef2f2;
+  --warn:#b45309; --warnbg:#fffbeb;
+}
+*{box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); margin:0; padding:24px 16px;
+  min-height:100vh;
+}
+.wrap{max-width:900px; margin:0 auto;}
+.card{
+  background:var(--card); border-radius:16px;
+  box-shadow:0 10px 30px rgba(17,24,39,.08);
+  overflow:hidden; border:1px solid var(--line);
+}
+.head{
+  background:linear-gradient(135deg, var(--brand), var(--brand2));
+  color:#fff; padding:22px 26px;
+}
+.head h1{margin:0 0 6px; font-size:1.4rem;}
+.head p{margin:0; opacity:.92; font-size:.95rem;}
+.body{padding:22px 26px;}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+.row.end{justify-content:flex-end;}
+.btn-primary,.btn-ghost,.btn-soft{
+  border:1px solid transparent; border-radius:10px; padding:9px 14px;
+  font-size:.95rem; cursor:pointer; font-weight:600;
+  transition:transform .05s ease, background .15s ease;
+}
+.btn-primary{background:var(--brand); color:#fff;}
+.btn-primary:hover{background:var(--brand2);}
+.btn-ghost{background:transparent; color:var(--brand); border-color:var(--brand);}
+.btn-ghost:hover{background:#eef2ff;}
+.btn-soft{background:#eef2ff; color:var(--brand); border-color:#e0e7ff;}
+.btn-soft:hover{background:#e0e7ff;}
+.btn-primary:active,.btn-ghost:active,.btn-soft:active{transform:translateY(1px);}
+#enunciado{
+  background:#fafaff; border:1px dashed var(--line); border-radius:10px;
+  padding:14px 16px; font-size:1.02rem; line-height:1.55; margin-bottom:14px;
+}
+#respuesta{
+  flex:1; min-width:220px; padding:10px 12px; border-radius:10px;
+  border:1px solid var(--line); font-size:1rem; outline:none;
+}
+#respuesta:focus{border-color:var(--brand); box-shadow:0 0 0 3px #eef2ff;}
+.feedback{
+  display:none; border-radius:10px; padding:12px 14px; margin:14px 0;
+  font-size:.98rem; line-height:1.5;
+}
+.feedback.ok{display:block; background:var(--okbg); border:1px solid #a7f3d0; color:var(--ok);}
+.feedback.err{display:block; background:var(--errbg); border:1px solid #fecaca; color:var(--err);}
+.feedback code{background:#fff; padding:1px 6px; border-radius:6px; border:1px solid var(--line); color:var(--ink);}
+.panel{display:none; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:.96rem; line-height:1.55;}
+.panel.visible{display:block;}
+.panel.pista{background:var(--warnbg); border:1px solid #fde68a; color:var(--warn);}
+.panel.explicacion{background:#f5f3ff; border:1px solid #ddd6fe; color:#5b21b6;}
+.marcador{
+  display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+  margin-top:16px; padding-top:14px; border-top:1px solid var(--line);
+  font-size:.92rem; color:var(--muted);
+}
+.marcador b{color:var(--ink);}
+.kbd{
+  display:inline-block; padding:2px 8px; border-radius:6px;
+  background:#f3f4f6; border:1px solid var(--line);
+  font-family:ui-monospace,monospace; font-size:.82rem; color:var(--ink);
+}
+footer{text-align:center; color:var(--muted); font-size:.85rem; padding:20px 0;}
+@media (max-width:560px){
+  .body,.head{padding-left:16px; padding-right:16px;}
+  .head h1{font-size:1.15rem;}
+  .row{flex-direction:column; align-items:stretch;}
+  #respuesta{min-width:0;}
+  .btn-primary,.btn-ghost,.btn-soft{width:100%;}
+  .row.end{justify-content:stretch;}
+}
+</style>
+<script>
+window.MathJax = {
+  tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="head">
+      <h1>Generador infinito de ejercicios</h1>
+      <p>Materia: Álgebra · Tema: Ángulos y trigonometría: conversiones grados-radianes, calculadora científica, funciones trigonométricas en el círculo unitario, resolución de triángulos rectángulos y aplicaciones</p>
+    </div>
+    <div class="body">
+      <div class="row end">
+        <button class="btn-ghost" onclick="nuevoEjercicio()">Nuevo ejercicio</button>
+      </div>
+      <div id="enunciado"></div>
+      <div class="row">
+        <input id="respuesta" type="text" placeholder="Usa ^ para potencias y / para fracciones…" autocomplete="off">
+        <button class="btn-primary" onclick="verificar()">Verificar</button>
+        <button class="btn-soft" onclick="mostrarPista()">Pista</button>
+        <button class="btn-soft" onclick="mostrarExplicacion()">Explicación</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="pistaBox" class="panel pista"></div>
+      <div id="explicacionBox" class="panel explicacion"></div>
+      <div class="marcador">
+        <span>Aciertos: <b id="mArc">0</b></span>
+        <span>Intentos: <b id="mInt">0</b></span>
+        <span><span class="kbd">Enter</span> = verificar · <span class="kbd">N</span> = nuevo</span>
+      </div>
+    </div>
+  </div>
+  <footer>Generador aleatorio educativo · Álgebra · Ángulos y trigonometría</footer>
+</div>
+<script>
+// ===== UTILIDADES =====
+function escaparHTML(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function normalizar(valor){
+  if(valor === null || valor === undefined) return '';
+  var s = String(valor).toLowerCase().trim();
+  s = s.replace(/\$/g,'').replace(/[{}]/g,'').replace(/\s+/g,'');
+  s = s.replace(/°/g,'').replace(/grados?/g,'').replace(/deg/g,'');
+  return s;
+}
+function aNumero(v){
+  if(v === null || v === undefined) return null;
+  var s = String(v).trim();
+  s = s.replace(/°/g,'').replace(/grados?/gi,'').replace(/deg/gi,'').trim();
+  if(!s) return null;
+  var m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(m){
+    var a = parseFloat(m[1]), b = parseFloat(m[2]);
+    if(b === 0) return null;
+    return a/b;
+  }
+  var n = parseFloat(s.replace(/,/g,'.'));
+  return isNaN(n) ? null : n;
+}
+function coincideTexto(entrada, acepta){
+  var n = normalizar(entrada);
+  if(!n) return false;
+  for(var i=0;i<acepta.length;i++){
+    if(n === normalizar(acepta[i])) return true;
+  }
+  return false;
+}
+function tiposet(nodo, intento){
+  intento = intento || 0;
+  if(!nodo) return;
+  if(window.MathJax && window.MathJax.typesetPromise){
+    try{ window.MathJax.typesetPromise([nodo]); }catch(e){}
+    return;
+  }
+  if(intento >= 40) return;
+  setTimeout(function(){ tiposet(nodo, intento+1); }, 200);
+}
+function rnd(min, max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+function pick(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+// Protagonistas (mujeres en ciencia, contextos interculturales e innovación)
+var PROTAS = [
+  'la ingeniera mecatrónica Valeria',
+  'la diseñadora industrial Ana',
+  'la doctora en IA Camila',
+  'la estudiante de robótica Lucía',
+  'la arquitecta bilingüe Nayeli',
+  'la maestra artesana Yolanda',
+  'la investigadora tsotsil Petra',
+  'la ingeniera civil Renata',
+  'la diseñadora Paola',
+  'la científica Frida',
+  'la ingeniera en innovación Sofía',
+  'la estudiante de maestría Ximena'
+];
+function prota(){ return pick(PROTAS); }
+
+// Helper: coeficiente de π en LaTeX
+function angLatex(coef){
+  if(coef === '1') return '\\pi';
+  if(coef === '2') return '2\\pi';
+  var parts = coef.split('/');
+  if(parts.length === 1) return parts[0] + '\\pi';
+  if(parts[0] === '1') return '\\dfrac{\\pi}{' + parts[1] + '}';
+  return '\\dfrac{' + parts[0] + '\\pi}{' + parts[1] + '}';
+}
+
+// ===== GENERADOR =====
+function gen(){
+  var variantes = [vDegRadCoef, vRadDeg, vTrigValue, vUnitCirclePoint,
+                   vRightTriangleSide, vRightTriangleAngle, vElevationApp];
+  return variantes[Math.floor(Math.random()*variantes.length)]();
+}
+
+// V1: Grados → radianes como coeficiente de π (simbólica)
+function vDegRadCoef(){
+  var pool = [
+    [30, '1/6', ['0.1667','0.167']],
+    [45, '1/4', ['0.25']],
+    [60, '1/3', ['0.3333','0.333']],
+    [90, '1/2', ['0.5']],
+    [120, '2/3', ['0.6667','0.667']],
+    [135, '3/4', ['0.75']],
+    [150, '5/6', ['0.8333','0.833']],
+    [180, '1', ['1.0']],
+    [270, '3/2', ['1.5']],
+    [360, '2', ['2.0']]
+  ];
+  var p = pick(pool);
+  var deg = p[0], coef = p[1], decs = p[2];
+  var pr = prota();
+  var problema = pr + ' está calibrando un sensor de posición angular que trabaja en radianes, pero su hoja de datos reporta el ángulo en grados. Convierte $' + deg + '^\\circ$ a radianes y exprésalo en la forma $\\lambda\\pi$. ¿Cuál es el valor del coeficiente $\\lambda$? (escribe la fracción simplificada, por ejemplo 1/6)';
+  var acepta = [coef];
+  for(var i=0;i<decs.length;i++) acepta.push(decs[i]);
+  return {
+    tipo:'simbolica',
+    problema: problema,
+    solucion: '$' + deg + '^\\circ = ' + angLatex(coef) + '$ rad, por lo tanto $\\lambda = ' + coef + '$.',
+    respuestaLaTeX: coef,
+    acepta: acepta,
+    pista: 'Para convertir de grados a radianes, multiplica por $\\dfrac{\\pi}{180^\\circ}$ y simplifica la fracción que multiplica a $\\pi$.',
+    explicacion: 'Paso 1. Multiplicar por $\\dfrac{\\pi}{180^\\circ}$: $' + deg + '^\\circ\\cdot\\dfrac{\\pi}{180^\\circ} = \\dfrac{' + deg + '}{180}\\pi$.\nPaso 2. Simplificar la fracción: $\\dfrac{' + deg + '}{180} = ' + coef + '$.\nPaso 3. El coeficiente que multiplica a $\\pi$ es $\\lambda=' + coef + '$.'
+  };
+}
+
+// V2: Radianes → grados (numérica)
+function vRadDeg(){
+  var pool = [
+    ['1/6', 30], ['1/4', 45], ['1/3', 60], ['1/2', 90],
+    ['2/3', 120], ['3/4', 135], ['5/6', 150], ['1', 180],
+    ['3/2', 270], ['2', 360]
+  ];
+  var p = pick(pool);
+  var coef = p[0], deg = p[1];
+  var pr = prota();
+  var problema = pr + ' lee en el monitor de su robot un ángulo de $' + angLatex(coef) + '$ rad. Para ajustar el efector final necesita la medida en grados. ¿Cuál es el ángulo en grados?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$' + angLatex(coef) + '$ rad $= ' + coef + '\\cdot 180^\\circ = ' + deg + '^\\circ$.',
+    respuestaLaTeX: deg + '^\\circ',
+    acepta: [String(deg), deg + '°', deg + ' grados'],
+    respuesta: deg,
+    tolerancia: 0.001,
+    pista: 'Para convertir de radianes a grados multiplica por $\\dfrac{180^\\circ}{\\pi}$.',
+    explicacion: 'Paso 1. Multiplicar por $\\dfrac{180^\\circ}{\\pi}$: $' + coef + '\\pi \\cdot \\dfrac{180^\\circ}{\\pi} = ' + coef + '\\cdot 180^\\circ$.\nPaso 2. Calcular: $' + deg + '^\\circ$.'
+  };
+}
+
+// V3: Evaluar función trigonométrica en ángulo notable (numérica)
+function vTrigValue(){
+  var pool = [
+    // [fnLaTeX, angle, exact, numeric, rational]
+    ['\\sin', 30, '\\dfrac{1}{2}', 0.5, true],
+    ['\\cos', 60, '\\dfrac{1}{2}', 0.5, true],
+    ['\\tan', 45, '1', 1, true],
+    ['\\sin', 90, '1', 1, true],
+    ['\\cos', 0, '1', 1, true],
+    ['\\sin', 0, '0', 0, true],
+    ['\\cos', 180, '-1', -1, true],
+    ['\\sin', 270, '-1', -1, true],
+    ['\\cos', 90, '0', 0, true],
+    ['\\tan', 0, '0', 0, true],
+    ['\\sin', 45, '\\dfrac{\\sqrt{2}}{2}', 0.7071, false],
+    ['\\cos', 45, '\\dfrac{\\sqrt{2}}{2}', 0.7071, false],
+    ['\\sin', 60, '\\dfrac{\\sqrt{3}}{2}', 0.8660, false],
+    ['\\cos', 30, '\\dfrac{\\sqrt{3}}{2}', 0.8660, false],
+    ['\\tan', 30, '\\dfrac{\\sqrt{3}}{3}', 0.5774, false],
+    ['\\tan', 60, '\\sqrt{3}', 1.7321, false]
+  ];
+  var p = pick(pool);
+  var fn = p[0], ang = p[1], exact = p[2], num = p[3], rac = p[4];
+  var pr = prota();
+  var problema = pr + ' está validando el módulo trigonométrico de su calculadora científica antes de usarlo en un sistema de control. Con el círculo unitario, determina el valor de $' + fn + '(' + ang + '^\\circ)$ y escríbelo exacto o con cuatro decimales.';
+  var acepta = [exact, String(num)];
+  if(ang === 30 && fn === '\\sin') acepta.push('1/2','0.5');
+  if(ang === 60 && fn === '\\cos') acepta.push('1/2','0.5');
+  if(ang === 45 && fn === '\\tan') acepta.push('1');
+  if(ang === 90 && fn === '\\sin') acepta.push('1');
+  if(ang === 0 && fn === '\\cos') acepta.push('1');
+  if(ang === 0 && fn === '\\sin') acepta.push('0');
+  if(ang === 180 && fn === '\\cos') acepta.push('-1');
+  if(ang === 270 && fn === '\\sin') acepta.push('-1');
+  if(ang === 90 && fn === '\\cos') acepta.push('0');
+  if(ang === 0 && fn === '\\tan') acepta.push('0');
+  if(ang === 45) { acepta.push('sqrt(2)/2','0.7071','0.707','1/sqrt(2)','1/\\sqrt{2}'); }
+  if((ang === 60 && fn === '\\sin') || (ang === 30 && fn === '\\cos')) { acepta.push('sqrt(3)/2','0.8660','0.866'); }
+  if(ang === 30 && fn === '\\tan') { acepta.push('sqrt(3)/3','0.5774','0.577','1/sqrt(3)','1/\\sqrt{3}'); }
+  if(ang === 60 && fn === '\\tan') { acepta.push('sqrt(3)','1.7321','1.732'); }
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$' + fn + '(' + ang + '^\\circ) = ' + exact + ' \\approx ' + num + '$.',
+    respuestaLaTeX: exact,
+    acepta: acepta,
+    respuesta: num,
+    tolerancia: rac ? 0.001 : 0.005,
+    pista: 'Ubica el ángulo $' + ang + '^\\circ$ en el círculo unitario. Recuerda que $\\sin\\theta = y$, $\\cos\\theta = x$ y $\\tan\\theta = y/x$.',
+    explicacion: 'Paso 1. Ubicar $' + ang + '^\\circ$ en el círculo unitario.\nPaso 2. Recordar: $\\sin\\to y$, $\\cos\\to x$, $\\tan\\to y/x$.\nPaso 3. Con las coordenadas del ángulo, $' + fn + '(' + ang + '^\\circ) = ' + exact + ' \\approx ' + num + '$.'
+  };
+}
+
+// V4: Punto en el círculo unitario, hallar sin o cos (numérica)
+function vUnitCirclePoint(){
+  var pool = [
+    [3, 4, 5, '3/5', '4/5', 0.6, 0.8],
+    [5, 12, 13, '5/13', '12/13', 5/13, 12/13],
+    [8, 15, 17, '8/17', '15/17', 8/17, 15/17],
+    [7, 24, 25, '7/25', '24/25', 7/25, 24/25]
+  ];
+  var p = pick(pool);
+  var x = p[0], y = p[1], r = p[2], cosStr = p[3], sinStr = p[4], cosNum = p[5], sinNum = p[6];
+  var askSin = Math.random() < 0.5;
+  var sign = Math.random() < 0.5 ? 1 : -1;
+  var pr = prota();
+  var fn = askSin ? '\\sin' : '\\cos';
+  var respStr = askSin ? sinStr : cosStr;
+  var respNum = askSin ? sinNum : cosNum;
+  var coord = askSin ? 'y' : 'x';
+  var finalStr = sign > 0 ? respStr : '-' + respStr;
+  var finalNum = sign > 0 ? respNum : -respNum;
+  var px = sign > 0 ? (x + '/' + r) : ('-' + x + '/' + r);
+  var py = y + '/' + r;
+  var problema = pr + ' recibe del sistema de visión de su robot un punto sobre el círculo unitario: $P=(' + px + ', ' + py + ')$. Determina el valor de $' + fn + '\\theta$, donde $\\theta$ es el ángulo correspondiente a ese punto.';
+  var acepta = [finalStr, String(finalNum.toFixed(4)), String(finalNum)];
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: 'En el círculo unitario, $\\cos\\theta = x$ y $\\sin\\theta = y$. Para el punto dado, $' + fn + '\\theta = ' + finalStr + '$.',
+    respuestaLaTeX: finalStr,
+    acepta: acepta,
+    respuesta: finalNum,
+    tolerancia: 0.005,
+    pista: 'En el círculo unitario todo punto tiene la forma $(\\cos\\theta, \\sin\\theta)$. Por lo tanto, la coordenada $' + coord + '$ del punto coincide directamente con $' + fn + '\\theta$.',
+    explicacion: 'Paso 1. Identificar el punto $(' + px + ', ' + py + ')$ sobre el círculo unitario.\nPaso 2. Recordar $x=\\cos\\theta$, $y=\\sin\\theta$.\nPaso 3. La coordenada $' + coord + '$ es $' + finalStr + '$, por lo tanto $' + fn + '\\theta = ' + finalStr + '$.'
+  };
+}
+
+// V5: Triángulo rectángulo, hallar cateto opuesto (numérica)
+function vRightTriangleSide(){
+  var pool = [
+    [10, 30, 5, '5', 0.001, ['5']],
+    [20, 30, 10, '10', 0.001, ['10']],
+    [12, 30, 6, '6', 0.001, ['6']],
+    [10, 45, 7.0711, '5\\sqrt{2}', 0.01, ['5sqrt(2)','5\\sqrt{2}','10/sqrt(2)','10/\\sqrt{2}','7.0711','7.071']],
+    [10, 60, 8.6603, '5\\sqrt{3}', 0.01, ['5sqrt(3)','5\\sqrt{3}','10*sqrt(3)/2','8.6603','8.660']]
+  ];
+  var p = pick(pool);
+  var hyp = p[0], ang = p[1], ans = p[2], latexAns = p[3], tol = p[4], extra = p[5];
+  var pr = prota();
+  var problema = pr + ' está diseñando un soporte triangular rectángulo en su proyecto de innovación. La hipotenusa mide $' + hyp + '$ cm y uno de los ángulos agudos mide $' + ang + '^\\circ$. Con ayuda de tu calculadora científica, calcula la longitud del cateto opuesto a ese ángulo.';
+  var acepta = [String(ans), String(ans.toFixed(4)), String(ans.toFixed(2))];
+  if(ans === Math.round(ans)) acepta.push(String(Math.round(ans)));
+  for(var i=0;i<extra.length;i++) acepta.push(extra[i]);
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$\\sin(' + ang + '^\\circ) = \\dfrac{\\text{opuesto}}{' + hyp + '}$, de donde opuesto $= ' + hyp + '\\cdot\\sin(' + ang + '^\\circ) = ' + latexAns + '$ cm.',
+    respuestaLaTeX: latexAns,
+    acepta: acepta,
+    respuesta: ans,
+    tolerancia: tol,
+    pista: 'En un triángulo rectángulo: $\\sin\\theta = \\dfrac{\\text{cateto opuesto}}{\\text{hipotenusa}}$. Despeja el cateto opuesto.',
+    explicacion: 'Paso 1. Identificar hipotenusa $= ' + hyp + '$ y ángulo $= ' + ang + '^\\circ$.\nPaso 2. Plantear $\\sin(' + ang + '^\\circ) = \\dfrac{\\text{opuesto}}{' + hyp + '}$.\nPaso 3. Despejar: opuesto $= ' + hyp + '\\cdot\\sin(' + ang + '^\\circ)$.\nPaso 4. Calcular: $' + latexAns + '$ cm.'
+  };
+}
+
+// V6: Triángulo rectángulo, hallar ángulo agudo (numérica)
+function vRightTriangleAngle(){
+  var pool = [
+    [3, 3, 45], [5, 5, 45], [10, 10, 45], [7, 7, 45], [8, 8, 45]
+  ];
+  var p = pick(pool);
+  var op = p[0], adj = p[1], ang = p[2];
+  var pr = prota();
+  var problema = pr + ' mide los catetos de un triángulo rectángulo en su diseño arquitectónico: miden $' + op + '$ m y $' + adj + '$ m respectivamente. Usando la función inversa de la calculadora científica, determina el ángulo agudo que forman.';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$\\tan\\theta = \\dfrac{' + op + '}{' + adj + '} = 1$, por lo tanto $\\theta = 45^\\circ$.',
+    respuestaLaTeX: ang + '^\\circ',
+    acepta: [String(ang), ang + '°', ang + ' grados'],
+    respuesta: ang,
+    tolerancia: 0.001,
+    pista: 'Usa la función inversa: $\\theta = \\arctan\\!\\left(\\dfrac{\\text{cateto opuesto}}{\\text{cateto adyacente}}\\right)$.',
+    explicacion: 'Paso 1. Plantear $\\tan\\theta = \\dfrac{' + op + '}{' + adj + '} = 1$.\nPaso 2. Aplicar la inversa: $\\theta = \\arctan(1)$.\nPaso 3. Obtener: $\\theta = 45^\\circ$.'
+  };
+}
+
+// V7: Aplicación, altura con ángulo de elevación (numérica)
+function vElevationApp(){
+  var pool = [
+    [20, 45, 20], [50, 45, 50], [10, 45, 10], [30, 45, 30], [100, 45, 100]
+  ];
+  var p = pick(pool);
+  var dist = p[0], ang = p[1], h = p[2];
+  var pr = prota();
+  var contexto = pick([
+    'una torre de telecomunicaciones',
+    'una antena de un robot de exploración',
+    'un edificio inteligente',
+    'un poste de sensores de un brazo mecatrónico'
+  ]);
+  var problema = pr + ' observa desde el suelo el punto más alto de ' + contexto + ' que se encuentra a $' + dist + '$ m de distancia horizontal. Con su teodolómetro digital mide un ángulo de elevación de $' + ang + '^\\circ$. ¿Cuál es la altura del objeto?';
+  return {
+    tipo:'numerica',
+    problema: problema,
+    solucion: '$\\tan(' + ang + '^\\circ) = \\dfrac{h}{' + dist + '}$; como $\\tan(' + ang + '^\\circ) = 1$, se tiene $h = ' + dist + '\\cdot 1 = ' + h + '$ m.',
+    respuestaLaTeX: h + '\\text{ m}',
+    acepta: [String(h), h + 'm', h + ' m', h + ' metros'],
+    respuesta: h,
+    tolerancia: 0.001,
+    pista: 'El ángulo de elevación forma un triángulo rectángulo: la distancia horizontal es el cateto adyacente y la altura es el cateto opuesto. Usa $\\tan\\theta = \\dfrac{\\text{opuesto}}{\\text{adyacente}}$.',
+    explicacion: 'Paso 1. Identificar: distancia horizontal $= ' + dist + '$ m (adyacente), altura $h$ (opuesto), ángulo $' + ang + '^\\circ$.\nPaso 2. Plantear $\\tan(' + ang + '^\\circ) = \\dfrac{h}{' + dist + '}$.\nPaso 3. Como $\\tan(' + ang + '^\\circ) = 1$: $h = ' + dist + '\\cdot 1 = ' + h + '$ m.'
+  };
+}
+
+// ===== UI =====
+var ejercicioActual = null;
+var aciertos = 0, intentos = 0;
+
+function nuevoEjercicio(){
+  ejercicioActual = gen();
+  var enun = document.getElementById('enunciado');
+  enun.innerHTML = ejercicioActual.problema;
+  tiposet(enun);
+  document.getElementById('respuesta').value = '';
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+  var pistaBox = document.getElementById('pistaBox');
+  pistaBox.className = 'panel pista';
+  pistaBox.innerHTML = '';
+  var expBox = document.getElementById('explicacionBox');
+  expBox.className = 'panel explicacion';
+  expBox.innerHTML = '';
+  document.getElementById('respuesta').focus();
+}
+
+function verificar(){
+  if(!ejercicioActual) return;
+  var entrada = document.getElementById('respuesta').value;
+  var fb = document.getElementById('feedback');
+  var correcto = false;
+
+  if(ejercicioActual.tipo === 'numerica'){
+    var num = aNumero(entrada);
+    if(num !== null && Math.abs(num - ejercicioActual.respuesta) <= ejercicioActual.tolerancia){
+      correcto = true;
+    }
+    if(!correcto && coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  } else {
+    if(coincideTexto(entrada, ejercicioActual.acepta)) correcto = true;
+  }
+
+  intentos++;
+  document.getElementById('mInt').textContent = intentos;
+
+  if(correcto){
+    aciertos++;
+    document.getElementById('mArc').textContent = aciertos;
+    fb.className = 'feedback ok';
+    fb.innerHTML = '<span style="font-weight:600">✓ ¡Correcto!</span><br>Escribiste: <code>' + escaparHTML(entrada) + '</code><br>En notación matemática: $' + ejercicioActual.respuestaLaTeX + '$';
+    tiposet(fb);
+  } else {
+    fb.className = 'feedback err';
+    var extra = '';
+    if(ejercicioActual.tipo === 'numerica' && ejercicioActual.respuestaLaTeX.indexOf('\\circ') !== -1){
+      extra = ' Recuerda que la respuesta está en grados.';
+    }
+    fb.innerHTML = '✗ Todavía no. Revisa tu procedimiento o pide una pista.' + extra;
+  }
+}
+
+function mostrarPista(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('pistaBox');
+  box.innerHTML = ejercicioActual.pista;
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+function mostrarExplicacion(){
+  if(!ejercicioActual) return;
+  var box = document.getElementById('explicacionBox');
+  box.innerHTML = ejercicioActual.explicacion.replace(/\n/g,'<br>');
+  box.classList.add('visible');
+  tiposet(box);
+}
+
+// ===== EVENTOS =====
+document.getElementById('respuesta').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); verificar(); }
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'n' || e.key === 'N'){
+    var activo = document.activeElement;
+    if(activo && activo.id === 'respuesta') return;
+    nuevoEjercicio();
+  }
+});
+
+// ===== ARRANQUE =====
+nuevoEjercicio();
+</script>
+</body>
+</html>
