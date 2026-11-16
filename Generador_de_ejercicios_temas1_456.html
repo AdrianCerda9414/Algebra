@@ -2011,7 +2011,7 @@ function vCuadraticaIrracional(){
   if(raiz===1) pasoForm='Paso 3. Fórmula general: $x = \\dfrac{'+(-b)+'\\pm '+(2*t)+'\\sqrt{'+m+'}}{'+(2*t)+'} = '+p+'\\pm\\sqrt{'+m+'}$.\n';
   return {
     tipo:'simbolica',
-    problema:quien+', investigadora en IA, necesita las raíces EXACTAS de $'+polyTex(a,b,c)+' = 0$ para un cálculo de estabilidad. Escríbelas en forma radical simplificada, separadas por coma (por ejemplo '+(raiz===1?'1+sqrt(2), 1-sqrt(2)':'1+2*sqrt(3), 1-2*sqrt(3)')+').',
+    problema:quien+', investigadora en IA, necesita las raíces EXACTAS de $'+polyTex(a,b,c)+' = 0$ para un cálculo de estabilidad. Escríbelas en forma radical simplificada, separadas por coma (por ejemplo '+(raiz===1?'1+\\sqrt(2), 1-\\sqrt(2)':'1+2*\\sqrt(3), 1-2*\\sqrt(3)')+').',
     solucion:'Las raíces exactas son $x = '+p+'\\pm '+(raiz===1?'':raiz)+'\\sqrt{'+m0+'}$, aproximadamente $'+d1+'$ y $'+d2+'$.',
     respuestaLaTeX:p+'+'+(raiz===1?'':raiz)+'\\sqrt{'+m0+'},\\; '+p+'-'+(raiz===1?'':raiz)+'\\sqrt{'+m0+'}',
     acepta:acept,
